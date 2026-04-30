@@ -1,26 +1,149 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
+/* ─── Palette FishDex ─────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Polices */
+  --font-sans: var(--font-inter);
+  --font-mono: ui-monospace, monospace;
+  --font-heading: var(--font-outfit);
+
+  /* Couleurs sémantiques mappées sur nos variables CSS */
+  --color-background:  var(--background);
+  --color-foreground:  var(--foreground);
+  --color-card:        var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover:     var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary:     var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:   var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted:       var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent:      var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border:      var(--border);
+  --color-input:       var(--input);
+  --color-ring:        var(--ring);
+
+  /* Couleurs FishDex custom */
+  --color-fish-bg:       var(--fish-bg);
+  --color-fish-surface:  var(--fish-surface);
+  --color-fish-teal:     var(--fish-teal);
+  --color-fish-coral:    var(--fish-coral);
+  --color-fish-text:     var(--fish-text);
+  --color-fish-muted:    var(--fish-muted);
+  --color-fish-border:   var(--fish-border);
+
+  /* Rayons — plus grands pour notre design premium */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+
+  /* Sidebar (non utilisée en V1 mobile mais conservée pour shadcn) */
+  --color-sidebar-ring:               var(--sidebar-ring);
+  --color-sidebar-border:             var(--sidebar-border);
+  --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+  --color-sidebar-accent:             var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary:            var(--sidebar-primary);
+  --color-sidebar-foreground:         var(--sidebar-foreground);
+  --color-sidebar:                    var(--sidebar);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Thème FishDex (toujours sombre) ────────────────────── */
+:root {
+  /* Couleurs FishDex */
+  --fish-bg:      #0A0E1A;
+  --fish-surface: #151B2D;
+  --fish-teal:    #00D9C0;
+  --fish-coral:   #FF6B35;
+  --fish-text:    #F5F7FA;
+  --fish-muted:   #8B95A8;
+  --fish-border:  #1F2940;
+
+  /* shadcn/ui mappé sur notre thème sombre */
+  --background:            #0A0E1A;
+  --foreground:            #F5F7FA;
+  --card:                  #151B2D;
+  --card-foreground:       #F5F7FA;
+  --popover:               #151B2D;
+  --popover-foreground:    #F5F7FA;
+  --primary:               #00D9C0;
+  --primary-foreground:    #0A0E1A;
+  --secondary:             #1F2940;
+  --secondary-foreground:  #F5F7FA;
+  --muted:                 #1F2940;
+  --muted-foreground:      #8B95A8;
+  --accent:                #FF6B35;
+  --accent-foreground:     #F5F7FA;
+  --destructive:           oklch(0.704 0.191 22.216);
+  --border:                #1F2940;
+  --input:                 #1F2940;
+  --ring:                  #00D9C0;
+  --radius:                1rem;
+
+  --sidebar:                    #151B2D;
+  --sidebar-foreground:         #F5F7FA;
+  --sidebar-primary:            #00D9C0;
+  --sidebar-primary-foreground: #0A0E1A;
+  --sidebar-accent:             #1F2940;
+  --sidebar-accent-foreground:  #F5F7FA;
+  --sidebar-border:             #1F2940;
+  --sidebar-ring:               #00D9C0;
+}
+
+/* La classe .dark est identique car notre app est toujours sombre */
+.dark {
+  --background:            #0A0E1A;
+  --foreground:            #F5F7FA;
+  --card:                  #151B2D;
+  --card-foreground:       #F5F7FA;
+  --popover:               #151B2D;
+  --popover-foreground:    #F5F7FA;
+  --primary:               #00D9C0;
+  --primary-foreground:    #0A0E1A;
+  --secondary:             #1F2940;
+  --secondary-foreground:  #F5F7FA;
+  --muted:                 #1F2940;
+  --muted-foreground:      #8B95A8;
+  --accent:                #FF6B35;
+  --accent-foreground:     #F5F7FA;
+  --destructive:           oklch(0.704 0.191 22.216);
+  --border:                #1F2940;
+  --input:                 #1F2940;
+  --ring:                  #00D9C0;
+
+  --sidebar:                    #151B2D;
+  --sidebar-foreground:         #F5F7FA;
+  --sidebar-primary:            #00D9C0;
+  --sidebar-primary-foreground: #0A0E1A;
+  --sidebar-accent:             #1F2940;
+  --sidebar-accent-foreground:  #F5F7FA;
+  --sidebar-border:             #1F2940;
+  --sidebar-ring:               #00D9C0;
+}
+
+/* ─── Styles de base ──────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-inter), sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-outfit), sans-serif;
+  }
 }
