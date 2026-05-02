@@ -4,7 +4,6 @@ import { useActionState } from 'react'
 import Link from 'next/link'
 import { updatePassword, type UpdatePasswordState } from '@/app/actions/auth'
 
-export const metadata = undefined // page client, pas de metadata statique
 
 export default function ParametresPage() {
   const [state, action, pending] = useActionState<UpdatePasswordState, FormData>(updatePassword, null)

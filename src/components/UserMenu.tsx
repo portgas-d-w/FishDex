@@ -58,6 +58,14 @@ export function UserMenu({ username, avatarUrl }: Props) {
             Mon profil
           </Link>
 
+          <Link
+            href="/parametres"
+            onClick={() => setOpen(false)}
+            className="flex items-center px-3 py-2 text-sm text-slate-300 hover:text-teal-400 hover:bg-slate-800 transition-colors"
+          >
+            Paramètres
+          </Link>
+
           <div className="border-t border-slate-800 mt-1 pt-1">
             <form action={signOut}>
               <button
