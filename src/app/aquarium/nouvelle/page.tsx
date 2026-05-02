@@ -6,7 +6,11 @@ export const metadata = {
   title: 'Nouvelle prise — Aquarium',
 }
 
-export default async function NouvellePrisePage() {
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function NouvellePrisePage({ searchParams }: Props) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -19,6 +23,11 @@ export default async function NouvellePrisePage() {
     .order('nom_fr')
 
   const today = new Date().toISOString().split('T')[0]
+  const params = await searchParams
+  const rawPhoto = params.photo
+  const photoPath = typeof rawPhoto === 'string' && rawPhoto.startsWith(`${user.id}/`)
+    ? rawPhoto
+    : null
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8">
@@ -27,7 +36,7 @@ export default async function NouvellePrisePage() {
           <h1 className="text-3xl font-bold text-teal-400">Nouvelle prise</h1>
           <p className="text-slate-400 mt-2">Enregistre ta capture dans l&apos;aquarium</p>
         </div>
-        <CatchForm species={species ?? []} today={today} />
+        <CatchForm species={species ?? []} today={today} photoPath={photoPath} />
       </div>
     </div>
   )

@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { createCatch, type CatchState } from '@/app/actions/catches'
 
@@ -10,8 +11,18 @@ type Species = {
   categorie: string | null
 }
 
-export function CatchForm({ species, today }: { species: Species[]; today: string }) {
+type Props = {
+  species: Species[]
+  today: string
+  photoPath?: string | null
+}
+
+export function CatchForm({ species, today, photoPath }: Props) {
   const [state, action, pending] = useActionState<CatchState, FormData>(createCatch, null)
+
+  const photoPreviewUrl = photoPath
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/catches/${photoPath}`
+    : null
 
   const poissons = species.filter(s => s.categorie !== 'crustace')
   const crustaces = species.filter(s => s.categorie === 'crustace')
@@ -25,6 +36,23 @@ export function CatchForm({ species, today }: { species: Species[]; today: strin
       )}
 
       <form action={action} className="space-y-5">
+        {/* Photo pré-uploadée */}
+        {photoPreviewUrl && (
+          <div className="flex flex-col items-center gap-2">
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-slate-800 border border-slate-700">
+              <Image
+                src={photoPreviewUrl}
+                alt="Photo de la prise"
+                fill
+                sizes="(max-width: 512px) 100vw, 512px"
+                className="object-contain"
+              />
+            </div>
+            <p className="text-xs text-teal-400">📸 Photo prête à être enregistrée</p>
+            <input type="hidden" name="photo_url" value={photoPath ?? ''} />
+          </div>
+        )}
+
         {/* Espèce */}
         <div>
           <label htmlFor="species_id" className="block text-sm font-medium text-slate-300 mb-1.5">

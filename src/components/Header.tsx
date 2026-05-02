@@ -29,8 +29,10 @@ export async function Header() {
           FishDex
         </Link>
 
-        {/* Navigation */}
-        <NavLinks />
+        {/* Navigation (desktop uniquement — mobile via BottomNav) */}
+        <div className="hidden md:block">
+          <NavLinks />
+        </div>
 
         {/* Auth */}
         <div className="flex items-center gap-3 shrink-0">

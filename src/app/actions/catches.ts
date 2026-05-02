@@ -29,6 +29,8 @@ export async function createCatch(
   const poids_kg_raw = String(formData.get('poids_kg') ?? '').trim()
   const taille_cm_raw = String(formData.get('taille_cm') ?? '').trim()
   const notes = String(formData.get('notes') ?? '').trim() || null
+  const photo_url_raw = String(formData.get('photo_url') ?? '').trim()
+  const photo_url = photo_url_raw.startsWith(`${user.id}/`) ? photo_url_raw : null
 
   const fieldErrors: NonNullable<CatchState>['fieldErrors'] = {}
 
@@ -57,6 +59,7 @@ export async function createCatch(
     poids_kg,
     taille_cm,
     notes,
+    photo_url,
   })
 
   if (error) return { error: "Une erreur est survenue lors de l'enregistrement. Réessaie." }

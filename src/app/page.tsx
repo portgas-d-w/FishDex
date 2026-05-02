@@ -1,51 +1,51 @@
-export default function Home() {
+import { createClient } from '@/lib/supabase/server'
+import { LandingPage } from '@/components/LandingPage'
+import { DashboardHome } from '@/components/DashboardHome'
+
+export default async function Home() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return <LandingPage />
+
+  const [profileResult, catchesResult, statsResult] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .single(),
+
+    supabase
+      .from('catches')
+      .select('id, date_capture, created_at, photo_url, species:species_id ( nom_fr, image_url )')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(4),
+
+    supabase
+      .from('catches')
+      .select('species_id')
+      .eq('user_id', user.id),
+  ])
+
+  const username = profileResult.data?.username ?? 'Pêcheur'
+  const recentCatches = (catchesResult.data ?? []).map((c) => ({
+    ...c,
+    photo_url: (c as { photo_url?: string | null }).photo_url ?? null,
+    species: Array.isArray(c.species) ? c.species[0] ?? null : (c.species as { nom_fr: string; image_url: string | null } | null),
+  }))
+
+  const allCatches = statsResult.data ?? []
+  const totalCatches = allCatches.length
+  const discoveredSpecies = new Set(allCatches.map((c) => c.species_id)).size
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-8">
-      <div className="flex flex-col items-center gap-4">
-        <h1
-          className="text-5xl font-bold"
-          style={{ fontFamily: "var(--font-outfit)", color: "#00D9C0" }}
-        >
-          FishDex 🎣
-        </h1>
-        <p className="text-lg" style={{ color: "#8B95A8" }}>
-          Ton journal de pêche moderne
-        </p>
-      </div>
-
-      <div
-        className="rounded-2xl border p-6 flex flex-col gap-4 w-full max-w-sm"
-        style={{ background: "#151B2D", borderColor: "#1F2940" }}
-      >
-        <p className="text-sm font-semibold" style={{ color: "#8B95A8" }}>
-          Palette de couleurs ✅
-        </p>
-        <div className="flex gap-3 flex-wrap">
-          {[
-            { label: "Fond", color: "#0A0E1A" },
-            { label: "Surface", color: "#151B2D" },
-            { label: "Turquoise", color: "#00D9C0" },
-            { label: "Corail", color: "#FF6B35" },
-            { label: "Texte", color: "#F5F7FA" },
-            { label: "Discret", color: "#8B95A8" },
-            { label: "Bordure", color: "#1F2940" },
-          ].map(({ label, color }) => (
-            <div key={label} className="flex flex-col items-center gap-1">
-              <div
-                className="w-10 h-10 rounded-lg border"
-                style={{ background: color, borderColor: "#1F2940" }}
-              />
-              <span className="text-xs" style={{ color: "#8B95A8" }}>
-                {label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <p className="text-xs" style={{ color: "#8B95A8" }}>
-        Phase 1 Setup — ✅ Opérationnel
-      </p>
-    </main>
-  );
+    <DashboardHome
+      userId={user.id}
+      username={username}
+      recentCatches={recentCatches}
+      totalCatches={totalCatches}
+      discoveredSpecies={discoveredSpecies}
+    />
+  )
 }
