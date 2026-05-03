@@ -99,7 +99,7 @@ export const SPECIES: Species[] = [
   {
     slug: 'chevesne', numero_dex: 6,
     nom_fr: 'Chevesne', nom_scientifique: 'Squalius cephalus', famille: 'Cyprinidae',
-    image_url: undefined,
+    image_url: '/fishes/chevesne.png',
     taille_min_cm: 20, taille_max_cm: 60, poids_max_kg: 3,
     description: 'Cyprinidé opportuniste des rivières courantes, reconnaissable à sa grande bouche et ses écailles bien marquées. Très méfiant.',
     eau: 'douce', habitat: ['riviere', 'ruisseau', 'fleuve'], regime: 'omnivore', profondeur: 'moyenne',
@@ -203,7 +203,7 @@ export const SPECIES: Species[] = [
   {
     slug: 'barbeau', numero_dex: 15,
     nom_fr: 'Barbeau', nom_scientifique: 'Barbus barbus', famille: 'Cyprinidae',
-    image_url: undefined,
+    image_url: '/fishes/barbeau.png',
     taille_min_cm: 25, taille_max_cm: 90, poids_max_kg: 12,
     description: 'Puissant cyprinidé des rivières courantes à fond graveleux, reconnaissable à ses quatre barbillons. Combat acharné.',
     eau: 'douce', habitat: ['riviere_courante', 'fleuve'], regime: 'omnivore', profondeur: 'fond',
@@ -214,7 +214,7 @@ export const SPECIES: Species[] = [
   {
     slug: 'black-bass', numero_dex: 16,
     nom_fr: 'Black-bass', nom_scientifique: 'Micropterus salmoides', famille: 'Centrarchidae',
-    image_url: undefined,
+    image_url: '/fishes/black-bass.png',
     taille_min_cm: 20, taille_max_cm: 60, poids_max_kg: 5,
     description: "Prédateur américain introduit, roi des techniques de leurre. Attaque les leurres de surface avec une violence redoutable.",
     eau: 'douce', habitat: ['lac', 'etang', 'riviere_lente'], regime: 'carnivore', profondeur: 'moyenne',
@@ -280,7 +280,7 @@ export const SPECIES: Species[] = [
   {
     slug: 'lotte', numero_dex: 22,
     nom_fr: 'Lotte', nom_scientifique: 'Lota lota', famille: 'Lotidae',
-    image_url: undefined,
+    image_url: '/fishes/lotte.png',
     taille_min_cm: 30, taille_max_cm: 80, poids_max_kg: 6,
     description: 'Seul représentant des gadidés en eau douce, poisson nocturne des eaux froides. Pêche hivernale particulièrement productive.',
     eau: 'douce', habitat: ['riviere_courante', 'lac_froid'], regime: 'carnivore', profondeur: 'fond',
@@ -351,7 +351,7 @@ export const SPECIES: Species[] = [
   {
     slug: 'aspe', numero_dex: 28,
     nom_fr: 'Aspe', nom_scientifique: 'Leuciscus aspius', famille: 'Cyprinidae',
-    image_url: undefined,
+    image_url: '/fishes/aspe.png',
     taille_min_cm: 30, taille_max_cm: 80, poids_max_kg: 12,
     description: 'Seul cyprinidé strictement carnivore, prédateur de surface spectaculaire. Chasse à vue en eaux courantes, combat épique.',
     eau: 'douce', habitat: ['riviere', 'fleuve', 'lac'], regime: 'carnivore', profondeur: 'surface',
@@ -505,7 +505,7 @@ export const SPECIES: Species[] = [
   {
     slug: 'ombre', numero_dex: 42,
     nom_fr: 'Ombre', nom_scientifique: 'Thymallus thymallus', famille: 'Thymallidae',
-    image_url: undefined,
+    image_url: '/fishes/ombre.png',
     taille_min_cm: 20, taille_max_cm: 60, poids_max_kg: 4,
     description: 'Salmonidé aux reflets irisés et à la grande nageoire dorsale colorée, habitant des rivières de haute qualité. Excellent indicateur écologique.',
     eau: 'douce', habitat: ['riviere_courante', 'ruisseau'], regime: 'omnivore', profondeur: 'moyenne',
