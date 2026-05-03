@@ -1,277 +1,335 @@
-// src/app/fishdex/[slug]/page.tsx
-import { createClient } from '@/lib/supabase/server';
-import Image from 'next/image';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import type { SpeciesRow } from '@/types/fishdex';
+import { createClient } from '@/lib/supabase/server'
+import Image from 'next/image'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { ChevronLeft, Ruler, Scale, MapPin, Star, Fish, Lock, Camera, Droplets, Utensils, Layers } from 'lucide-react'
+import { getRareteConfig } from '@/lib/fishdex/rarete'
+import type { SpeciesRow } from '@/types/fishdex'
 
-// ============ HELPERS ============
-
-const rareteColors: Record<string, string> = {
-  commun:    'bg-slate-600/40 text-slate-200 border-slate-500/40',
-  rare:      'bg-blue-600/40 text-blue-200 border-blue-500/40',
-  epique:    'bg-purple-600/40 text-purple-200 border-purple-500/40',
-  legendaire:'bg-amber-500/40 text-amber-200 border-amber-400/50',
-  shiny:     'bg-gradient-to-r from-amber-400/40 via-pink-400/40 to-purple-500/40 text-white border-purple-300/50',
-};
-
-const rareteLabels: Record<string, string> = {
-  commun:    'Commun',
-  rare:      'Rare',
-  epique:    'Épique',
-  legendaire:'Légendaire',
-  shiny:     'Shiny ✨',
-};
+// ── Helpers ──────────────────────────────────────────────
 
 const eauLabels: Record<string, string> = {
-  douce: 'Eau douce',
-  salee: 'Eau salée',
-  saumatre: 'Eau saumâtre',
-};
-
+  douce: 'Eau douce', salee: 'Eau salée', saumatre: 'Eau saumâtre',
+}
 const regimeLabels: Record<string, string> = {
-  carnivore: 'Carnivore',
-  omnivore: 'Omnivore',
-  herbivore: 'Herbivore',
-};
-
+  carnivore: 'Carnivore', omnivore: 'Omnivore', herbivore: 'Herbivore',
+}
 const profondeurLabels: Record<string, string> = {
-  surface: 'Surface',
-  moyenne: 'Eaux moyennes',
-  fond: 'Fond',
-};
+  surface: 'Surface', moyenne: 'Eaux moyennes', fond: 'Fond',
+}
+const saisonConfig: Record<string, { label: string; classes: string }> = {
+  printemps: { label: 'Printemps', classes: 'bg-emerald-900/50 text-emerald-300 border-emerald-700/40' },
+  ete:       { label: 'Été',       classes: 'bg-amber-900/50  text-amber-300  border-amber-700/40'  },
+  automne:   { label: 'Automne',   classes: 'bg-orange-900/50 text-orange-300 border-orange-700/40' },
+  hiver:     { label: 'Hiver',     classes: 'bg-blue-900/50   text-blue-300   border-blue-700/40'   },
+}
 
-const saisonLabels: Record<string, string> = {
-  printemps: 'Printemps',
-  ete: 'Été',
-  automne: 'Automne',
-  hiver: 'Hiver',
-};
+function formatTag(tag: string) {
+  return tag.charAt(0).toUpperCase() + tag.slice(1).replace(/_/g, ' ')
+}
+function formatDate(iso: string) {
+  const d = new Date(iso + 'T00:00:00')
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+function formatHabitat(habitat: string[] | null) {
+  if (!habitat?.length) return '—'
+  return habitat.slice(0, 3).map(formatTag).join(', ')
+}
 
-// Capitalise et remplace les underscores par des espaces
-const formatTag = (tag: string) =>
-  tag.charAt(0).toUpperCase() + tag.slice(1).replace(/_/g, ' ');
-
-// ============ PAGE ============
+// ── Page ─────────────────────────────────────────────────
 
 export default async function SpeciesPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }>
 }) {
-  const { slug } = await params;
-  const supabase = await createClient();
+  const { slug } = await params
+  const supabase = await createClient()
 
-  // 1. Récupérer l'espèce
-  const { data: species, error: speciesError } = await supabase
+  const { data: species, error } = await supabase
     .from('species')
     .select('*')
     .eq('slug', slug)
-    .single();
+    .single()
 
-  if (speciesError || !species) {
-    notFound();
+  if (error || !species) notFound()
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Prises de l'user pour cette espèce
+  let catchCount = 0
+  let maxPoids: number | null = null
+  let maxPoidsDate: string | null = null
+
+  if (user) {
+    const { data: userCatches } = await supabase
+      .from('catches')
+      .select('poids_kg, date_capture')
+      .eq('species_id', species.id)
+      .eq('user_id', user.id)
+      .order('poids_kg', { ascending: false, nullsFirst: false })
+
+    if (userCatches?.length) {
+      catchCount = userCatches.length
+      const heaviest = userCatches.find((c) => c.poids_kg != null)
+      maxPoids = heaviest?.poids_kg ?? null
+      maxPoidsDate = heaviest?.date_capture ?? null
+    }
   }
 
-  // 2. Récupérer le numéro de l'espèce dans le dex
-  const { data: allSpecies } = await supabase
-    .from('species')
-    .select('slug')
-    .order('categorie', { ascending: true })
-    .order('nom_fr', { ascending: true });
-
-  const dexNumber = (allSpecies?.findIndex((s) => s.slug === slug) ?? -1) + 1;
-  const totalCount = allSpecies?.length || 0;
-
-  // 🔒 Pour l'instant, aucune découverte (sera dynamique avec l'Aquarium)
-  // 💡 Pour tester : ajoute le slug ici, ex: ['carpe-commune']
-  const discoveredSlugs = new Set<string>(['carpe-koi', 'silure-glane', 'truite-arc-en-ciel']);
-  const isDiscovered = discoveredSlugs.has(slug);
-
-  // Helpers visuels
-  const imgClass = isDiscovered
-    ? 'opacity-100'
-    : '[filter:brightness(0)]';
+  const isDiscovered = catchCount > 0
+  const cfg = getRareteConfig(species.rarete)
+  const dexNum = String(species.numero_dex ?? 0).padStart(3, '0')
+  const isShiny = species.rarete === 'shiny'
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      {/* Bouton retour */}
-      <Link
-        href="/fishdex"
-        className="inline-flex items-center gap-2 text-slate-400 hover:text-teal-400 transition-colors mb-6"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-        Retour au FishDex
-      </Link>
+    <div className="flex flex-col min-h-screen bg-slate-950 pb-24">
 
-      {/* En-tête : image + identité */}
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        {/* Image */}
-        <div className="relative aspect-square bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden flex items-center justify-center p-8">
-          <span className="absolute top-3 left-3 px-2.5 py-1 text-xs bg-slate-800/80 text-slate-400 rounded-md font-mono z-10">
-            #{dexNumber.toString().padStart(2, '0')} / {totalCount}
+      {/* ── Hero immersif ── */}
+      <div className="relative h-[50vh] min-h-[300px] w-full overflow-hidden bg-slate-900">
+        <Image
+          src={species.image_url || '/fishes/placeholder.svg'}
+          alt={species.nom_fr}
+          fill
+          priority
+          sizes="100vw"
+          className={`object-contain p-8 transition-all duration-500 ${isDiscovered ? 'opacity-100' : '[filter:brightness(0)] opacity-30'}`}
+        />
+
+        {/* Overlay gradient bas */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+
+        {/* Bouton retour */}
+        <Link
+          href="/fishdex"
+          className="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/70 border border-slate-700/60 text-slate-300 hover:text-teal-400 hover:border-teal-500/40 backdrop-blur-sm transition-all text-sm"
+        >
+          <ChevronLeft size={16} />
+          <span className="font-medium">FishDex</span>
+        </Link>
+
+        {/* Numéro dex centré */}
+        <span className="absolute top-4 left-1/2 -translate-x-1/2 z-10 font-mono text-xs text-slate-500 bg-slate-900/70 border border-slate-700/50 px-2.5 py-1 rounded-full backdrop-blur-sm">
+          #{dexNum}
+        </span>
+
+        {/* Badge rareté haut droite */}
+        {species.rarete && (
+          <span
+            className={`absolute top-4 right-4 z-10 text-xs font-bold px-2.5 py-1 rounded-full border backdrop-blur-sm
+              ${cfg.badge} ${cfg.badgeBorder}
+              ${isShiny ? 'animate-pulse' : ''}`}
+          >
+            {cfg.label}
           </span>
-          <div className="relative w-full h-full">
-            <Image
-              src={species.image_url || '/fishes/placeholder.svg'}
-              alt={isDiscovered ? species.nom_fr : 'Espèce non découverte'}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              priority
-              className={`object-contain transition-all duration-500 ${imgClass}`}
-            />
-          </div>
-        </div>
+        )}
 
-        {/* Identité */}
-        <div className="flex flex-col justify-center">
-          {isDiscovered ? (
-            <>
-              <h1 className="text-4xl font-bold text-teal-400 mb-2">{species.nom_fr}</h1>
-              <p className="text-lg italic text-slate-400 mb-1">{species.nom_scientifique}</p>
-              {species.famille && (
-                <p className="text-sm text-slate-500 mb-4">Famille : {species.famille}</p>
-              )}
-              <div className="flex flex-wrap gap-2">
-                {species.rarete && (
-                  <span className={`px-3 py-1 text-sm rounded-full border ${rareteColors[species.rarete]}`}>
-                    {rareteLabels[species.rarete]}
-                  </span>
-                )}
-                {species.categorie === 'crustace' && (
-                  <span className="px-3 py-1 text-sm bg-orange-600/40 text-orange-200 border border-orange-500/40 rounded-full">
-                    Crustacé
-                  </span>
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              <h1 className="text-4xl font-bold text-slate-500 mb-2">???</h1>
-              <p className="text-slate-500 italic">
-                Cette espèce n'a pas encore été découverte.
-              </p>
-              <p className="text-sm text-slate-600 mt-4">
-                Capture-la pour révéler ses informations.
-              </p>
-            </>
-          )}
+        {/* Nom sur l'image */}
+        <div className="absolute bottom-5 left-4 right-4 z-10">
+          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight drop-shadow-lg">
+            {species.nom_fr}
+          </h1>
+          <p className="text-sm text-slate-300 italic mt-0.5 drop-shadow">
+            {species.nom_scientifique}
+          </p>
         </div>
       </div>
 
-      {/* Le reste s'affiche uniquement si découvert */}
-      {isDiscovered && (
-        <>
-          {/* Description */}
-          {species.description && (
-            <section className="mb-8">
-              <h2 className="text-lg font-semibold text-slate-200 mb-3 flex items-center gap-2">
-                <span>📝</span> Description
-              </h2>
-              <p className="text-slate-300 leading-relaxed bg-slate-900/40 border border-slate-800 rounded-lg p-4">
-                {species.description}
-              </p>
-            </section>
-          )}
+      {/* ── Corps ── */}
+      <div className="flex flex-col gap-5 px-4 pt-5 max-w-2xl mx-auto w-full">
 
-          {/* Caractéristiques + Pêche en grille */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* Caractéristiques */}
-            <section>
-              <h2 className="text-lg font-semibold text-slate-200 mb-3 flex items-center gap-2">
-                <span>📊</span> Caractéristiques
-              </h2>
-              <div className="bg-slate-900/40 border border-slate-800 rounded-lg p-4 space-y-2">
-                {(species.taille_min_cm || species.taille_max_cm) && (
-                  <InfoRow
-                    label="Taille"
-                    value={`${species.taille_min_cm || '?'} - ${species.taille_max_cm || '?'} cm`}
-                  />
-                )}
-                {species.poids_max_kg && (
-                  <InfoRow label="Poids max" value={`${species.poids_max_kg} kg`} />
-                )}
-                {species.eau && <InfoRow label="Eau" value={eauLabels[species.eau] || species.eau} />}
-                {species.habitat && species.habitat.length > 0 && (
-                  <InfoRow
-                    label="Habitat"
-                    value={species.habitat.map(formatTag).join(', ')}
-                  />
-                )}
-                {species.regime && (
-                  <InfoRow label="Régime" value={regimeLabels[species.regime] || species.regime} />
-                )}
-                {species.profondeur && (
-                  <InfoRow
-                    label="Profondeur"
-                    value={profondeurLabels[species.profondeur] || species.profondeur}
-                  />
-                )}
-              </div>
-            </section>
+        {/* ── Infos clés 2×2 ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <KeyStat icon={<Ruler size={16} className="text-teal-400" />} label="Taille max">
+            {species.taille_max_cm ? `${species.taille_max_cm} cm` : '—'}
+          </KeyStat>
+          <KeyStat icon={<Scale size={16} className="text-teal-400" />} label="Poids max">
+            {species.poids_max_kg ? `${species.poids_max_kg} kg` : '—'}
+          </KeyStat>
+          <KeyStat icon={<MapPin size={16} className="text-teal-400" />} label="Habitat">
+            <span className="truncate">{formatHabitat(species.habitat)}</span>
+          </KeyStat>
+          <KeyStat icon={<Star size={16} className="text-teal-400" />} label="Difficulté">
+            <span className="text-amber-400">{'★'.repeat(species.difficulte ?? 0)}</span>
+            <span className="text-slate-700">{'★'.repeat(5 - (species.difficulte ?? 0))}</span>
+          </KeyStat>
+        </div>
 
-            {/* Pêche */}
-            <section>
-              <h2 className="text-lg font-semibold text-slate-200 mb-3 flex items-center gap-2">
-                <span>🎣</span> Pêche
-              </h2>
-              <div className="bg-slate-900/40 border border-slate-800 rounded-lg p-4 space-y-2">
-                {species.difficulte && (
-                  <InfoRow
-                    label="Difficulté"
-                    value={
-                      <span>
-                        {'★'.repeat(species.difficulte)}
-                        <span className="text-slate-600">{'★'.repeat(5 - species.difficulte)}</span>
-                      </span>
-                    }
-                  />
-                )}
-                {species.taille_legale_cm && (
-                  <InfoRow
-                    label="Taille légale"
-                    value={`${species.taille_legale_cm} cm minimum`}
-                  />
-                )}
-                {species.saison && species.saison.length > 0 && (
-                  <InfoRow
-                    label="Saison"
-                    value={species.saison.map((s: string) => saisonLabels[s] || s).join(', ')}
-                  />
-                )}
-                {species.techniques && species.techniques.length > 0 && (
-                  <div className="pt-2">
-                    <p className="text-sm text-slate-500 mb-2">Techniques recommandées</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {species.techniques.map((tech: string) => (
-                        <span
-                          key={tech}
-                          className="px-2 py-0.5 text-xs bg-teal-900/30 text-teal-300 border border-teal-700/30 rounded-md"
-                        >
-                          {formatTag(tech)}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </section>
+        {/* ── Description ── */}
+        {species.description && (
+          <section className="rounded-2xl bg-slate-900/60 border border-slate-800/60 p-4">
+            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
+              À propos
+            </h2>
+            <p className="text-sm text-slate-300 leading-relaxed">{species.description}</p>
+          </section>
+        )}
+
+        {/* ── Infos détaillées ── */}
+        <section className="rounded-2xl bg-slate-900/60 border border-slate-800/60 p-4 flex flex-col gap-3">
+          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+            Biologie & Pêche
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {species.famille && (
+              <InfoRow label="Famille" value={species.famille} />
+            )}
+            {species.eau && (
+              <InfoRow
+                label={<span className="flex items-center gap-1"><Droplets size={12} />Eau</span>}
+                value={eauLabels[species.eau] ?? species.eau}
+              />
+            )}
+            {species.regime && (
+              <InfoRow
+                label={<span className="flex items-center gap-1"><Utensils size={12} />Régime</span>}
+                value={regimeLabels[species.regime] ?? species.regime}
+              />
+            )}
+            {species.profondeur && (
+              <InfoRow
+                label={<span className="flex items-center gap-1"><Layers size={12} />Profondeur</span>}
+                value={profondeurLabels[species.profondeur] ?? species.profondeur}
+              />
+            )}
+            {species.taille_legale_cm && (
+              <InfoRow label="Taille légale" value={`${species.taille_legale_cm} cm min.`} />
+            )}
           </div>
 
-        </>
-      )}
-    </div>
-  );
- }
+          {/* Saisons */}
+          {species.saison && species.saison.length > 0 && (
+            <div>
+              <p className="text-xs text-slate-600 mb-1.5">Saisons favorables</p>
+              <div className="flex flex-wrap gap-1.5">
+                {species.saison.map((s: string) => {
+                  const sc = saisonConfig[s]
+                  return (
+                    <span key={s} className={`text-xs px-2.5 py-0.5 rounded-full border font-medium ${sc?.classes ?? 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                      {sc?.label ?? formatTag(s)}
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
-// Petit composant utilitaire
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex justify-between items-center py-1.5 border-b border-slate-800 last:border-0">
-      <span className="text-sm text-slate-500">{label}</span>
-      <span className="text-sm text-slate-200 text-right font-medium">{value}</span>
+          {/* Techniques */}
+          {species.techniques && species.techniques.length > 0 && (
+            <div>
+              <p className="text-xs text-slate-600 mb-1.5">Techniques recommandées</p>
+              <div className="flex flex-wrap gap-1.5">
+                {species.techniques.map((tech: string) => (
+                  <span key={tech} className="text-xs px-2.5 py-0.5 rounded-full border bg-teal-900/30 text-teal-300 border-teal-700/30 font-medium">
+                    {formatTag(tech)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* ── État de découverte ── */}
+        <section className={`rounded-2xl border p-4 flex flex-col gap-3 ${
+          isDiscovered
+            ? 'bg-emerald-900/20 border-emerald-700/30'
+            : 'bg-slate-900/40 border-slate-800/60'
+        }`}>
+          {isDiscovered ? (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+                  <Fish size={12} />
+                  Découverte
+                </span>
+                <span className="text-xs text-slate-400">
+                  Capturée{' '}
+                  <span className="font-semibold text-slate-200">
+                    {catchCount} fois{catchCount > 1 ? '' : ''}
+                  </span>
+                </span>
+              </div>
+
+              {maxPoids != null && maxPoidsDate && (
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <Scale size={12} className="text-amber-400 shrink-0" />
+                  Plus lourd :{' '}
+                  <span className="font-semibold text-amber-400">{maxPoids} kg</span>
+                  {' '}le {formatDate(maxPoidsDate)}
+                </div>
+              )}
+
+              <Link
+                href="/aquarium"
+                className="self-start text-xs font-semibold text-teal-400 hover:text-teal-300 transition-colors underline underline-offset-2"
+              >
+                Voir mes prises →
+              </Link>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/60 border border-slate-700/50 text-slate-500 text-xs font-bold">
+                  <Lock size={12} />
+                  Non découverte
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Tu n&apos;as pas encore capturé cette espèce.
+                {user ? ' Pars pêcher pour la débloquer !' : ' Connecte-toi pour suivre tes découvertes.'}
+              </p>
+              {user && (
+                <Link
+                  href="/aquarium/nouvelle"
+                  className="self-start flex items-center gap-1.5 px-3 py-2 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 hover:bg-teal-500/20 transition-colors text-xs font-semibold"
+                >
+                  <Camera size={14} />
+                  Aller pêcher
+                </Link>
+              )}
+            </>
+          )}
+        </section>
+
+      </div>
     </div>
-  );
+  )
+}
+
+// ── Sous-composants ───────────────────────────────────────
+
+function KeyStat({
+  icon,
+  label,
+  children,
+}: {
+  icon: React.ReactNode
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-900/60 border border-slate-800/60">
+      <div className="flex items-center gap-1.5 text-slate-500">
+        {icon}
+        <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
+      </div>
+      <span className="text-sm font-semibold text-slate-200 leading-tight">{children}</span>
+    </div>
+  )
+}
+
+function InfoRow({
+  label,
+  value,
+}: {
+  label: React.ReactNode
+  value: React.ReactNode
+}) {
+  return (
+    <div className="flex items-center justify-between py-1.5 border-b border-slate-800/60 last:border-0 gap-2">
+      <span className="text-xs text-slate-500 shrink-0">{label}</span>
+      <span className="text-xs text-slate-200 font-medium text-right">{value}</span>
+    </div>
+  )
 }
