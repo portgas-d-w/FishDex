@@ -3,24 +3,24 @@ import { createClient } from '@/lib/supabase/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import type { SpeciesRow, VarietyRow, MutationRow } from '@/types/fishdex';
+import type { SpeciesRow } from '@/types/fishdex';
 
 // ============ HELPERS ============
 
 const rareteColors: Record<string, string> = {
-  commun: 'bg-slate-600/40 text-slate-200 border-slate-500/40',
-  peu_commun: 'bg-emerald-600/40 text-emerald-200 border-emerald-500/40',
-  rare: 'bg-blue-600/40 text-blue-200 border-blue-500/40',
-  tres_rare: 'bg-purple-600/40 text-purple-200 border-purple-500/40',
-  legendaire: 'bg-amber-500/40 text-amber-200 border-amber-400/50',
+  commun:    'bg-slate-600/40 text-slate-200 border-slate-500/40',
+  rare:      'bg-blue-600/40 text-blue-200 border-blue-500/40',
+  epique:    'bg-purple-600/40 text-purple-200 border-purple-500/40',
+  legendaire:'bg-amber-500/40 text-amber-200 border-amber-400/50',
+  shiny:     'bg-gradient-to-r from-amber-400/40 via-pink-400/40 to-purple-500/40 text-white border-purple-300/50',
 };
 
 const rareteLabels: Record<string, string> = {
-  commun: 'Commun',
-  peu_commun: 'Peu commun',
-  rare: 'Rare',
-  tres_rare: 'Très rare',
-  legendaire: 'Légendaire',
+  commun:    'Commun',
+  rare:      'Rare',
+  epique:    'Épique',
+  legendaire:'Légendaire',
+  shiny:     'Shiny ✨',
 };
 
 const eauLabels: Record<string, string> = {
@@ -73,24 +73,7 @@ export default async function SpeciesPage({
     notFound();
   }
 
-  // 2. Récupérer les variétés liées
-  const { data: varieties } = await supabase
-    .from('varieties')
-    .select('*')
-    .eq('species_id', species.id)
-    .order('nom_fr');
-
-  // 3. Récupérer toutes les mutations des variétés
-  const varietyIds = varieties?.map((v) => v.id) || [];
-  const { data: mutations } = varietyIds.length > 0
-    ? await supabase
-        .from('mutations')
-        .select('*')
-        .in('variety_id', varietyIds)
-        .order('nom_fr')
-    : { data: [] };
-
-  // 4. Récupérer le numéro de l'espèce dans le dex
+  // 2. Récupérer le numéro de l'espèce dans le dex
   const { data: allSpecies } = await supabase
     .from('species')
     .select('slug')
@@ -277,134 +260,6 @@ export default async function SpeciesPage({
             </section>
           </div>
 
-{/* Variétés */}
-          {varieties && varieties.length > 0 && (
-            <section className="mb-8">
-              <h2 className="text-lg font-semibold text-slate-200 mb-3 flex items-center gap-2">
-                <span>🌟</span> Variétés
-                <span className="text-sm text-slate-500 font-normal">({varieties.length})</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {varieties.map((variety: VarietyRow) => {
-                  const varietyDiscovered = isDiscovered;
-                  
-                  return (
-                    <div
-                      key={variety.id}
-                      className="bg-slate-900/40 border border-slate-800 rounded-lg overflow-hidden hover:border-teal-500/30 transition-colors flex "
-                    >
-                      {/* Image vignette à gauche */}
-                      {variety.image_url && (
-                       <div className="relative flex-shrink-0 w-24 bg-slate-950/80 flex items-center justify-center p-2">
-                          <div className="relative w-full h-full">
-                            <Image
-                              src={variety.image_url}
-                              alt={varietyDiscovered ? variety.nom_fr : 'Variété non découverte'}
-                              fill
-                              sizes="96px"
-                              className={`object-contain transition-all duration-500 ${
-                                varietyDiscovered ? 'opacity-100' : '[filter:brightness(0)]'
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Infos à droite */}
-                      <div className="p-3 flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <h3 className="font-semibold text-slate-100 text-sm">
-                            {variety.nom_fr}
-                          </h3>
-                          {variety.rarete && (
-                            <span
-                              className={`px-2 py-0.5 text-xs rounded-full border whitespace-nowrap ${rareteColors[variety.rarete]}`}
-                            >
-                              {rareteLabels[variety.rarete]}
-                            </span>
-                          )}
-                        </div>
-                        {variety.description && (
-                          <p className="text-xs text-slate-400 leading-relaxed">
-                            {variety.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-  {/* Mutations */}
-          {mutations && mutations.length > 0 && (
-            <section className="mb-8">
-              <h2 className="text-lg font-semibold text-slate-200 mb-3 flex items-center gap-2">
-                <span>✨</span> Mutations rares
-                <span className="text-sm text-slate-500 font-normal">({mutations.length})</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {mutations.map((mutation: MutationRow) => {
-                  const mutationDiscovered = isDiscovered;
-                  
-                  return (
-                    <div
-                      key={mutation.id}
-                      className="bg-gradient-to-br from-slate-900/60 to-purple-950/30 border border-purple-700/20 rounded-lg overflow-hidden flex "
-                    >
-                      {/* Image vignette à gauche */}
-                      {mutation.image_url && (
-                        <div className="relative flex-shrink-0 w-24 bg-slate-950/80 flex items-center justify-center p-2">
-                          <div className="relative w-full h-full">
-                            <Image
-                              src={mutation.image_url}
-                              alt={mutationDiscovered ? mutation.nom_fr : 'Mutation non découverte'}
-                              fill
-                              sizes="96px"
-                              className={`object-contain  transition-all duration-500 ${
-                                mutationDiscovered ? 'opacity-100' : '[filter:brightness(0)]'
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Infos à droite */}
-                      <div className="p-3 flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <h3 className="font-semibold text-purple-200 text-sm">
-                            {mutation.nom_fr}
-                          </h3>
-                          {mutation.rarete && (
-                            <span
-                              className={`px-2 py-0.5 text-xs rounded-full border whitespace-nowrap ${rareteColors[mutation.rarete]}`}
-                            >
-                              {rareteLabels[mutation.rarete]}
-                            </span>
-                          )}
-                        </div>
-                        {mutation.description && (
-                          <p className="text-xs text-slate-400 leading-relaxed">
-                            {mutation.description}
-                          </p>
-                        )}
-                        {mutation.couleurs && mutation.couleurs.length > 0 && (
-                          <div className="flex gap-1 mt-1.5 flex-wrap">
-                            {mutation.couleurs.map((c: string) => (
-                              <span key={c} className="text-xs text-slate-500">
-                                {formatTag(c)}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
         </>
       )}
     </div>

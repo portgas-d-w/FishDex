@@ -10,17 +10,19 @@ export const metadata = {
 };
 
 const rareteColors: Record<string, string> = {
-  commun: 'bg-slate-600/40 text-slate-200',
-  peu_commun: 'bg-emerald-600/40 text-emerald-200',
-  rare: 'bg-blue-600/40 text-blue-200',
-  tres_rare: 'bg-purple-600/40 text-purple-200',
+  commun:    'bg-slate-600/40 text-slate-200',
+  rare:      'bg-blue-600/40 text-blue-200',
+  epique:    'bg-purple-600/40 text-purple-200',
+  legendaire:'bg-amber-500/40 text-amber-200',
+  shiny:     'bg-gradient-to-r from-amber-400/40 via-pink-400/40 to-purple-500/40 text-white',
 };
 
 const rareteLabels: Record<string, string> = {
-  commun: 'Commun',
-  peu_commun: 'Peu commun',
-  rare: 'Rare',
-  tres_rare: 'Très rare',
+  commun:    'Commun',
+  rare:      'Rare',
+  epique:    'Épique',
+  legendaire:'Légendaire',
+  shiny:     'Shiny ✨',
 };
 
 export default async function FishDexPage() {
