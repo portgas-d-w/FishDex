@@ -3,15 +3,19 @@
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { SpeciesGrid } from './SpeciesGrid'
+import { UserMenu } from '@/components/shared/UserMenu'
 import type { SpeciesRow } from '@/types/fishdex'
 
 type Props = {
   species: SpeciesRow[]
   discoveredSlugs: string[]
+  username: string
+  email: string
+  avatarUrl: string | null
   children?: React.ReactNode
 }
 
-export function FishDexShell({ species, discoveredSlugs, children }: Props) {
+export function FishDexShell({ species, discoveredSlugs, username, email, avatarUrl, children }: Props) {
   const [searchOpen, setSearchOpen] = useState(false)
 
   return (
@@ -25,17 +29,20 @@ export function FishDexShell({ species, discoveredSlugs, children }: Props) {
       <header className="flex items-center justify-between px-4 pt-4 pb-2">
         <div className="w-10" />
         <h1 className="text-xl font-bold tracking-tight text-white">FishDex</h1>
-        <button
-          onClick={() => setSearchOpen((v) => !v)}
-          aria-label="Ouvrir la recherche"
-          className={`w-10 h-10 flex items-center justify-center rounded-full border backdrop-blur-sm transition-colors
-            ${searchOpen
-              ? 'bg-cyan-400/20 border-cyan-400/40 text-cyan-400'
-              : 'bg-white/5 border-white/10 text-slate-300 hover:text-white'
-            }`}
-        >
-          <Search size={18} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSearchOpen((v) => !v)}
+            aria-label="Ouvrir la recherche"
+            className={`w-10 h-10 flex items-center justify-center rounded-full border backdrop-blur-sm transition-colors
+              ${searchOpen
+                ? 'bg-cyan-400/20 border-cyan-400/40 text-cyan-400'
+                : 'bg-white/5 border-white/10 text-slate-300 hover:text-white'
+              }`}
+          >
+            <Search size={18} />
+          </button>
+          <UserMenu username={username} email={email} avatarUrl={avatarUrl} />
+        </div>
       </header>
 
       {/* ── ProgressionCard (Server Component passé en children) ── */}

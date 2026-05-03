@@ -30,6 +30,7 @@ export default async function Home() {
 
   const username = profileResult.data?.username ?? 'Pêcheur'
   const avatarUrl = profileResult.data?.avatar_url ?? null
+  const email = user.email ?? ''
 
   const recentCatches = (catchesResult.data ?? []).map((c) => ({
     id: c.id,
@@ -48,7 +49,7 @@ export default async function Home() {
         background: 'radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.12) 0%, transparent 55%), linear-gradient(to bottom, #020c14, #0a1929 40%, #0d1117)',
       }}
     >
-      <SpotHeader avatarUrl={avatarUrl} username={username} />
+      <SpotHeader avatarUrl={avatarUrl} username={username} email={email} />
       <UserProfileCard username={username} avatarUrl={avatarUrl} />
       <DailyMissionsCard />
       <CaptureZone userId={user.id} />

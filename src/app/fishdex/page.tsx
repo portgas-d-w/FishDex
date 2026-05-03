@@ -28,6 +28,21 @@ export default async function FishDexPage() {
 
   const species: SpeciesRow[] = speciesData ?? []
 
+  let username = 'Pêcheur'
+  let email = ''
+  let avatarUrl: string | null = null
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username, avatar_url')
+      .eq('id', user.id)
+      .single()
+    username = profile?.username ?? 'Pêcheur'
+    avatarUrl = profile?.avatar_url ?? null
+    email = user.email ?? ''
+  }
+
   let discoveredSlugs: string[] = []
   if (user) {
     const { data: catches } = await supabase
@@ -55,7 +70,7 @@ export default async function FishDexPage() {
   ) as Record<Rarete, number>
 
   return (
-    <FishDexShell species={species} discoveredSlugs={discoveredSlugs}>
+    <FishDexShell species={species} discoveredSlugs={discoveredSlugs} username={username} email={email} avatarUrl={avatarUrl}>
       <ProgressionCard
         total={species.length}
         discovered={discoveredSlugs.length}
