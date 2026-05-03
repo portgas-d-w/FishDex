@@ -61,6 +61,37 @@ export const MOCK_FISH_ACTIVITY = {
   niveau: 4,
 } as const
 
+export const MOCK_RECENT_CATCHES = [
+  {
+    id: 'mock-1',
+    date_capture: '2026-04-28',
+    photo_url: null,
+    poids_kg: 8.4,
+    species: { nom_fr: 'Carpe miroir', image_url: '/varieties/carpe-miroir.png', rarete: 'epique' },
+  },
+  {
+    id: 'mock-2',
+    date_capture: '2026-04-25',
+    photo_url: null,
+    poids_kg: 0.2,
+    species: { nom_fr: 'Brochet', image_url: '/fishes/brochet.png', rarete: 'rare' },
+  },
+  {
+    id: 'mock-3',
+    date_capture: '2026-04-22',
+    photo_url: null,
+    poids_kg: 1.8,
+    species: { nom_fr: 'Perche', image_url: '/fishes/perche.png', rarete: 'rare' },
+  },
+  {
+    id: 'mock-4',
+    date_capture: '2026-04-20',
+    photo_url: null,
+    poids_kg: 0.3,
+    species: { nom_fr: 'Gardon', image_url: '/fishes/gardon.png', rarete: 'commun' },
+  },
+]
+
 // ── V1 compat (spot/*) ───────────────────────────────────────
 
 export const MOCK_DAILY_MISSIONS = [

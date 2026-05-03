@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Fish } from 'lucide-react'
+import { MOCK_RECENT_CATCHES } from '@/lib/spot/mocks'
 
 type CatchItem = {
   id: string
@@ -35,7 +36,7 @@ function CatchCard({ item }: { item: CatchItem }) {
 
   return (
     <div
-      className={`relative w-36 shrink-0 rounded-xl overflow-hidden border ${style.border} bg-slate-900/60 backdrop-blur-sm flex flex-col`}
+      className={`relative w-52 shrink-0 rounded-xl overflow-hidden border ${style.border} bg-slate-900/60 backdrop-blur-sm flex flex-col`}
     >
       {/* Photo */}
       <div className="relative aspect-square bg-slate-950/60">
@@ -44,7 +45,7 @@ function CatchCard({ item }: { item: CatchItem }) {
             src={imgSrc}
             alt={item.species?.nom_fr ?? 'Prise'}
             fill
-            sizes="144px"
+            sizes="208px"
             className="object-cover"
           />
         ) : (
@@ -81,6 +82,8 @@ function CatchCard({ item }: { item: CatchItem }) {
 }
 
 export function RecentCatchesCarousel({ catches }: { catches: CatchItem[] }) {
+  const allItems = [...catches, ...MOCK_RECENT_CATCHES]
+
   return (
     <div className="flex flex-col gap-3 px-4">
       {/* Header */}
@@ -91,22 +94,13 @@ export function RecentCatchesCarousel({ catches }: { catches: CatchItem[] }) {
         </Link>
       </div>
 
-      {catches.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-8 gap-2 rounded-2xl bg-white/5 border border-white/10">
-          <Fish size={32} className="text-slate-600" />
-          <p className="text-sm text-slate-400 text-center">
-            Pas encore de prise.<br />Capture-en une !
-          </p>
-        </div>
-      ) : (
-        <div className="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-none">
-          {catches.map((item) => (
-            <div key={item.id} className="snap-start">
-              <CatchCard item={item} />
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-none">
+        {allItems.map((item) => (
+          <div key={item.id} className="snap-start">
+            <CatchCard item={item} />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
