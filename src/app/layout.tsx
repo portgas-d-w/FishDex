@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
-import { BottomNav } from "@/components/BottomNav";
+import { BottomNavV2 } from "@/components/BottomNavV2";
 import { ConditionalHeader } from "@/components/ConditionalHeader";
 
 const inter = Inter({
@@ -35,7 +35,7 @@ export default function RootLayout({
         <main className="flex-1 pb-20 md:pb-0">
           {children}
         </main>
-        <BottomNav />
+        <BottomNavV2 />
       </body>
     </html>
   );
