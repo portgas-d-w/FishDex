@@ -11,13 +11,13 @@ export default async function Home() {
   const [profileResult, catchesResult, statsResult] = await Promise.all([
     supabase
       .from('profiles')
-      .select('username')
+      .select('username, avatar_url')
       .eq('id', user.id)
       .single(),
 
     supabase
       .from('catches')
-      .select('id, date_capture, created_at, photo_url, species:species_id ( nom_fr, image_url )')
+      .select('id, date_capture, created_at, photo_url, poids_kg, species:species_id ( nom_fr, image_url, rarete )')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(4),
@@ -29,10 +29,14 @@ export default async function Home() {
   ])
 
   const username = profileResult.data?.username ?? 'Pêcheur'
+  const avatarUrl = profileResult.data?.avatar_url ?? null
   const recentCatches = (catchesResult.data ?? []).map((c) => ({
     ...c,
     photo_url: (c as { photo_url?: string | null }).photo_url ?? null,
-    species: Array.isArray(c.species) ? c.species[0] ?? null : (c.species as { nom_fr: string; image_url: string | null } | null),
+    poids_kg: (c as { poids_kg?: number | null }).poids_kg ?? null,
+    species: Array.isArray(c.species)
+      ? (c.species[0] as { nom_fr: string; image_url: string | null; rarete: string | null } | undefined) ?? null
+      : (c.species as { nom_fr: string; image_url: string | null; rarete: string | null } | null),
   }))
 
   const allCatches = statsResult.data ?? []
@@ -43,6 +47,7 @@ export default async function Home() {
     <DashboardHome
       userId={user.id}
       username={username}
+      avatarUrl={avatarUrl}
       recentCatches={recentCatches}
       totalCatches={totalCatches}
       discoveredSpecies={discoveredSpecies}
