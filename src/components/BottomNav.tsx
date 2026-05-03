@@ -2,12 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, Fish } from 'lucide-react'
+import { BookOpen, Fish, Newspaper } from 'lucide-react'
 
 const TABS = [
-  { href: '/',         label: 'Accueil',  Icon: Home },
-  { href: '/fishdex',  label: 'FishDex',  Icon: BookOpen },
-  { href: '/aquarium', label: 'Aquarium', Icon: Fish },
+  { href: '/fishdex',  label: 'FishDex',  Icon: BookOpen,   disabled: false },
+  { href: '/fishfeed', label: 'FishFeed', Icon: Newspaper,  disabled: true  },
+  { href: '/aquarium', label: 'Aquarium', Icon: Fish,        disabled: false },
 ]
 
 export function BottomNav() {
@@ -19,9 +19,24 @@ export function BottomNav() {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-stretch h-16">
-        {TABS.map(({ href, label, Icon }) => {
-          const active =
-            href === '/' ? pathname === '/' : pathname.startsWith(href)
+        {TABS.map(({ href, label, Icon, disabled }) => {
+          if (disabled) {
+            return (
+              <div
+                key={href}
+                className="flex-1 flex flex-col items-center justify-center gap-1 min-h-[48px] text-slate-700 cursor-not-allowed select-none"
+              >
+                <Icon size={20} strokeWidth={2} />
+                <span className="text-[10px] font-medium leading-tight text-center">
+                  {label}
+                  <br />
+                  <span className="text-[9px] text-slate-600">Bientôt</span>
+                </span>
+              </div>
+            )
+          }
+
+          const active = pathname.startsWith(href)
           return (
             <Link
               key={href}
