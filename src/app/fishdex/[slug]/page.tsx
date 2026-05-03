@@ -82,34 +82,59 @@ export default async function SpeciesPage({
   const dexNum = String(species.numero_dex ?? 0).padStart(3, '0')
   const isShiny = species.rarete === 'shiny'
 
-  return (
-    <div className="flex flex-col min-h-screen bg-slate-950 pb-24">
+  const rareteGlow: Record<string, string> = {
+    commun:     'rgba(52,211,153,0.08)',
+    rare:       'rgba(96,165,250,0.10)',
+    epique:     'rgba(168,85,247,0.12)',
+    legendaire: 'rgba(251,191,36,0.12)',
+    shiny:      'rgba(244,114,182,0.15)',
+  }
 
+  return (
+    <div
+      className="flex flex-col min-h-screen pb-24"
+      style={{
+        background: 'radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.10) 0%, transparent 50%), linear-gradient(to bottom, #020c14, #0a1929 40%, #0d1117)',
+      }}
+    >
       {/* ── Hero immersif ── */}
-      <div className="relative h-[50vh] min-h-[300px] w-full overflow-hidden bg-slate-900">
+      <div className={`relative h-[52vh] min-h-[300px] w-full overflow-hidden bg-slate-900/60 ${isShiny ? 'border-b border-pink-400/20' : ''}`}>
         <Image
           src={species.image_url || '/fishes/placeholder.svg'}
           alt={species.nom_fr}
           fill
           priority
           sizes="100vw"
-          className={`object-contain p-8 transition-all duration-500 ${isDiscovered ? 'opacity-100' : '[filter:brightness(0)] opacity-30'}`}
+          className={`object-contain p-10 transition-all duration-500 ${isDiscovered ? 'opacity-100' : 'brightness-0 opacity-20'}`}
         />
 
+        {/* Glow rareté derrière l'image */}
+        {isDiscovered && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: `radial-gradient(ellipse at 50% 60%, ${rareteGlow[species.rarete ?? 'commun']} 0%, transparent 70%)` }}
+          />
+        )}
+
+        {/* Shimmer shiny */}
+        {isShiny && isDiscovered && (
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
+        )}
+
         {/* Overlay gradient bas */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020c14] via-[#020c14]/30 to-transparent" />
 
         {/* Bouton retour */}
         <Link
           href="/fishdex"
-          className="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/70 border border-slate-700/60 text-slate-300 hover:text-teal-400 hover:border-teal-500/40 backdrop-blur-sm transition-all text-sm"
+          className="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/70 border border-white/10 text-slate-300 hover:text-cyan-400 hover:border-cyan-400/30 backdrop-blur-sm transition-all text-sm"
         >
           <ChevronLeft size={16} />
           <span className="font-medium">FishDex</span>
         </Link>
 
         {/* Numéro dex centré */}
-        <span className="absolute top-4 left-1/2 -translate-x-1/2 z-10 font-mono text-xs text-slate-500 bg-slate-900/70 border border-slate-700/50 px-2.5 py-1 rounded-full backdrop-blur-sm">
+        <span className="absolute top-4 left-1/2 -translate-x-1/2 z-10 font-mono text-xs text-slate-400 bg-slate-900/70 border border-white/10 px-2.5 py-1 rounded-full backdrop-blur-sm">
           #{dexNum}
         </span>
 
@@ -117,8 +142,7 @@ export default async function SpeciesPage({
         {species.rarete && (
           <span
             className={`absolute top-4 right-4 z-10 text-xs font-bold px-2.5 py-1 rounded-full border backdrop-blur-sm
-              ${cfg.badge} ${cfg.badgeBorder}
-              ${isShiny ? 'animate-pulse' : ''}`}
+              ${cfg.badge} ${cfg.badgeBorder}`}
           >
             {cfg.label}
           </span>
@@ -136,20 +160,20 @@ export default async function SpeciesPage({
       </div>
 
       {/* ── Corps ── */}
-      <div className="flex flex-col gap-5 px-4 pt-5 max-w-2xl mx-auto w-full">
+      <div className="flex flex-col gap-4 px-4 pt-5 max-w-2xl mx-auto w-full">
 
-        {/* ── Infos clés 2×2 ── */}
+        {/* ── Stats 2×2 ── */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <KeyStat icon={<Ruler size={16} className="text-teal-400" />} label="Taille max">
-            {species.taille_max_cm ? `${species.taille_max_cm} cm` : '—'}
+          <KeyStat icon={<Ruler size={16} className="text-cyan-400" />} label="Taille max">
+            <span className="text-cyan-400">{species.taille_max_cm ? `${species.taille_max_cm} cm` : '—'}</span>
           </KeyStat>
-          <KeyStat icon={<Scale size={16} className="text-teal-400" />} label="Poids max">
-            {species.poids_max_kg ? `${species.poids_max_kg} kg` : '—'}
+          <KeyStat icon={<Scale size={16} className="text-cyan-400" />} label="Poids max">
+            <span className="text-cyan-400">{species.poids_max_kg ? `${species.poids_max_kg} kg` : '—'}</span>
           </KeyStat>
-          <KeyStat icon={<MapPin size={16} className="text-teal-400" />} label="Habitat">
-            <span className="truncate">{formatHabitat(species.habitat)}</span>
+          <KeyStat icon={<MapPin size={16} className="text-cyan-400" />} label="Habitat">
+            <span className="truncate text-slate-200">{formatHabitat(species.habitat)}</span>
           </KeyStat>
-          <KeyStat icon={<Star size={16} className="text-teal-400" />} label="Difficulté">
+          <KeyStat icon={<Star size={16} className="text-cyan-400" />} label="Difficulté">
             <span className="text-amber-400">{'★'.repeat(species.difficulte ?? 0)}</span>
             <span className="text-slate-700">{'★'.repeat(5 - (species.difficulte ?? 0))}</span>
           </KeyStat>
@@ -157,39 +181,33 @@ export default async function SpeciesPage({
 
         {/* ── Description ── */}
         {species.description && (
-          <section className="rounded-2xl bg-slate-900/60 border border-slate-800/60 p-4">
-            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
-              À propos
-            </h2>
+          <section className="rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm p-4">
+            <h2 className="text-[10px] font-bold text-cyan-400/70 uppercase tracking-widest mb-2">À propos</h2>
             <p className="text-sm text-slate-300 leading-relaxed">{species.description}</p>
           </section>
         )}
 
-        {/* ── Infos détaillées ── */}
-        <section className="rounded-2xl bg-slate-900/60 border border-slate-800/60 p-4 flex flex-col gap-3">
-          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-            Biologie & Pêche
-          </h2>
+        {/* ── Biologie & Pêche ── */}
+        <section className="rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm p-4 flex flex-col gap-3">
+          <h2 className="text-[10px] font-bold text-cyan-400/70 uppercase tracking-widest">Biologie & Pêche</h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {species.famille && (
-              <InfoRow label="Famille" value={species.famille} />
-            )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
+            {species.famille && <InfoRow label="Famille" value={species.famille} />}
             {species.eau && (
               <InfoRow
-                label={<span className="flex items-center gap-1"><Droplets size={12} />Eau</span>}
+                label={<span className="flex items-center gap-1"><Droplets size={11} />Eau</span>}
                 value={eauLabels[species.eau] ?? species.eau}
               />
             )}
             {species.regime && (
               <InfoRow
-                label={<span className="flex items-center gap-1"><Utensils size={12} />Régime</span>}
+                label={<span className="flex items-center gap-1"><Utensils size={11} />Régime</span>}
                 value={regimeLabels[species.regime] ?? species.regime}
               />
             )}
             {species.profondeur && (
               <InfoRow
-                label={<span className="flex items-center gap-1"><Layers size={12} />Profondeur</span>}
+                label={<span className="flex items-center gap-1"><Layers size={11} />Profondeur</span>}
                 value={profondeurLabels[species.profondeur] ?? species.profondeur}
               />
             )}
@@ -198,10 +216,9 @@ export default async function SpeciesPage({
             )}
           </div>
 
-          {/* Saisons */}
           {species.saison && species.saison.length > 0 && (
             <div>
-              <p className="text-xs text-slate-600 mb-1.5">Saisons favorables</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1.5">Saisons</p>
               <div className="flex flex-wrap gap-1.5">
                 {species.saison.map((s: string) => {
                   const sc = saisonConfig[s]
@@ -215,13 +232,12 @@ export default async function SpeciesPage({
             </div>
           )}
 
-          {/* Techniques */}
           {species.techniques && species.techniques.length > 0 && (
             <div>
-              <p className="text-xs text-slate-600 mb-1.5">Techniques recommandées</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1.5">Techniques</p>
               <div className="flex flex-wrap gap-1.5">
                 {species.techniques.map((tech: string) => (
-                  <span key={tech} className="text-xs px-2.5 py-0.5 rounded-full border bg-teal-900/30 text-teal-300 border-teal-700/30 font-medium">
+                  <span key={tech} className="text-xs px-2.5 py-0.5 rounded-full border bg-cyan-900/20 text-cyan-300 border-cyan-700/30 font-medium">
                     {formatTag(tech)}
                   </span>
                 ))}
@@ -233,36 +249,33 @@ export default async function SpeciesPage({
         {/* ── État de découverte ── */}
         <section className={`rounded-2xl border p-4 flex flex-col gap-3 ${
           isDiscovered
-            ? 'bg-emerald-900/20 border-emerald-700/30'
-            : 'bg-slate-900/40 border-slate-800/60'
+            ? 'bg-emerald-900/15 border-emerald-500/25'
+            : 'bg-white/5 border-white/10'
         }`}>
           {isDiscovered ? (
             <>
-              <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold shadow-[0_0_8px_rgba(52,211,153,0.2)]">
                   <Fish size={12} />
-                  Découverte
+                  ✓ Découverte
                 </span>
                 <span className="text-xs text-slate-400">
-                  Capturée{' '}
-                  <span className="font-semibold text-slate-200">
-                    {catchCount} fois{catchCount > 1 ? '' : ''}
-                  </span>
+                  Capturée <span className="font-semibold text-slate-200">{catchCount} fois</span>
                 </span>
               </div>
 
               {maxPoids != null && maxPoidsDate && (
                 <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <Scale size={12} className="text-amber-400 shrink-0" />
+                  <Scale size={12} className="text-cyan-400 shrink-0" />
                   Plus lourd :{' '}
-                  <span className="font-semibold text-amber-400">{maxPoids} kg</span>
+                  <span className="font-semibold text-cyan-400">{maxPoids} kg</span>
                   {' '}le {formatDate(maxPoidsDate)}
                 </div>
               )}
 
               <Link
                 href="/aquarium"
-                className="self-start text-xs font-semibold text-teal-400 hover:text-teal-300 transition-colors underline underline-offset-2"
+                className="self-start text-xs font-semibold text-cyan-400 hover:text-cyan-300 transition-colors underline underline-offset-2"
               >
                 Voir mes prises →
               </Link>
@@ -282,10 +295,10 @@ export default async function SpeciesPage({
               {user && (
                 <Link
                   href="/aquarium/nouvelle"
-                  className="self-start flex items-center gap-1.5 px-3 py-2 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 hover:bg-teal-500/20 transition-colors text-xs font-semibold"
+                  className="self-start flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-400/10 border border-cyan-400/30 text-cyan-400 hover:bg-cyan-400/20 transition-colors text-sm font-semibold"
                 >
                   <Camera size={14} />
-                  Aller pêcher
+                  Capturer maintenant
                 </Link>
               )}
             </>
