@@ -22,7 +22,7 @@ type MenuItem = {
 const MENU_ITEMS: MenuItem[] = [
   { icon: User,     label: 'Mon profil',  href: '/profil',     disabled: false },
   { icon: Fish,     label: 'Mes prises',  href: '/aquarium',   disabled: false },
-  { icon: Settings, label: 'Paramètres', href: '/parametres', disabled: true  },
+  { icon: Settings, label: 'Paramètres', href: '/parametres', disabled: false },
   { icon: HelpCircle, label: 'Aide & Support', href: '#',     disabled: true  },
 ]
 
