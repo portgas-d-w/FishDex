@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Search } from 'lucide-react'
+import { Search, BookOpen } from 'lucide-react'
 import { SpeciesGrid } from './SpeciesGrid'
 import { UserMenu } from '@/components/shared/UserMenu'
+import { PageHeader } from '@/components/shared/PageHeader'
 import type { SpeciesRow } from '@/types/fishdex'
 
 type Props = {
@@ -25,11 +26,8 @@ export function FishDexShell({ species, discoveredSlugs, username, email, avatar
         background: 'radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.12) 0%, transparent 55%), linear-gradient(to bottom, #020c14, #0a1929 40%, #0d1117)',
       }}
     >
-      {/* ── Header ── */}
-      <header className="flex items-center justify-between px-4 pt-4 pb-2">
-        <div className="w-10" />
-        <h1 className="text-xl font-bold tracking-tight text-white">FishDex</h1>
-        <div className="flex items-center gap-2">
+      <PageHeader
+        leftAction={
           <button
             onClick={() => setSearchOpen((v) => !v)}
             aria-label="Ouvrir la recherche"
@@ -41,9 +39,14 @@ export function FishDexShell({ species, discoveredSlugs, username, email, avatar
           >
             <Search size={18} />
           </button>
+        }
+        icon={<BookOpen size={16} className="text-cyan-400" />}
+        title="FishDex"
+        subtitle={`${discoveredSlugs.length} / ${species.length} espèces`}
+        rightAction={
           <UserMenu username={username} email={email} avatarUrl={avatarUrl} />
-        </div>
-      </header>
+        }
+      />
 
       {/* ── ProgressionCard (Server Component passé en children) ── */}
       {children}

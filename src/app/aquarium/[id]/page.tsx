@@ -81,7 +81,11 @@ export default async function CatchDetailPage({ params }: Props) {
           'radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.10) 0%, transparent 50%), linear-gradient(to bottom, #020c14, #0a1929 40%, #0d1117)',
       }}
     >
-      <DetailHeader />
+      <DetailHeader
+        speciesName={species.nom_fr}
+        poidsKg={catch_.poids_kg}
+        dateCapture={catch_.date_capture}
+      />
 
       <DetailHero
         photoUrl={photoUrl}
