@@ -9,7 +9,7 @@ const TABS = [
   { href: '/fishdex',  label: 'FishDex',  Icon: BookOpen,       disabled: false },
   { href: '/fishfeed', label: 'FishFeed', Icon: MessageSquare,  disabled: true  },
   { href: '/aquarium', label: 'Aquarium', Icon: Fish,           disabled: false },
-  { href: '/missions', label: 'Missions', Icon: Trophy,         disabled: true  },
+  { href: '/missions', label: 'Missions', Icon: Trophy,         disabled: false },
 ]
 
 export function BottomNavV2() {

@@ -8,13 +8,8 @@ import { RecordsSection } from '@/components/profil-v2/RecordsSection'
 import { BadgesSection } from '@/components/profil-v2/BadgesSection'
 import { DetailedStats } from '@/components/profil-v2/DetailedStats'
 import { ActionsSection } from '@/components/profil-v2/ActionsSection'
-import {
-  MOCK_LEVEL,
-  MOCK_LEVEL_TITLE,
-  MOCK_XP_CURRENT,
-  MOCK_XP_NEXT,
-  MOCK_COUNTRY,
-} from '@/lib/profil/mocks'
+import { MOCK_COUNTRY } from '@/lib/profil/mocks'
+import { getLevelTitle, xpCurrentInLevel, xpNeededForNextLevel } from '@/lib/xp/calculator'
 import type { CatchWithSpecies } from '@/types/aquarium'
 
 export const metadata = {
@@ -27,25 +22,42 @@ export default async function ProfilPage() {
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('username, avatar_url, created_at')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, { data: rawCatches }, { data: xpRow }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('username, avatar_url, created_at')
+      .eq('id', user.id)
+      .single(),
 
-  const { data: rawCatches } = await supabase
-    .from('catches')
-    .select(`
-      id, user_id, species_id, date_capture, created_at,
-      lieu, poids_kg, taille_cm, notes, photo_url,
-      species:species_id (
-        id, slug, nom_fr, nom_scientifique,
-        image_url, rarete, description
-      )
-    `)
-    .eq('user_id', user.id)
+    supabase
+      .from('catches')
+      .select(`
+        id, user_id, species_id, date_capture, created_at,
+        lieu, poids_kg, taille_cm, notes, photo_url,
+        species:species_id (
+          id, slug, nom_fr, nom_scientifique,
+          image_url, rarete, description
+        )
+      `)
+      .eq('user_id', user.id),
+
+    supabase
+      .from('user_xp')
+      .select('total_xp, level, current_streak, longest_streak')
+      .eq('user_id', user.id)
+      .single(),
+  ])
 
   const catches = (rawCatches ?? []) as unknown as CatchWithSpecies[]
+
+  // XP réelles
+  const niveau        = xpRow?.level ?? 1
+  const totalXp       = xpRow?.total_xp ?? 0
+  const xpActuel      = xpCurrentInLevel(totalXp)
+  const xpSuivant     = xpNeededForNextLevel(niveau)
+  const levelTitle    = getLevelTitle(niveau)
+  const currentStreak = xpRow?.current_streak ?? 0
+  const longestStreak = xpRow?.longest_streak ?? 0
 
   // Stats globales
   const uniqueSpeciesIds = [...new Set(catches.map(c => c.species_id))]
@@ -111,14 +123,14 @@ export default async function ProfilPage() {
         avatarUrl={profile?.avatar_url ?? null}
         memberSince={memberSince}
         country={MOCK_COUNTRY}
-        level={MOCK_LEVEL}
-        levelTitle={MOCK_LEVEL_TITLE}
+        level={niveau}
+        levelTitle={levelTitle}
       />
 
       <XPCard
-        xpCurrent={MOCK_XP_CURRENT}
-        xpNext={MOCK_XP_NEXT}
-        nextLevel={MOCK_LEVEL + 1}
+        xpCurrent={xpActuel}
+        xpNext={xpSuivant}
+        nextLevel={niveau + 1}
       />
 
       <GlobalStats
@@ -157,6 +169,8 @@ export default async function ProfilPage() {
         joursPeche={joursPeche}
         spots={spots}
         photos={photos}
+        currentStreak={currentStreak}
+        longestStreak={longestStreak}
       />
 
       <ActionsSection />

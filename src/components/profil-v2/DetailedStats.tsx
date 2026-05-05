@@ -23,16 +23,18 @@ type Props = {
   joursPeche: number
   spots: number
   photos: number
+  currentStreak: number
+  longestStreak: number
 }
 
-export function DetailedStats({ joursPeche, spots, photos }: Props) {
+export function DetailedStats({ joursPeche, spots, photos, currentStreak, longestStreak }: Props) {
   const stats: StatItem[] = [
-    { icon: CalendarDays, label: 'Jours de pêche',     value: String(joursPeche), iconColor: 'text-cyan-400'   },
-    { icon: Clock,        label: 'Heures de pêche',    value: '—',                iconColor: 'text-cyan-400'   },
-    { icon: MapPin,       label: 'Spots découverts',   value: String(spots),      iconColor: 'text-emerald-400'},
-    { icon: Flame,        label: 'Meilleure série',    value: '—',                iconColor: 'text-amber-400'  },
-    { icon: Camera,       label: 'Photos enregistrées',value: String(photos),     iconColor: 'text-purple-400' },
-    { icon: Heart,        label: 'Likes reçus',        value: '—',                iconColor: 'text-red-400'    },
+    { icon: CalendarDays, label: 'Jours de pêche',      value: String(joursPeche),                               iconColor: 'text-cyan-400'   },
+    { icon: Flame,        label: 'Série actuelle',       value: currentStreak > 0 ? `${currentStreak} j.` : '—', iconColor: 'text-amber-400'  },
+    { icon: MapPin,       label: 'Spots découverts',     value: String(spots),                                    iconColor: 'text-emerald-400' },
+    { icon: Clock,        label: 'Meilleure série',      value: longestStreak > 0 ? `${longestStreak} j.` : '—', iconColor: 'text-cyan-400'   },
+    { icon: Camera,       label: 'Photos enregistrées',  value: String(photos),                                   iconColor: 'text-purple-400'  },
+    { icon: Heart,        label: 'Likes reçus',          value: '—',                                              iconColor: 'text-red-400'     },
   ]
 
   return (

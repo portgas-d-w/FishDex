@@ -7,6 +7,7 @@ import { DailyMissionsCard } from '@/components/spot-v2/DailyMissionsCard'
 import { CaptureZone } from '@/components/spot-v2/CaptureZone'
 import { RecentCatchesCarousel } from '@/components/spot-v2/RecentCatchesCarousel'
 import { InfoCards } from '@/components/spot-v2/InfoCards'
+import { ensureMissions, getUserMissions } from '@/lib/missions/assigner'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -14,7 +15,7 @@ export default async function Home() {
 
   if (!user) return <LandingPageV2 />
 
-  const [profileResult, catchesResult] = await Promise.all([
+  const [profileResult, catchesResult, xpResult] = await Promise.all([
     supabase
       .from('profiles')
       .select('username, avatar_url, onboarding_completed')
@@ -27,6 +28,12 @@ export default async function Home() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(4),
+
+    supabase
+      .from('user_xp')
+      .select('total_xp, level, current_streak')
+      .eq('user_id', user.id)
+      .single(),
   ])
 
   if (!profileResult.data?.onboarding_completed) redirect('/onboarding')
@@ -45,6 +52,10 @@ export default async function Home() {
       : (c.species as { nom_fr: string; image_url: string | null; rarete: string | null } | null),
   }))
 
+  // Lazy mission assignment + fetch daily missions
+  await ensureMissions(user.id).catch(() => null)
+  const dailyMissions = await getUserMissions(user.id, 'daily').catch(() => [])
+
   return (
     <div
       className="min-h-screen flex flex-col gap-4 pb-6"
@@ -53,8 +64,8 @@ export default async function Home() {
       }}
     >
       <SpotHeader avatarUrl={avatarUrl} username={username} email={email} />
-      <UserProfileCard username={username} avatarUrl={avatarUrl} />
-      <DailyMissionsCard />
+      <UserProfileCard username={username} avatarUrl={avatarUrl} xpData={xpResult.data ?? null} />
+      <DailyMissionsCard missions={dailyMissions} />
       <CaptureZone userId={user.id} />
       <RecentCatchesCarousel catches={recentCatches} />
       <InfoCards />

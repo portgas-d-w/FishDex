@@ -3,6 +3,8 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { awardXpForCatch } from '@/lib/xp/award'
+import { ensureMissions, updateMissionProgress } from '@/lib/missions/assigner'
 
 export type CatchState = {
   error?: string
@@ -51,7 +53,7 @@ export async function createCatch(
 
   if (Object.keys(fieldErrors).length > 0) return { fieldErrors }
 
-  const { error } = await supabase.from('catches').insert({
+  const { data: newCatch, error } = await supabase.from('catches').insert({
     user_id: user.id,
     species_id,
     date_capture,
@@ -60,12 +62,41 @@ export async function createCatch(
     taille_cm,
     notes,
     photo_url,
-  })
+  }).select('id').single()
 
-  if (error) return { error: "Une erreur est survenue lors de l'enregistrement. Réessaie." }
+  if (error || !newCatch) return { error: "Une erreur est survenue lors de l'enregistrement. Réessaie." }
+
+  // Award XP + update missions (non-bloquant pour l'UX, mais exécuté avant redirect)
+  try {
+    const award = await awardXpForCatch({
+      catchId: newCatch.id,
+      userId: user.id,
+      speciesId: species_id,
+      poidsKg: poids_kg,
+      tailleCm: taille_cm,
+      photoUrl: photo_url,
+      lieu,
+    })
+
+    await ensureMissions(user.id)
+    await updateMissionProgress({
+      userId: user.id,
+      speciesId: species_id,
+      rarete: award.rarete,
+      poidsKg: poids_kg,
+      photoUrl: photo_url,
+      lieu,
+      isFirstDiscovery: award.isFirstDiscovery,
+      isPersonalRecord: award.isPersonalRecord,
+      isNewSpot: award.isNewSpot,
+    })
+  } catch {
+    // XP/missions non critiques — la prise est sauvegardée quoi qu'il arrive
+  }
 
   revalidatePath('/aquarium')
   revalidatePath('/fishdex')
+  revalidatePath('/')
   redirect('/aquarium')
 }
 

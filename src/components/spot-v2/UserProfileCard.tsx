@@ -1,9 +1,12 @@
 import Image from 'next/image'
-import { MOCK_LEVEL } from '@/lib/spot/mocks'
+import { getLevelTitle, xpCurrentInLevel, xpNeededForNextLevel } from '@/lib/xp/calculator'
+
+type XpData = { total_xp: number; level: number; current_streak: number } | null
 
 type Props = {
   username: string
   avatarUrl: string | null
+  xpData: XpData
 }
 
 function HexBadge({ niveau }: { niveau: number }) {
@@ -26,9 +29,13 @@ function HexBadge({ niveau }: { niveau: number }) {
   )
 }
 
-export function UserProfileCard({ username, avatarUrl }: Props) {
-  const { niveau, titre, xp_actuel, xp_suivant } = MOCK_LEVEL
-  const pct = Math.round((xp_actuel / xp_suivant) * 100)
+export function UserProfileCard({ username, avatarUrl, xpData }: Props) {
+  const niveau  = xpData?.level ?? 1
+  const titre   = getLevelTitle(niveau)
+  const totalXp = xpData?.total_xp ?? 0
+  const xpActuel  = xpCurrentInLevel(totalXp)
+  const xpSuivant = xpNeededForNextLevel(niveau)
+  const pct = xpSuivant > 0 ? Math.round((xpActuel / xpSuivant) * 100) : 0
 
   return (
     <div className="mx-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-4 flex items-center gap-4">
@@ -66,7 +73,7 @@ export function UserProfileCard({ username, avatarUrl }: Props) {
           />
         </div>
         <p className="text-xs text-slate-400 tabular-nums">
-          {xp_actuel} / {xp_suivant} XP
+          {xpActuel} / {xpSuivant} XP
         </p>
       </div>
 

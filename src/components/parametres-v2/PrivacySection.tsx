@@ -21,12 +21,13 @@ export function PrivacySection() {
       <SettingItem
         icon={<Lock size={15} className="text-slate-400" />}
         label="Compte"
+        subtitle=""
         control={<SegmentedControl options={VISIBILITY} value={visibility} onChange={setVisibility} />}
       />
       <SettingItem
         icon={<MapPin size={15} className="text-slate-400" />}
         label="Partage de localisation"
-        subtitle="Autoriser le partage de ta position"
+        subtitle="Autoriser le partage de vos spot de pêche"
         control={<ToggleSwitch checked={locationSharing} onChange={setLocationSharing} label="Partage de localisation" />}
         last
       />
