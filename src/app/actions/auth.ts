@@ -88,7 +88,7 @@ export async function signUp(
     return { error: 'Une erreur est survenue lors de la création du compte. Réessaie.' }
   }
 
-  redirect('/')
+  redirect('/onboarding')
 }
 
 // ─── Sign In ──────────────────────────────────────────────────
@@ -121,6 +121,16 @@ export async function signIn(
       return { error: 'Confirme ton adresse email avant de te connecter.' }
     }
     return { error: 'Une erreur est survenue. Réessaie.' }
+  }
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', user.id)
+      .single()
+    if (!profile?.onboarding_completed) redirect('/onboarding')
   }
 
   redirect('/')

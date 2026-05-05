@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { LandingPageV2 } from '@/components/spot-v2/LandingPage'
 import { SpotHeader } from '@/components/spot-v2/Header'
@@ -16,7 +17,7 @@ export default async function Home() {
   const [profileResult, catchesResult] = await Promise.all([
     supabase
       .from('profiles')
-      .select('username, avatar_url')
+      .select('username, avatar_url, onboarding_completed')
       .eq('id', user.id)
       .single(),
 
@@ -27,6 +28,8 @@ export default async function Home() {
       .order('created_at', { ascending: false })
       .limit(4),
   ])
+
+  if (!profileResult.data?.onboarding_completed) redirect('/onboarding')
 
   const username = profileResult.data?.username ?? 'Pêcheur'
   const avatarUrl = profileResult.data?.avatar_url ?? null
