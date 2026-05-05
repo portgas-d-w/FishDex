@@ -7,6 +7,7 @@ import { GlobalStats } from '@/components/profil-v2/GlobalStats'
 import { RecordsSection } from '@/components/profil-v2/RecordsSection'
 import { BadgesSection } from '@/components/profil-v2/BadgesSection'
 import { DetailedStats } from '@/components/profil-v2/DetailedStats'
+import { ActionsSection } from '@/components/profil-v2/ActionsSection'
 import {
   MOCK_LEVEL,
   MOCK_LEVEL_TITLE,
@@ -157,6 +158,8 @@ export default async function ProfilPage() {
         spots={spots}
         photos={photos}
       />
+
+      <ActionsSection />
     </div>
   )
 }
