@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { XP_REWARDS, calcLevel } from './calculator'
 
 export type CatchAwardInput = {
@@ -149,16 +150,18 @@ export async function awardXpForCatch(input: CatchAwardInput): Promise<AwardResu
 
   const newLongestStreak = Math.max(longestStreak, newStreak)
 
-  await supabase.from('user_xp').upsert({
-    user_id: userId,
-    total_xp: newTotalXp,
-    level: newLevel,
-    current_streak: newStreak,
-    longest_streak: newLongestStreak,
+  const admin = createAdminClient()
+  const { error: xpUpsertError } = await admin.from('user_xp').upsert({
+    user_id:           userId,
+    total_xp:          newTotalXp,
+    level:             newLevel,
+    current_streak:    newStreak,
+    longest_streak:    newLongestStreak,
     last_capture_date: today,
-    joker_used_week: jokerConsumed ? thisWeek : (currentXp?.joker_used_week ?? null),
-    updated_at: new Date().toISOString(),
+    joker_used_week:   jokerConsumed ? thisWeek : (currentXp?.joker_used_week ?? null),
+    updated_at:        new Date().toISOString(),
   }, { onConflict: 'user_id' })
+  if (xpUpsertError) throw xpUpsertError
 
   return {
     totalXpGained,

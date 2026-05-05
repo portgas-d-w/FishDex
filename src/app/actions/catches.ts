@@ -90,8 +90,8 @@ export async function createCatch(
       isPersonalRecord: award.isPersonalRecord,
       isNewSpot: award.isNewSpot,
     })
-  } catch {
-    // XP/missions non critiques — la prise est sauvegardée quoi qu'il arrive
+  } catch (xpErr) {
+    console.error('[XP] awardXpForCatch / missions failed:', xpErr)
   }
 
   revalidatePath('/aquarium')
