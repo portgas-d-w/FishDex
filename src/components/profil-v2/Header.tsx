@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Settings, UserCircle, Share2 } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 
@@ -9,17 +10,20 @@ function formatSince(iso: string): string {
   return new Date(iso).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
 }
 
-export function ProfilHeader({ memberSince }: Props) {
+export function ProfilHeader({ memberSince: _memberSince }: Props) {
   return (
     <PageHeader
       leftAction={
-        <div className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-slate-600 cursor-not-allowed">
+        <Link
+          href="/parametres"
+          aria-label="Paramètres"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-slate-300 hover:text-white transition-colors"
+        >
           <Settings size={18} />
-        </div>
+        </Link>
       }
       icon={<UserCircle size={16} className="text-cyan-400" />}
       title="Mon Profil"
-      subtitle={`Membre depuis ${formatSince(memberSince)}`}
       rightAction={
         <button
           aria-label="Partager le profil"
