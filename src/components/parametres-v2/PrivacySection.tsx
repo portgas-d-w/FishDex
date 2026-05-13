@@ -21,7 +21,6 @@ export function PrivacySection() {
       <SettingItem
         icon={<Lock size={15} className="text-slate-400" />}
         label="Compte"
-        subtitle=""
         control={<SegmentedControl options={VISIBILITY} value={visibility} onChange={setVisibility} />}
       />
       <SettingItem

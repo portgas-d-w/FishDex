@@ -91,7 +91,8 @@ export async function createCatch(
       isNewSpot: award.isNewSpot,
     })
   } catch (xpErr) {
-    console.error('[XP] awardXpForCatch / missions failed:', xpErr)
+    const msg = xpErr instanceof Error ? xpErr.message : String(xpErr)
+    console.error('[XP] pipeline failed:', msg)
   }
 
   revalidatePath('/aquarium')
