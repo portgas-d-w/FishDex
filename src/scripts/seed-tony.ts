@@ -40,7 +40,7 @@ const NOTES = [
 ]
 
 const XP_BY_RARITY: Record<string, number> = {
-  commun: 10, peu_commun: 15, rare: 25, epique: 60, legendaire: 150, shiny: 500,
+  commun: 10, peu_commun: 15, rare: 25, epique: 60, legendaire: 150, mirage: 500,
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

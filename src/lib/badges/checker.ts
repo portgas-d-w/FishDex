@@ -37,7 +37,7 @@ function checkCondition(slug: string, catches: CatchRow[], xp: XpRow): boolean {
       return catches.some(c => (c.poids_kg ?? 0) >= 15)
 
     case 'premiere_shiny':
-      return catches.some(c => getRarity(c) === 'shiny')
+      return catches.some(c => getRarity(c) === 'mirage')
 
     case 'serie_7':
       return (xp?.longest_streak ?? 0) >= 7
@@ -62,14 +62,14 @@ function checkCondition(slug: string, catches: CatchRow[], xp: XpRow): boolean {
 
     case 'rarete_absolue': {
       const legendDays = new Set<string>()
-      const shinyDays  = new Set<string>()
+      const mirageDays = new Set<string>()
       for (const c of catches) {
         const day = c.created_at.split('T')[0]
         const r = getRarity(c)
         if (r === 'legendaire') legendDays.add(day)
-        if (r === 'shiny')      shinyDays.add(day)
+        if (r === 'mirage')     mirageDays.add(day)
       }
-      return [...legendDays].some(d => shinyDays.has(d))
+      return [...legendDays].some(d => mirageDays.has(d))
     }
 
     // Badges nécessitant des données externes — jamais auto-déclenchés

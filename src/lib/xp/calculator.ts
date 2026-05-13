@@ -33,14 +33,14 @@ export const XP_REWARDS = {
   rare:        25,
   epique:      60,
   legendaire:  150,
-  shiny:       500,
+  mirage:      500,
   first_discovery: 50,
   personal_record: 30,
   new_spot:    20,
   photo_added: 5,
 } as const
 
-export const RARITY_ORDER = ['commun', 'peu_commun', 'rare', 'epique', 'legendaire', 'shiny'] as const
+export const RARITY_ORDER = ['commun', 'peu_commun', 'rare', 'epique', 'legendaire', 'mirage'] as const
 export type Rarete = typeof RARITY_ORDER[number]
 
 export function rarityIndex(r: string | null): number {

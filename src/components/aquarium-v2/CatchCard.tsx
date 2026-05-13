@@ -13,7 +13,7 @@ type Props = {
 
 export function CatchCard({ catch_: c, photoUrl, isRecord, isNew }: Props) {
   const cfg = getRareteConfig(c.species.rarete)
-  const isShiny = c.species.rarete === 'shiny'
+  const isMirage = c.species.rarete === 'mirage'
 
   return (
     <Link
@@ -42,8 +42,8 @@ export function CatchCard({ catch_: c, photoUrl, isRecord, isNew }: Props) {
           />
         )}
 
-        {/* Shimmer shiny */}
-        {isShiny && (
+        {/* Shimmer mirage */}
+        {isMirage && (
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/8 to-transparent
             animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
         )}

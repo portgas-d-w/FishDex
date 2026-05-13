@@ -20,7 +20,7 @@ const RARETE_STYLES: Record<string, { border: string; badge: string; text: strin
   rare:       { border: 'border-blue-400/30',    badge: 'bg-blue-400/20 text-blue-400 border-blue-400/40',         text: 'Rare' },
   epique:     { border: 'border-purple-500/30',  badge: 'bg-purple-500/20 text-purple-400 border-purple-500/40',   text: 'Épique' },
   legendaire: { border: 'border-amber-400/30',   badge: 'bg-amber-400/20 text-amber-400 border-amber-400/40',      text: 'Légendaire' },
-  shiny:      { border: 'border-pink-400/30',    badge: 'bg-gradient-to-r from-amber-400/20 via-pink-400/20 to-purple-500/20 text-pink-300 border-pink-400/40', text: '✦ Shiny' },
+  mirage:     { border: 'border-pink-400/30',    badge: 'bg-gradient-to-r from-amber-400/20 via-pink-400/20 to-purple-500/20 text-pink-300 border-pink-400/40', text: '✦ Mirage' },
 }
 
 function CatchCard({ item }: { item: CatchItem }) {

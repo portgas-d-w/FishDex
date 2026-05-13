@@ -61,7 +61,7 @@ export default async function ProfilPage() {
 
   // Stats globales
   const uniqueSpeciesIds = [...new Set(catches.map(c => c.species_id))]
-  const rareRaretés = ['rare', 'epique', 'legendaire', 'shiny']
+  const rareRaretés = ['rare', 'epique', 'legendaire', 'mirage']
   const rareSpeciesIds = new Set(
     catches
       .filter(c => rareRaretés.includes(c.species.rarete ?? ''))
@@ -91,7 +91,7 @@ export default async function ProfilPage() {
     return best
   }, null)
 
-  const rarestOrder = ['shiny', 'legendaire', 'epique', 'rare', 'peu_commun', 'commun']
+  const rarestOrder = ['mirage', 'legendaire', 'epique', 'rare', 'peu_commun', 'commun']
   const rarestCatch = catches.reduce<CatchWithSpecies | null>((best, c) => {
     if (!best) return c
     const iCur = rarestOrder.indexOf(c.species.rarete ?? '')

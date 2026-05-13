@@ -55,7 +55,7 @@ export function ProgressionCard({ total, discovered, byRarete }: Props) {
             const total = RARETE_COUNTS[r]
             return (
               <div key={r} className="flex items-center gap-2">
-                {r === 'shiny' ? (
+                {r === 'mirage' ? (
                   <span className="w-2 h-2 rounded-full bg-gradient-to-r from-amber-300 via-pink-400 to-purple-500 shrink-0" />
                 ) : (
                   <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.dot}`} />

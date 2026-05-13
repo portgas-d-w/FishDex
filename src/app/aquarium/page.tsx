@@ -42,7 +42,7 @@ export default async function AquariumPage() {
   const speciesIds = catches.map(c => c.species_id)
   const uniqueSpeciesIds = [...new Set(speciesIds)]
 
-  const rareRaretés = ['rare', 'epique', 'legendaire', 'shiny']
+  const rareRaretés = ['rare', 'epique', 'legendaire', 'mirage']
   const rareSpeciesIds = new Set(
     catches
       .filter(c => rareRaretés.includes(c.species.rarete ?? ''))

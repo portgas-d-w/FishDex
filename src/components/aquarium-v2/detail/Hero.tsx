@@ -6,7 +6,7 @@ const glowByRarete: Record<string, string> = {
   rare:       '0 0 60px rgba(96,165,250,0.40)',
   epique:     '0 0 60px rgba(168,85,247,0.45)',
   legendaire: '0 0 70px rgba(251,191,36,0.50)',
-  shiny:      '0 0 80px rgba(244,114,182,0.55)',
+  mirage:     '0 0 80px rgba(244,114,182,0.55)',
 }
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
 
 export function DetailHero({ photoUrl, fallbackUrl, altText, rarete }: Props) {
   const glow = glowByRarete[rarete ?? 'commun'] ?? glowByRarete.commun
-  const isShiny = rarete === 'shiny'
+  const isMirage = rarete === 'mirage'
   const src = photoUrl ?? fallbackUrl ?? '/fishes/placeholder.svg'
 
   return (
@@ -37,8 +37,8 @@ export function DetailHero({ photoUrl, fallbackUrl, altText, rarete }: Props) {
             priority
           />
 
-          {/* Shimmer shiny */}
-          {isShiny && (
+          {/* Shimmer mirage */}
+          {isMirage && (
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/8 to-transparent
               animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
           )}

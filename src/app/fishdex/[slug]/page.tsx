@@ -80,14 +80,14 @@ export default async function SpeciesPage({
   const isDiscovered = catchCount > 0
   const cfg = getRareteConfig(species.rarete)
   const dexNum = String(species.numero_dex ?? 0).padStart(3, '0')
-  const isShiny = species.rarete === 'shiny'
+  const isMirage = species.rarete === 'mirage'
 
   const rareteGlow: Record<string, string> = {
     commun:     'rgba(52,211,153,0.08)',
     rare:       'rgba(96,165,250,0.10)',
     epique:     'rgba(168,85,247,0.12)',
     legendaire: 'rgba(251,191,36,0.12)',
-    shiny:      'rgba(244,114,182,0.15)',
+    mirage:     'rgba(244,114,182,0.15)',
   }
 
   return (
@@ -98,7 +98,7 @@ export default async function SpeciesPage({
       }}
     >
       {/* ── Hero immersif ── */}
-      <div className={`relative h-[52vh] min-h-[300px] w-full overflow-hidden bg-slate-900/60 ${isShiny ? 'border-b border-pink-400/20' : ''}`}>
+      <div className={`relative h-[52vh] min-h-[300px] w-full overflow-hidden bg-slate-900/60 ${isMirage ? 'border-b border-pink-400/20' : ''}`}>
         <Image
           src={species.image_url || '/fishes/placeholder.svg'}
           alt={species.nom_fr}
@@ -116,8 +116,8 @@ export default async function SpeciesPage({
           />
         )}
 
-        {/* Shimmer shiny */}
-        {isShiny && isDiscovered && (
+        {/* Shimmer mirage */}
+        {isMirage && isDiscovered && (
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
         )}
 

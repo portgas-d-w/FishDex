@@ -11,7 +11,7 @@ type Props = {
 
 export function HeroCard({ catch_: c, photoUrl }: Props) {
   const cfg = getRareteConfig(c.species.rarete)
-  const isShiny = c.species.rarete === 'shiny'
+  const isMirage = c.species.rarete === 'mirage'
 
   return (
     <Link
@@ -19,7 +19,7 @@ export function HeroCard({ catch_: c, photoUrl }: Props) {
       className={`relative mx-4 mt-4 rounded-2xl overflow-hidden border-2 ${cfg.border}
         block transition-transform duration-300 active:scale-[0.98]
         shadow-[0_8px_32px_rgba(0,0,0,0.4)]`}
-      style={{ boxShadow: isShiny
+      style={{ boxShadow: isMirage
         ? '0 0 40px rgba(244,114,182,0.35), 0 8px 32px rgba(0,0,0,0.4)'
         : undefined }}
     >
@@ -45,8 +45,8 @@ export function HeroCard({ catch_: c, photoUrl }: Props) {
           />
         )}
 
-        {/* Shimmer shiny */}
-        {isShiny && (
+        {/* Shimmer mirage */}
+        {isMirage && (
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/8 to-transparent
             animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
         )}

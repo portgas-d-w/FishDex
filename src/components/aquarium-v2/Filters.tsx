@@ -12,7 +12,7 @@ const RARITY_OPTIONS: { value: Rarete; label: string }[] = [
   { value: 'rare',       label: 'Rare' },
   { value: 'epique',     label: 'Épique' },
   { value: 'legendaire', label: 'Légendaire' },
-  { value: 'shiny',      label: 'Shiny ✨' },
+  { value: 'mirage',     label: 'Mirage ✨' },
 ]
 
 type Props = {

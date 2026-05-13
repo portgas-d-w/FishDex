@@ -19,7 +19,7 @@ const RARITY_COLORS: Record<string, string> = {
   rare:       'text-blue-400',
   epique:     'text-purple-500',
   legendaire: 'text-amber-500',
-  shiny:      'text-pink-400',
+  mirage:     'text-pink-400',
 }
 
 function MissionIconEl({ icon }: { icon: IconKey }) {

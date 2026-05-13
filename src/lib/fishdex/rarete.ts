@@ -1,13 +1,13 @@
 import type { Rarete } from '@/types/fishdex'
 
-export const rareteOrder: Rarete[] = ['commun', 'rare', 'epique', 'legendaire', 'shiny']
+export const rareteOrder: Rarete[] = ['commun', 'rare', 'epique', 'legendaire', 'mirage']
 
 export const RARETE_COUNTS: Record<Rarete, number> = {
   commun:     13,
   rare:       14,
   epique:     15,
   legendaire: 10,
-  shiny:       5,
+  mirage:      5,
 }
 
 export const rareteLabels: Record<Rarete, string> = {
@@ -15,7 +15,7 @@ export const rareteLabels: Record<Rarete, string> = {
   rare:       'Rare',
   epique:     'Épique',
   legendaire: 'Légendaire',
-  shiny:      'Shiny ✨',
+  mirage:     'Mirage ✨',
 }
 
 type RareteStyle = {
@@ -65,8 +65,8 @@ export const rareteConfig: Record<Rarete, RareteStyle> = {
     badgeBorder: 'border-amber-500/40',
     glow:        'hover:border-amber-400/70 hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]',
   },
-  shiny: {
-    label:       'Shiny ✨',
+  mirage: {
+    label:       'Mirage ✨',
     dot:         'bg-gradient-to-r from-amber-300 via-pink-400 to-purple-500',
     text:        'bg-gradient-to-r from-amber-300 via-pink-400 to-purple-500 bg-clip-text text-transparent',
     border:      'border-pink-400/50',

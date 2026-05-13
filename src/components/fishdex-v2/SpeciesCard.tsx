@@ -11,7 +11,7 @@ type Props = {
 export function SpeciesCard({ species }: Props) {
   const cfg = getRareteConfig(species.rarete)
   const dexNum = String(species.numero_dex ?? 0).padStart(3, '0')
-  const isShiny = species.rarete === 'shiny'
+  const isMirage = species.rarete === 'mirage'
 
   return (
     <Link
@@ -30,8 +30,8 @@ export function SpeciesCard({ species }: Props) {
           className="object-contain p-2 transition-transform duration-300 group-hover:scale-110"
         />
 
-        {/* Shimmer shiny */}
-        {isShiny && (
+        {/* Shimmer mirage */}
+        {isMirage && (
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent
             animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
         )}

@@ -38,8 +38,8 @@ const FILTERS: { value: Rarete | 'toutes'; label: string; dot?: string; active: 
     active: 'bg-amber-400 text-slate-900 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.5)]',
   },
   {
-    value: 'shiny',
-    label: 'Shiny ✨',
+    value: 'mirage',
+    label: 'Mirage ✨',
     active: 'bg-gradient-to-r from-amber-400 via-pink-400 to-purple-500 text-white border-pink-400 shadow-[0_0_12px_rgba(244,114,182,0.5)]',
   },
 ]
