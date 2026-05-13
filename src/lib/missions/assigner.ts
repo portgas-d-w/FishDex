@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { rarityIndex } from '@/lib/xp/calculator'
 import type { MissionWithProgress } from './types'
 
@@ -35,7 +35,7 @@ function weeklyExpires(): string {
 // ── Mission assignment (lazy) ────────────────────────────────
 
 export async function ensureMissions(userId: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const [dKey, wKey] = [dailyKey(), weeklyKey()]
 
   // Check existing
@@ -69,7 +69,7 @@ async function assignMissions(
   expiresAt: string,
   count: number
 ): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: pool } = await supabase
     .from('missions').select('id').eq('type', type).eq('is_active', true)
 
@@ -90,7 +90,7 @@ async function assignMissions(
 }
 
 async function ensureSpecialMissions(userId: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: specials } = await supabase
     .from('missions').select('id').eq('type', 'special').eq('is_active', true)
 
@@ -123,7 +123,7 @@ export type CatchContext = {
 }
 
 export async function updateMissionProgress(ctx: CatchContext): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const now = new Date().toISOString()
 
   // Fetch active non-completed missions for this user
@@ -281,7 +281,7 @@ function getMondayOfWeek(d: Date): Date {
 // ── Fetch missions for display ───────────────────────────────
 
 export async function getUserMissions(userId: string, type: 'daily' | 'weekly' | 'special'): Promise<MissionWithProgress[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const now = new Date().toISOString()
 
   const query = supabase
