@@ -252,26 +252,20 @@ export async function updateMissionProgress(ctx: CatchContext): Promise<void> {
       completed_at: isCompleted ? now : null,
     }).eq('id', um.id)
 
-    // Award XP for mission completion
+    // Award XP for mission completion (RPC atomique, bypass RLS)
     if (isCompleted && (um.progress ?? 0) < mission.target) {
-      await supabase.from('xp_events').insert({
+      const { error: evErr } = await supabase.from('xp_events').insert({
         user_id: ctx.userId,
         event_type: 'mission_completed',
         xp_amount: mission.xp_reward,
         metadata: { mission_id: mission.id, slug: mission.slug },
       })
-      // Simple update: fetch then write
-      const { data: xp } = await supabase.from('user_xp')
-        .select('total_xp').eq('user_id', ctx.userId).single()
-      if (xp) {
-        const { calcLevel } = await import('@/lib/xp/calculator')
-        const newTotal = xp.total_xp + mission.xp_reward
-        await supabase.from('user_xp').update({
-          total_xp: newTotal,
-          level: calcLevel(newTotal),
-          updated_at: new Date().toISOString(),
-        }).eq('user_id', ctx.userId)
-      }
+      if (evErr) throw new Error(`[XP] mission xp_event insert failed: ${evErr.message}`)
+      const { error: xpErr } = await supabase.rpc('increment_user_xp', {
+        p_user_id: ctx.userId,
+        p_amount:  mission.xp_reward,
+      })
+      if (xpErr) throw new Error(`[XP] increment_user_xp failed: ${xpErr.message}`)
     }
   }
 }
