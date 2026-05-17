@@ -40,8 +40,8 @@ export function SpeciesCardLocked({ species }: Props) {
       <div className="px-2.5 pb-2.5 pt-2 flex flex-col gap-1">
         <p className="font-bold text-sm text-slate-600 leading-tight">???</p>
         <p className="text-[10px] text-slate-700 italic truncate leading-tight">Non découvert</p>
-        <span className="self-start mt-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md border border-slate-800 bg-slate-800/60 text-slate-600">
-          🔒
+        <span className="self-start mt-0.5 px-1.5 py-0.5 rounded-md border border-slate-800 bg-slate-800/60 flex items-center justify-center">
+          <Lock size={9} className="text-slate-600" />
         </span>
       </div>
     </div>

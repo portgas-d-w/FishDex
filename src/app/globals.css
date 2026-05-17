@@ -131,6 +131,16 @@
   --sidebar-ring:               #00D9C0;
 }
 
+/* ─── Animations custom ───────────────────────────────────── */
+@keyframes shimmer {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.05); }
+}
+
+@theme inline {
+  --animate-shimmer: shimmer 3s ease-in-out infinite;
+}
+
 /* ─── Styles de base ──────────────────────────────────────── */
 @layer base {
   * {

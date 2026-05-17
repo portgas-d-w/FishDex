@@ -76,7 +76,7 @@ export function BadgeCard({ badge }: { badge: BadgeData }) {
     return (
       <div className="flex items-center gap-3 rounded-2xl bg-white/3 border border-white/6 px-4 py-3">
         <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center flex-shrink-0">
-          <span className="text-lg">🔒</span>
+          <Lock size={18} className="text-slate-600" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-slate-500">Badge mystère</p>

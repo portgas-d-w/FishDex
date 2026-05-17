@@ -55,9 +55,9 @@ export function BottomNavV2() {
             href="/capture"
             aria-label="Nouvelle capture"
             className={`absolute -top-5 flex items-center justify-center w-[56px] h-[56px] rounded-full
-              bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.5)]
+              bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.6)] ring-2 ring-cyan-400/30
               transition-all duration-150 active:scale-90
-              ${captureActive ? 'shadow-[0_0_32px_rgba(34,211,238,0.85)] ring-2 ring-white/25' : ''}`}
+              ${captureActive ? 'shadow-[0_0_40px_rgba(34,211,238,0.9)] ring-white/30' : ''}`}
           >
             <Camera size={26} strokeWidth={2} className="text-slate-950" />
           </Link>
