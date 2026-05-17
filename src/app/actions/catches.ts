@@ -92,7 +92,8 @@ export async function createCatch(
     })
   } catch (xpErr) {
     const msg = xpErr instanceof Error ? xpErr.message : String(xpErr)
-    console.error('[XP] pipeline failed:', msg)
+    const stack = xpErr instanceof Error ? xpErr.stack : ''
+    console.error('[XP] pipeline failed:', msg, '\n', stack)
   }
 
   revalidatePath('/aquarium')

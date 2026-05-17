@@ -24,3 +24,5 @@ BEGIN
   RETURN FLOOR(base_xp * multiplier);
 END;
 $$ LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.apply_diminishing_returns(integer, uuid, date) TO authenticated;
