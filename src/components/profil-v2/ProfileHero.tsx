@@ -5,34 +5,17 @@ type Props = {
   avatarUrl: string | null
   memberSince: string
   country: string
-  level: number
-  levelTitle: string
 }
 
 function formatMemberSince(iso: string): string {
   return new Date(iso).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
 }
 
-export function ProfileHero({ username, avatarUrl, memberSince, country, level, levelTitle }: Props) {
+export function ProfileHero({ username, avatarUrl, memberSince, country }: Props) {
   const initials = username.slice(0, 2).toUpperCase()
 
   return (
     <div className="flex flex-col items-center px-4 pt-4 pb-2 relative">
-      {/* Badge niveau hexagonal (haut droite relatif au bloc) */}
-      <div className="absolute right-6 top-6 flex flex-col items-center gap-1">
-        <div
-          className="w-14 h-14 flex items-center justify-center bg-cyan-500/15 border-2 border-cyan-400/60 text-cyan-400 font-black text-xs leading-tight text-center
-            shadow-[0_0_16px_rgba(34,211,238,0.35)]"
-          style={{ clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)' }}
-        >
-          <div className="flex flex-col items-center">
-            <span className="text-[9px] font-bold text-cyan-400/70 leading-none">Niv.</span>
-            <span className="text-lg font-black text-cyan-400 leading-none">{level}</span>
-          </div>
-        </div>
-        <span className="text-[10px] font-semibold text-cyan-400">{levelTitle}</span>
-      </div>
-
       {/* Avatar */}
       <div className="relative mt-2">
         <div

@@ -2,14 +2,15 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ProfilHeader } from '@/components/profil-v2/Header'
 import { ProfileHero } from '@/components/profil-v2/ProfileHero'
-import { XPCard } from '@/components/profil-v2/XPCard'
 import { GlobalStats } from '@/components/profil-v2/GlobalStats'
 import { RecordsSection } from '@/components/profil-v2/RecordsSection'
 import { BadgesSection } from '@/components/profil-v2/BadgesSection'
 import { DetailedStats } from '@/components/profil-v2/DetailedStats'
 import { ActionsSection } from '@/components/profil-v2/ActionsSection'
+import { LevelDisplay } from '@/components/profile/LevelDisplay'
 import { MOCK_COUNTRY } from '@/lib/profil/mocks'
 import { getLevelTitle, xpCurrentInLevel, xpNeededForNextLevel } from '@/lib/xp/calculator'
+import { getMasteriesAfterLevel50, XP_FOR_LEVEL_50 } from '@/lib/levels/masteries'
 import type { CatchWithSpecies } from '@/types/aquarium'
 
 export const metadata = {
@@ -58,6 +59,12 @@ export default async function ProfilPage() {
   const levelTitle    = getLevelTitle(niveau)
   const currentStreak = xpRow?.current_streak ?? 0
   const longestStreak = xpRow?.longest_streak ?? 0
+
+  // Maîtrises (niveau 50+)
+  const mastery = getMasteriesAfterLevel50(totalXp, XP_FOR_LEVEL_50)
+  const levelProgress = niveau >= 50
+    ? (mastery?.progress ?? 0)
+    : Math.min(100, Math.round((xpActuel / xpSuivant) * 100))
 
   // Stats globales
   const uniqueSpeciesIds = [...new Set(catches.map(c => c.species_id))]
@@ -123,15 +130,16 @@ export default async function ProfilPage() {
         avatarUrl={profile?.avatar_url ?? null}
         memberSince={memberSince}
         country={MOCK_COUNTRY}
-        level={niveau}
-        levelTitle={levelTitle}
       />
 
-      <XPCard
-        xpCurrent={xpActuel}
-        xpNext={xpSuivant}
-        nextLevel={niveau + 1}
-      />
+      <div className="mx-4 mt-4 rounded-2xl bg-white/5 border border-white/8 backdrop-blur-sm px-4 py-4">
+        <LevelDisplay
+          title={levelTitle}
+          level={niveau}
+          progress={levelProgress}
+          mastery={mastery}
+        />
+      </div>
 
       <GlobalStats
         totalCatches={catches.length}

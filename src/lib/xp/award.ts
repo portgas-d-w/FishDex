@@ -42,6 +42,8 @@ export async function awardXpForCatch(input: CatchAwardInput): Promise<AwardResu
   const { catchId, userId, speciesId, poidsKg, tailleCm, photoUrl, lieu } = input
   const supabase = await createClient()
 
+  const today = new Date().toISOString().split('T')[0]
+
   // Toutes les lectures en parallèle (espèce + bonus checks + streak courant)
   const [speciesRes, speciesCountRes, prevBestRes, spotCountRes, userXpRes] = await Promise.all([
     supabase.from('species').select('rarete').eq('id', speciesId).single(),
@@ -79,11 +81,19 @@ export async function awardXpForCatch(input: CatchAwardInput): Promise<AwardResu
 
   const isNewSpot = lieu != null && (spotCountRes.count ?? 1) === 0
 
+  // Rendements décroissants : le XP de base est réduit à partir de la 2e capture du jour
+  const rawBaseXp = (XP_REWARDS as Record<string, number>)[rarete] ?? XP_REWARDS.commun
+  const { data: adjustedBaseXp } = await supabase.rpc('apply_diminishing_returns', {
+    base_xp: rawBaseXp,
+    user_id_param: userId,
+    capture_date: today,
+  })
+  const baseXp = (typeof adjustedBaseXp === 'number') ? adjustedBaseXp : rawBaseXp
+
   // Construction de la liste d'events XP
   type Event = { event_type: string; xp_amount: number; metadata?: Record<string, unknown> }
   const events: Event[] = []
 
-  const baseXp = (XP_REWARDS as Record<string, number>)[rarete] ?? XP_REWARDS.commun
   events.push({ event_type: 'capture', xp_amount: baseXp, metadata: { rarete } })
 
   if (isFirstDiscovery)  events.push({ event_type: 'first_discovery', xp_amount: XP_REWARDS.first_discovery })
@@ -100,7 +110,6 @@ export async function awardXpForCatch(input: CatchAwardInput): Promise<AwardResu
   const longestStreak = currentXp?.longest_streak ?? 0
   const lastDate     = currentXp?.last_capture_date ?? null
 
-  const today      = new Date().toISOString().split('T')[0]
   const yesterday  = (() => { const d = new Date(); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().split('T')[0] })()
   const twoDaysAgo = (() => { const d = new Date(); d.setUTCDate(d.getUTCDate() - 2); return d.toISOString().split('T')[0] })()
 

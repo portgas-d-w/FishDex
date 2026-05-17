@@ -1,3 +1,5 @@
+import { getTitleForLevel } from '@/lib/levels/titles'
+
 // Cumulative XP required to reach level N = 100 × (N-1)²
 export function xpForLevel(level: number): number {
   return 100 * Math.pow(Math.max(1, level) - 1, 2)
@@ -17,14 +19,7 @@ export function xpCurrentInLevel(totalXp: number): number {
 }
 
 export function getLevelTitle(level: number): string {
-  if (level < 5)  return 'Débutant'
-  if (level < 10) return 'Apprenti'
-  if (level < 15) return 'Amateur'
-  if (level < 20) return 'Confirmé'
-  if (level < 30) return 'Expert'
-  if (level < 40) return 'Maître'
-  if (level < 50) return 'Vétéran'
-  return 'Légende'
+  return getTitleForLevel(level)
 }
 
 export const XP_REWARDS = {
