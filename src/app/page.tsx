@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { LandingPageV2 } from '@/components/spot-v2/LandingPage'
@@ -6,9 +7,11 @@ import { NotificationBell } from '@/components/home/NotificationBell'
 import { UserAvatar } from '@/components/home/UserAvatar'
 import { ActiveSessionCard } from '@/components/home/ActiveSessionCard'
 import { StartSessionCard } from '@/components/home/StartSessionCard'
-import { RecentCatchesCarousel } from '@/components/home/RecentCatchesCarousel'
+import { RecentCatchesGrid } from '@/components/home/RecentCatchesCarousel'
 import { FavoriteSpotsGrid } from '@/components/home/FavoriteSpotsGrid'
 import { DailyAdviceCard } from '@/components/home/DailyAdviceCard'
+import { ConditionsWidget } from '@/components/home/ConditionsWidget'
+import { FishdexObjectivesWidget } from '@/components/home/FishdexObjectivesWidget'
 import { getCurrentContext, getReadableLightPhase, getReadableDate, formatTime } from '@/lib/home/context'
 import { getPoeticPhrase } from '@/lib/home/poetic-phrases'
 import { ensureMissions } from '@/lib/missions/assigner'
@@ -19,7 +22,7 @@ export default async function Home() {
 
   if (!user) return <LandingPageV2 />
 
-  const [profileResult, catchesResult, spotsResult] = await Promise.all([
+  const [profileResult, catchesResult, spotsResult, speciesCountResult, totalSpeciesResult] = await Promise.all([
     supabase
       .from('profiles')
       .select('username, avatar_url, onboarding_completed')
@@ -28,7 +31,7 @@ export default async function Home() {
 
     supabase
       .from('catches')
-      .select('id, date_capture, photo_url, poids_kg, species:species_id(nom_fr, image_url, rarete)')
+      .select('id, created_at, photo_url, poids_kg, taille_cm, species:species_id(nom_fr, image_url, rarete)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(4),
@@ -40,6 +43,16 @@ export default async function Home() {
       .not('lieu', 'is', null)
       .order('created_at', { ascending: false })
       .limit(30),
+
+    supabase
+      .from('catches')
+      .select('species_id')
+      .eq('user_id', user.id)
+      .not('species_id', 'is', null),
+
+    supabase
+      .from('species')
+      .select('id', { count: 'exact', head: true }),
   ])
 
   if (!profileResult.data?.onboarding_completed) redirect('/onboarding')
@@ -48,8 +61,10 @@ export default async function Home() {
   const avatarUrl = profileResult.data?.avatar_url ?? null
   const email     = user.email ?? ''
 
-  // Session active (feature H2 — table peut ne pas encore exister)
+  // Session active
   let activeSession: { id: string; started_at: string; lieu: string | null } | null = null
+  let sessionCatchCount = 0
+  let sessionSpeciesCount = 0
   try {
     const { data } = await supabase
       .from('sessions')
@@ -58,25 +73,44 @@ export default async function Home() {
       .is('ended_at', null)
       .single()
     activeSession = data
+
+    if (activeSession) {
+      const { data: sessionCatches } = await supabase
+        .from('catches')
+        .select('species_id')
+        .eq('user_id', user.id)
+        .gte('created_at', activeSession.started_at)
+      const sc = sessionCatches ?? []
+      sessionCatchCount   = sc.length
+      sessionSpeciesCount = new Set(sc.map(c => c.species_id).filter(Boolean)).size
+    }
   } catch {
     // table sessions pas encore créée en H2
   }
 
-  // Missions en arrière-plan (pas affichées sur le Home, assignées pour /missions)
   ensureMissions(user.id).catch(() => null)
 
   // Prises récentes
-  const recentCatches = (catchesResult.data ?? []).map((c) => ({
-    id: c.id,
-    date_capture: c.date_capture ?? null,
-    photo_url: (c as { photo_url?: string | null }).photo_url ?? null,
-    poids_kg: (c as { poids_kg?: number | null }).poids_kg ?? null,
+  type RawCatch = {
+    id: string
+    created_at: string | null
+    photo_url?: string | null
+    poids_kg?: number | null
+    taille_cm?: number | null
+    species: { nom_fr: string; image_url: string | null; rarete: string | null } | { nom_fr: string; image_url: string | null; rarete: string | null }[] | null
+  }
+  const recentCatches = (catchesResult.data as RawCatch[] ?? []).map((c) => ({
+    id:         c.id,
+    created_at: c.created_at ?? null,
+    photo_url:  c.photo_url ?? null,
+    poids_kg:   c.poids_kg ?? null,
+    taille_cm:  c.taille_cm ?? null,
     species: Array.isArray(c.species)
       ? (c.species[0] as { nom_fr: string; image_url: string | null; rarete: string | null } | undefined) ?? null
       : (c.species as { nom_fr: string; image_url: string | null; rarete: string | null } | null),
   }))
 
-  // Spots favoris déduits des prises
+  // Spots favoris
   const spotsMap = new Map<string, number>()
   for (const c of (spotsResult.data ?? [])) {
     if (c.lieu) spotsMap.set(c.lieu, (spotsMap.get(c.lieu) ?? 0) + 1)
@@ -86,87 +120,102 @@ export default async function Home() {
     .slice(0, 2)
     .map(([name, count]) => ({ name, count }))
 
+  // Objectifs FishDex
+  const caughtSpeciesCount = new Set(
+    (speciesCountResult.data ?? []).map(c => c.species_id).filter(Boolean)
+  ).size
+  const totalSpeciesCount = totalSpeciesResult.count ?? 0
+
   // Contexte et phrase
   const now     = new Date()
   const context = getCurrentContext()
   const phrase  = getPoeticPhrase(context, user.id)
 
   return (
-    <main className="relative min-h-screen bg-[#020c14]">
-      {/* ── HERO 75vh ──────────────────────────────────────────── */}
-      <section className="relative h-[75vh] overflow-hidden">
-        {/* Photo de fond — remplace l'URL par /backgrounds/home-default.webp en H3 */}
+    <main className="relative min-h-screen bg-[#0a0f14]">
+
+      {/* ── HERO 70vh ────────────────────────────────────────────── */}
+      <section className="relative h-[70vh] overflow-hidden">
+
+        {/* Background image */}
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&q=80)',
-          }}
+          style={{ backgroundImage: 'url(/backgrounds/home-default.webp)' }}
         />
 
-        {/* Vignette : transparent en haut, noir en bas */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80" />
+        {/* Vignette */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-transparent" />
 
         {/* Header transparent */}
-        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 pt-safe-top py-4 z-10">
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 pt-safe-top py-4">
           <NotificationBell />
           <UserAvatar username={username} email={email} avatarUrl={avatarUrl} />
         </div>
 
-        {/* Texte en bas du hero */}
-        <div className="absolute bottom-10 left-6 right-6 z-10 space-y-1.5">
-          <p className="text-[11px] font-semibold tracking-[0.15em] text-cyan-400">
+        {/* Greeting */}
+        <div className="absolute bottom-12 left-6 right-6 z-10 space-y-1.5">
+          <p className="text-[11px] font-semibold tracking-[0.15em] text-cyan-400 uppercase">
             {getReadableDate(now)} · {getReadableLightPhase(context.light)} · {formatTime(now)}
           </p>
           <h1 className="text-[2rem] font-semibold tracking-tight text-white leading-tight">
             Bonjour {username}.
           </h1>
-          <p className="text-base italic text-white/75 leading-snug">
-            {phrase}
-          </p>
+          <p className="text-base italic text-white/75 leading-snug">{phrase}</p>
         </div>
 
-        {/* Chevron discret */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 animate-bounce">
+        {/* Chevron */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 animate-bounce z-10">
           <ChevronDown size={20} className="text-white/25" />
         </div>
+
+        {/* Gradient transition vers le fond sombre */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-[#0a0f14] pointer-events-none z-10" />
       </section>
 
-      {/* ── CONTENU SCROLLABLE ─────────────────────────────────── */}
-      <section className="px-4 py-8 space-y-8 pb-32">
+      {/* ── CONTENU SCROLLABLE ───────────────────────────────────── */}
+      <section className="px-4 py-6 space-y-4 pb-32">
 
-        {/* AUJOURD'HUI */}
-        <div>
-          <h2 className="text-[10px] font-semibold tracking-[0.2em] text-white/30 mb-3">
-            AUJOURD&apos;HUI
-          </h2>
-          {activeSession
-            ? <ActiveSessionCard session={activeSession} />
-            : <StartSessionCard />
-          }
+        {/* WIDGET 1 — SESSION */}
+        {activeSession
+          ? <ActiveSessionCard session={activeSession} catchCount={sessionCatchCount} speciesCount={sessionSpeciesCount} />
+          : <StartSessionCard />
+        }
+
+        {/* WIDGET 2 + 3 — CONDITIONS / OBJECTIFS (côte à côte) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ConditionsWidget />
+          <FishdexObjectivesWidget
+            caughtCount={caughtSpeciesCount}
+            totalCount={totalSpeciesCount}
+          />
         </div>
 
-        {/* DERNIÈRES PRISES */}
+        {/* WIDGET 4 — DERNIÈRES CAPTURES (full width) */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[10px] font-semibold tracking-[0.2em] text-white/30">
-              DERNIÈRES PRISES
-            </h2>
+            <p className="text-xs font-semibold tracking-widest text-cyan-400 uppercase">
+              Mes dernières captures
+            </p>
+            <Link href="/aquarium" className="text-xs text-white/30 hover:text-white/60 transition-colors">
+              Voir tout
+            </Link>
           </div>
-          <RecentCatchesCarousel catches={recentCatches} />
+          <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
+            <RecentCatchesGrid catches={recentCatches} />
+          </div>
         </div>
 
-        {/* TES SPOTS FAVORIS */}
+        {/* WIDGET 5 — SPOTS FAVORIS */}
         {favoriteSpots.length > 0 && (
           <div>
-            <h2 className="text-[10px] font-semibold tracking-[0.2em] text-white/30 mb-3">
-              TES SPOTS FAVORIS
-            </h2>
+            <p className="text-xs font-semibold tracking-widest text-cyan-400 uppercase mb-3">
+              Tes spots favoris
+            </p>
             <FavoriteSpotsGrid spots={favoriteSpots} />
           </div>
         )}
 
-        {/* CONSEIL DU MOMENT */}
+        {/* WIDGET 6 — CONSEIL DU JOUR */}
         <DailyAdviceCard context={context} />
 
       </section>

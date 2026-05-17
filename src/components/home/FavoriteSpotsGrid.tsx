@@ -8,7 +8,7 @@ type Spot = {
 export function FavoriteSpotsGrid({ spots }: { spots: Spot[] }) {
   if (spots.length === 0) {
     return (
-      <div className="flex items-center gap-3 rounded-xl bg-white/4 border border-white/8 px-4 py-4 text-slate-500">
+      <div className="flex items-center gap-3 rounded-xl bg-white/4 border border-white/8 px-4 py-4 text-white/30">
         <MapPin size={16} />
         <span className="text-sm">Aucun spot enregistré pour l&apos;instant.</span>
       </div>
@@ -20,13 +20,16 @@ export function FavoriteSpotsGrid({ spots }: { spots: Spot[] }) {
       {spots.map((spot) => (
         <div
           key={spot.name}
-          className="rounded-xl bg-white/4 border border-white/8 backdrop-blur-sm px-3 py-3 flex flex-col gap-1.5"
+          className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 px-4 py-3.5 flex flex-col gap-1.5"
         >
           <div className="flex items-center gap-1.5">
-            <MapPin size={12} className="text-cyan-400/60 shrink-0" />
-            <p className="text-xs font-medium text-white truncate">{spot.name}</p>
+            <MapPin size={12} className="text-cyan-400/70 shrink-0" />
+            <p className="text-xs font-semibold text-white truncate">{spot.name}</p>
           </div>
-          <p className="text-[11px] text-slate-500">{spot.count} prise{spot.count > 1 ? 's' : ''}</p>
+          <p className="text-sm font-semibold text-white/60">
+            {spot.count}
+            <span className="text-xs font-normal text-white/30"> prise{spot.count > 1 ? 's' : ''}</span>
+          </p>
         </div>
       ))}
     </div>

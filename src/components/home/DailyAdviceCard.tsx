@@ -1,3 +1,4 @@
+import { Lightbulb } from 'lucide-react'
 import type { Context } from '@/lib/home/poetic-phrases'
 
 const ADVICE: Record<string, string> = {
@@ -32,9 +33,16 @@ export function DailyAdviceCard({ context }: { context: Context }) {
   if (!advice) return null
 
   return (
-    <div className="rounded-2xl bg-white/4 border border-white/8 px-4 py-4">
-      <p className="text-[10px] font-semibold tracking-widest text-white/30 mb-2">CONSEIL DU MOMENT</p>
-      <p className="text-sm text-slate-400 leading-relaxed">{advice}</p>
+    <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-5">
+      <p className="text-xs font-semibold tracking-widest text-cyan-400 uppercase mb-3">
+        Conseil du jour
+      </p>
+      <div className="flex items-start gap-3">
+        <div className="w-8 h-8 rounded-full bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center shrink-0 mt-0.5">
+          <Lightbulb size={14} className="text-cyan-400" />
+        </div>
+        <p className="text-sm text-white/70 leading-relaxed">{advice}</p>
+      </div>
     </div>
   )
 }
