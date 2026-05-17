@@ -25,7 +25,7 @@ export default async function Home() {
   const [profileResult, catchesResult, spotsResult, speciesCountResult, totalSpeciesResult] = await Promise.all([
     supabase
       .from('profiles')
-      .select('username, avatar_url, onboarding_completed')
+      .select('username, avatar_url, onboarding_completed, collection_choice_completed')
       .eq('id', user.id)
       .single(),
 
@@ -56,6 +56,7 @@ export default async function Home() {
   ])
 
   if (!profileResult.data?.onboarding_completed) redirect('/onboarding')
+  if (!profileResult.data?.collection_choice_completed) redirect('/onboarding/collection')
 
   const username  = profileResult.data?.username ?? 'Pêcheur'
   const avatarUrl = profileResult.data?.avatar_url ?? null

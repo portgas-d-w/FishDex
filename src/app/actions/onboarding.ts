@@ -14,5 +14,6 @@ export async function completeOnboarding() {
     .update({ onboarding_completed: true })
     .eq('id', user.id)
 
-  redirect('/')
+  // Rediriger vers le choix de collection avant la home
+  redirect('/onboarding/collection')
 }
