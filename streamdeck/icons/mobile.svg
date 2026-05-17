@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <rect width="144" height="144" fill="#0a0f14" rx="18"/>
+  <!-- Phone outline -->
+  <rect x="52" y="28" width="40" height="70" rx="6" fill="none" stroke="#22d3ee" stroke-width="2.5"/>
+  <!-- Screen -->
+  <rect x="57" y="36" width="30" height="50" rx="2" fill="none" stroke="#22d3ee" stroke-width="1.5" opacity="0.5"/>
+  <!-- Home button -->
+  <circle cx="72" cy="108" r="0" fill="none"/>
+  <line x1="68" y1="104" x2="76" y2="104" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"/>
+  <!-- Notch -->
+  <rect x="66" y="29" width="12" height="3" rx="1.5" fill="#22d3ee" opacity="0.4"/>
+  <text x="72" y="126" text-anchor="middle" fill="#22d3ee" font-family="monospace" font-size="12" font-weight="600" letter-spacing="1">MOBILE</text>
+</svg>

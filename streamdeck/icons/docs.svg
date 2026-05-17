@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <rect width="144" height="144" fill="#0a0f14" rx="18"/>
+  <!-- Book -->
+  <path d="M40 40 L40 96 Q40 100 44 100 L72 100 L72 40 Z" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M104 40 L104 96 Q104 100 100 100 L72 100 L72 40 Z" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Spine -->
+  <line x1="72" y1="40" x2="72" y2="100" stroke="#22d3ee" stroke-width="1.5"/>
+  <!-- Lines (text) -->
+  <line x1="48" y1="54" x2="68" y2="54" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  <line x1="48" y1="62" x2="68" y2="62" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  <line x1="48" y1="70" x2="60" y2="70" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  <text x="72" y="120" text-anchor="middle" fill="#22d3ee" font-family="monospace" font-size="13" font-weight="600" letter-spacing="1">DOCS</text>
+</svg>

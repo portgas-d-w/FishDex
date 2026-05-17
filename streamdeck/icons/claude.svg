@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <rect width="144" height="144" fill="#0a0f14" rx="18"/>
+  <!-- Claude logo inspiration : hexagone + circuit -->
+  <polygon points="72,32 98,48 98,80 72,96 46,80 46,48" fill="none" stroke="#a855f7" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Inner diamond -->
+  <polygon points="72,44 86,58 72,72 58,58" fill="none" stroke="#a855f7" stroke-width="1.5" opacity="0.7"/>
+  <!-- Center dot -->
+  <circle cx="72" cy="58" r="4" fill="#a855f7" opacity="0.8"/>
+  <text x="72" y="116" text-anchor="middle" fill="#a855f7" font-family="monospace" font-size="12" font-weight="600" letter-spacing="1">CLAUDE</text>
+</svg>

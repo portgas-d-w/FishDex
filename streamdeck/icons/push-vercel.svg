@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <rect width="144" height="144" fill="#0a0f14" rx="18"/>
+  <!-- Up arrow -->
+  <line x1="72" y1="90" x2="72" y2="44" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>
+  <polyline points="56,60 72,44 88,60" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Triangle (Vercel logo) -->
+  <path d="M56 100 L72 72 L88 100 Z" fill="none" stroke="#34d399" stroke-width="2" stroke-linejoin="round" opacity="0.5"/>
+  <text x="72" y="122" text-anchor="middle" fill="#34d399" font-family="monospace" font-size="12" font-weight="600" letter-spacing="1">PUSH</text>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <rect width="144" height="144" fill="#0a0f14" rx="18"/>
+  <!-- Broom/brush -->
+  <line x1="58" y1="40" x2="88" y2="70" stroke="#22d3ee" stroke-width="3" stroke-linecap="round"/>
+  <!-- Brush head -->
+  <path d="M82 64 L96 78 Q100 82 96 86 L82 86 Q78 86 74 82 L60 68 Z" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Sparkles -->
+  <line x1="52" y1="78" x2="52" y2="86" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="48" y1="82" x2="56" y2="82" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="44" y1="60" x2="44" y2="66" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <line x1="41" y1="63" x2="47" y2="63" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <text x="72" y="118" text-anchor="middle" fill="#22d3ee" font-family="monospace" font-size="13" font-weight="600" letter-spacing="1">CLEAN</text>
+</svg>
