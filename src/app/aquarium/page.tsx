@@ -34,6 +34,7 @@ export default async function AquariumPage({ searchParams }: Props) {
     .select(`
       id, user_id, species_id, date_capture, created_at,
       lieu, poids_kg, taille_cm, notes, photo_url,
+      capture_source, released, session_id,
       species:species_id (
         id, slug, nom_fr, nom_scientifique,
         image_url, rarete, description

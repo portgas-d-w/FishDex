@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Crown } from 'lucide-react'
+import { MapPin, Crown, Camera, Leaf, Calendar } from 'lucide-react'
 import { getRareteConfig } from '@/lib/fishdex/rarete'
 import type { CatchWithSpecies } from '@/types/aquarium'
 
@@ -64,6 +64,13 @@ export function CatchCard({ catch_: c, photoUrl, isRecord, isNew }: Props) {
           </div>
         )}
 
+        {/* Icône camera (haut droite) — capture live uniquement */}
+        {c.capture_source === 'camera' && (
+          <div className="absolute top-2 right-2 rounded-full bg-cyan-500/20 border border-cyan-400/30 backdrop-blur-sm p-1.5">
+            <Camera className="h-3 w-3 text-cyan-300" />
+          </div>
+        )}
+
         {/* Infos bas */}
         <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2.5">
           <p className="font-bold text-sm text-white leading-tight truncate">{c.species.nom_fr}</p>
@@ -76,6 +83,27 @@ export function CatchCard({ catch_: c, photoUrl, isRecord, isNew }: Props) {
               <span className="text-[10px] text-slate-300 truncate">{c.lieu}</span>
             </div>
           )}
+
+          {/* No-kill */}
+          {c.released === true && (
+            <div className="flex items-center gap-1 mt-0.5 text-emerald-400">
+              <Leaf className="h-3 w-3 shrink-0" />
+              <span className="text-[10px] font-medium">Relâché</span>
+            </div>
+          )}
+
+          {/* Session associée */}
+          {c.session_id && (
+            <Link
+              href={`/sessions/${c.session_id}`}
+              onClick={e => e.stopPropagation()}
+              className="flex items-center gap-1 mt-0.5 text-white/40 hover:text-white/60 transition-colors"
+            >
+              <Calendar className="h-3 w-3 shrink-0" />
+              <span className="text-[10px]">Session</span>
+            </Link>
+          )}
+
           <div className="flex justify-end mt-1">
             <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md border backdrop-blur-sm ${cfg.badge} ${cfg.badgeBorder}`}>
               {cfg.label}

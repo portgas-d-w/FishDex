@@ -21,6 +21,9 @@ export type CatchWithSpecies = {
   taille_cm: number | null
   notes: string | null
   photo_url: string | null
+  capture_source: 'camera' | 'gallery' | null
+  released: boolean | null
+  session_id: string | null
   species: CatchSpecies
 }
 
