@@ -5,6 +5,12 @@ import { getRareteConfig } from '@/lib/fishdex/rarete'
 import { COLLECTION_META } from '@/lib/collections/labels'
 import type { CollectionSlug } from '@/lib/collections/types'
 
+const COLLECTION_BG: Record<CollectionSlug, string> = {
+  'paisibles':  '/backgrounds/species-paisibles.webp',
+  'predateurs': '/backgrounds/species-predateurs.webp',
+  'eaux-vives': '/backgrounds/species-eaux-vives.webp',
+}
+
 type Props = {
   species: {
     id: string
@@ -26,6 +32,9 @@ export function SpeciesCardV3({ species: s, isDiscovered }: Props) {
   const isMirage = s.rarete === 'mirage'
   const dexNum   = String(s.numero_dex ?? 0).padStart(3, '0')
 
+  // Background selon la première collection (ou aquatique par défaut)
+  const bgImage  = s.collections[0] ? COLLECTION_BG[s.collections[0]] : '/backgrounds/species-aquatic.webp'
+
   // Mirage non capturé → invisible (ne doit jamais arriver côté client si filtré serveur)
   if (s.is_hidden_in_dex && !isDiscovered) return null
 
@@ -37,30 +46,44 @@ export function SpeciesCardV3({ species: s, isDiscovered }: Props) {
         ${cfg.border} ${cfg.glow}`}
     >
       {/* Photo zone */}
-      <div className="relative aspect-square bg-slate-900/60 overflow-hidden">
+      <div className="relative aspect-square overflow-hidden">
+        {/* Background de collection */}
+        <Image
+          src={bgImage}
+          alt=""
+          fill
+          aria-hidden
+          sizes="(max-width: 640px) 50vw, 33vw"
+          className={`object-cover transition-transform duration-300 group-hover:scale-110 ${
+            isDiscovered ? 'opacity-100' : 'opacity-30 brightness-50'
+          }`}
+        />
+        {/* Overlay sombre pour lisibilité du poisson */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/10" />
+
         {isDiscovered ? (
           <Image
             src={s.image_url || '/fishes/placeholder.svg'}
             alt={s.nom_fr}
             fill
             sizes="(max-width: 640px) 50vw, 33vw"
-            className={`object-contain p-2 transition-transform duration-300 group-hover:scale-105 ${
-              isMirage ? 'drop-shadow-[0_0_8px_rgba(244,114,182,0.5)]' : ''
+            className={`relative object-contain p-2 transition-transform duration-300 group-hover:scale-105 drop-shadow-lg ${
+              isMirage ? 'drop-shadow-[0_0_10px_rgba(244,114,182,0.6)]' : ''
             }`}
           />
         ) : (
-          // Espèce non capturée : silhouette
+          // Espèce non capturée : silhouette + cadenas
           <>
             <Image
               src={s.image_url || '/fishes/placeholder.svg'}
               alt="Espèce non découverte"
               fill
               sizes="(max-width: 640px) 50vw, 33vw"
-              className="object-contain p-2 brightness-0 opacity-15"
+              className="relative object-contain p-2 brightness-0 opacity-20"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/50 flex items-center justify-center">
-                <Lock size={14} className="text-slate-500" />
+              <div className="w-8 h-8 rounded-full bg-black/60 border border-white/20 backdrop-blur-sm flex items-center justify-center">
+                <Lock size={14} className="text-white/50" />
               </div>
             </div>
           </>
@@ -110,9 +133,6 @@ export function SpeciesCardV3({ species: s, isDiscovered }: Props) {
         {/* Difficulté (étoiles) */}
         {isDiscovered && s.difficulte != null && (
           <div className="flex items-center gap-0.5 mt-0.5">
-            {'★'.split('').map((_, i) => (
-              <span key={i} className={`text-[9px] ${i < s.difficulte! ? 'text-amber-400' : 'text-white/15'}`}>★</span>
-            )).slice(0, 5)}
             {Array.from({ length: 5 }).map((_, i) => (
               <span key={i} className={`text-[9px] ${i < s.difficulte! ? 'text-amber-400' : 'text-white/15'}`}>★</span>
             ))}
