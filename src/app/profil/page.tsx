@@ -1,5 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getAllCollectionProgress } from '@/app/actions/collections'
+import { PathSection } from '@/components/profil-v3/PathSection'
+import type { CollectionSlug } from '@/lib/collections/types'
 import { ProfilHeader } from '@/components/profil-v2/Header'
 import { ProfileHero } from '@/components/profil-v2/ProfileHero'
 import { GlobalStats } from '@/components/profil-v2/GlobalStats'
@@ -23,10 +26,10 @@ export default async function ProfilPage() {
 
   if (!user) redirect('/login')
 
-  const [{ data: profile }, { data: rawCatches }, { data: xpRow }] = await Promise.all([
+  const [{ data: profile }, { data: rawCatches }, { data: xpRow }, collectionsProgress] = await Promise.all([
     supabase
       .from('profiles')
-      .select('username, avatar_url, created_at')
+      .select('username, avatar_url, created_at, preferred_collection_slug')
       .eq('id', user.id)
       .single(),
 
@@ -47,9 +50,12 @@ export default async function ProfilPage() {
       .select('total_xp, level, current_streak, longest_streak')
       .eq('user_id', user.id)
       .single(),
+
+    getAllCollectionProgress(),
   ])
 
-  const catches = (rawCatches ?? []) as unknown as CatchWithSpecies[]
+  const catches        = (rawCatches ?? []) as unknown as CatchWithSpecies[]
+  const preferredSlug  = (profile?.preferred_collection_slug as CollectionSlug | null) ?? null
 
   // XP réelles
   const niveau        = xpRow?.level ?? 1
@@ -124,6 +130,16 @@ export default async function ProfilPage() {
       }}
     >
       <ProfilHeader memberSince={memberSince} />
+
+      {/* ── Section Voie principale ── */}
+      {collectionsProgress.length > 0 && (
+        <div className="mt-4">
+          <PathSection
+            progressList={collectionsProgress}
+            mainSlug={preferredSlug}
+          />
+        </div>
+      )}
 
       <ProfileHero
         username={profile?.username ?? 'Pêcheur'}
