@@ -25,14 +25,18 @@ export async function createCatch(
 
   if (!user) redirect('/login')
 
-  const species_id = String(formData.get('species_id') ?? '').trim()
-  const date_capture = String(formData.get('date_capture') ?? '').trim()
-  const lieu = String(formData.get('lieu') ?? '').trim() || null
-  const poids_kg_raw = String(formData.get('poids_kg') ?? '').trim()
-  const taille_cm_raw = String(formData.get('taille_cm') ?? '').trim()
-  const notes = String(formData.get('notes') ?? '').trim() || null
-  const photo_url_raw = String(formData.get('photo_url') ?? '').trim()
-  const photo_url = photo_url_raw.startsWith(`${user.id}/`) ? photo_url_raw : null
+  const species_id       = String(formData.get('species_id') ?? '').trim()
+  const date_capture     = String(formData.get('date_capture') ?? '').trim()
+  const lieu             = String(formData.get('lieu') ?? '').trim() || null
+  const poids_kg_raw     = String(formData.get('poids_kg') ?? '').trim()
+  const taille_cm_raw    = String(formData.get('taille_cm') ?? '').trim()
+  const notes            = String(formData.get('notes') ?? '').trim() || null
+  const photo_url_raw    = String(formData.get('photo_url') ?? '').trim()
+  const photo_url        = photo_url_raw.startsWith(`${user.id}/`) ? photo_url_raw : null
+  const capture_src_raw  = formData.get('capture_source')
+  const capture_source   = (capture_src_raw === 'camera' || capture_src_raw === 'gallery')
+    ? capture_src_raw : null
+  const released         = formData.get('released') === 'true' ? true : null
 
   const fieldErrors: NonNullable<CatchState>['fieldErrors'] = {}
 
@@ -53,6 +57,23 @@ export async function createCatch(
 
   if (Object.keys(fieldErrors).length > 0) return { fieldErrors }
 
+  // ── Session active : auto-attachement ──────────────────────────────────────
+  const { data: activeSession } = await supabase
+    .from('sessions')
+    .select('id')
+    .eq('user_id', user.id)
+    .is('ended_at', null)
+    .maybeSingle()
+  const session_id = activeSession?.id ?? null
+
+  // ── Préférence suggest_session ─────────────────────────────────────────────
+  let shouldSuggest = false
+  if (!session_id) {
+    const { data: profile } = await supabase
+      .from('profiles').select('suggest_session_on_capture').eq('id', user.id).single()
+    shouldSuggest = profile?.suggest_session_on_capture !== false
+  }
+
   const { data: newCatch, error } = await supabase.from('catches').insert({
     user_id: user.id,
     species_id,
@@ -62,6 +83,9 @@ export async function createCatch(
     taille_cm,
     notes,
     photo_url,
+    session_id,
+    capture_source,
+    released,
   }).select('id').single()
 
   if (error || !newCatch) return { error: "Une erreur est survenue lors de l'enregistrement. Réessaie." }
@@ -99,6 +123,14 @@ export async function createCatch(
   revalidatePath('/aquarium')
   revalidatePath('/fishdex')
   revalidatePath('/')
+  if (session_id) {
+    revalidatePath('/sessions')
+    revalidatePath(`/sessions/${session_id}`)
+    revalidatePath('/sessions/active')
+  }
+
+  if (session_id)       redirect('/sessions/active')
+  if (shouldSuggest)    redirect('/aquarium?suggest=1')
   redirect('/aquarium')
 }
 

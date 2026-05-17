@@ -2,13 +2,20 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AquariumHeader } from '@/components/aquarium-v2/Header'
 import { CatchesGrid } from '@/components/aquarium-v2/CatchesGrid'
+import { SessionSuggestToast } from '@/components/sessions/SessionSuggestToast'
 import type { CatchWithSpecies, AquariumStats, RecordsMap } from '@/types/aquarium'
 
 export const metadata = {
   title: 'Aquarium — Mes prises',
 }
 
-export default async function AquariumPage() {
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function AquariumPage({ searchParams }: Props) {
+  const params = await searchParams
+  const suggest = params.suggest === '1'
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -89,6 +96,8 @@ export default async function AquariumPage() {
         stats={stats}
         recordsMap={recordsMap}
       />
+
+      <SessionSuggestToast show={suggest} />
     </div>
   )
 }

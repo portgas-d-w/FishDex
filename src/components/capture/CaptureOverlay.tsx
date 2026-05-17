@@ -41,17 +41,21 @@ export function CaptureOverlay({ userId }: Props) {
   const [uploadPath, setUploadPath] = useState<string | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [flashOn, setFlashOn] = useState(false)
+  const [captureSource, setCaptureSource] = useState<'camera' | 'gallery' | null>(null)
 
   // Auto-redirect après succès
   useEffect(() => {
     if (phase !== 'done' || !uploadPath) return
     const t = setTimeout(() => {
-      router.push(`/aquarium/nouvelle?photo=${encodeURIComponent(uploadPath)}`)
+      const params = new URLSearchParams({ photo: uploadPath })
+      if (captureSource) params.set('source', captureSource)
+      router.push(`/aquarium/nouvelle?${params.toString()}`)
     }, FEEDBACK_DISPLAY)
     return () => clearTimeout(t)
-  }, [phase, uploadPath, router])
+  }, [phase, uploadPath, captureSource, router])
 
-  async function handleFile(file: File) {
+  async function handleFile(file: File, source: 'camera' | 'gallery') {
+    setCaptureSource(source)
     if (!ALLOWED.includes(file.type)) {
       setUploadError('Format non supporté (JPG, PNG, WebP).')
       setPhase('done')
@@ -94,10 +98,12 @@ export function CaptureOverlay({ userId }: Props) {
     setPhase('done')
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    e.target.value = ''
-    if (file) handleFile(file)
+  function handleFileChange(source: 'camera' | 'gallery') {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      e.target.value = ''
+      if (file) handleFile(file, source)
+    }
   }
 
   function handleClose() {
@@ -234,7 +240,7 @@ export function CaptureOverlay({ userId }: Props) {
         capture="environment"
         className="hidden"
         aria-hidden
-        onChange={handleFileChange}
+        onChange={handleFileChange('camera')}
       />
       <input
         ref={galleryRef}
@@ -242,7 +248,7 @@ export function CaptureOverlay({ userId }: Props) {
         accept="image/jpeg,image/png,image/webp"
         className="hidden"
         aria-hidden
-        onChange={handleFileChange}
+        onChange={handleFileChange('gallery')}
       />
     </div>
   )

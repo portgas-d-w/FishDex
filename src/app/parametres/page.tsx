@@ -7,6 +7,7 @@ import { AccountSection } from '@/components/parametres-v2/AccountSection'
 import { NotificationsSection } from '@/components/parametres-v2/NotificationsSection'
 import { PreferencesSection } from '@/components/parametres-v2/PreferencesSection'
 import { FishingPreferencesSection } from '@/components/parametres-v2/FishingPreferencesSection'
+import { SessionPreferencesSection } from '@/components/parametres-v2/SessionPreferencesSection'
 import { PrivacySection } from '@/components/parametres-v2/PrivacySection'
 import { OtherSection } from '@/components/parametres-v2/OtherSection'
 import { LogoutButton } from '@/components/parametres-v2/LogoutButton'
@@ -23,7 +24,7 @@ export default async function ParametresPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, avatar_url')
+    .select('username, avatar_url, suggest_session_on_capture, default_release')
     .eq('id', user.id)
     .single()
 
@@ -70,6 +71,11 @@ export default async function ParametresPage() {
       <PreferencesSection />
 
       <FishingPreferencesSection spotsCount={spotsCount} />
+
+      <SessionPreferencesSection
+        suggestSession={profile?.suggest_session_on_capture ?? true}
+        defaultRelease={profile?.default_release ?? false}
+      />
 
       <PrivacySection />
 

@@ -16,18 +16,25 @@ export default async function NouvellePrisePage({ searchParams }: Props) {
 
   if (!user) redirect('/login')
 
-  const { data: species } = await supabase
-    .from('species')
-    .select('id, nom_fr, categorie')
-    .order('categorie')
-    .order('nom_fr')
+  const [speciesRes, profileRes] = await Promise.all([
+    supabase.from('species').select('id, nom_fr, categorie').order('categorie').order('nom_fr'),
+    supabase.from('profiles').select('default_release, suggest_session_on_capture').eq('id', user.id).single(),
+  ])
 
   const today = new Date().toISOString().split('T')[0]
   const params = await searchParams
+
   const rawPhoto = params.photo
   const photoPath = typeof rawPhoto === 'string' && rawPhoto.startsWith(`${user.id}/`)
     ? rawPhoto
     : null
+
+  const rawSource = params.source
+  const captureSource: 'camera' | 'gallery' | null =
+    rawSource === 'camera' || rawSource === 'gallery' ? rawSource : null
+
+  const profile = profileRes.data as { default_release: boolean | null; suggest_session_on_capture: boolean | null } | null
+  const defaultRelease = profile?.default_release ?? false
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8">
@@ -36,7 +43,13 @@ export default async function NouvellePrisePage({ searchParams }: Props) {
           <h1 className="text-3xl font-bold text-teal-400">Nouvelle prise</h1>
           <p className="text-slate-400 mt-2">Enregistre ta capture dans l&apos;aquarium</p>
         </div>
-        <CatchForm species={species ?? []} today={today} photoPath={photoPath} />
+        <CatchForm
+          species={speciesRes.data ?? []}
+          today={today}
+          photoPath={photoPath}
+          captureSource={captureSource}
+          defaultRelease={defaultRelease}
+        />
       </div>
     </div>
   )

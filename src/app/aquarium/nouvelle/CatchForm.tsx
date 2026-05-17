@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { createCatch, type CatchState } from '@/app/actions/catches'
@@ -15,17 +15,52 @@ type Props = {
   species: Species[]
   today: string
   photoPath?: string | null
+  captureSource?: 'camera' | 'gallery' | null
+  defaultRelease?: boolean
 }
 
-export function CatchForm({ species, today, photoPath }: Props) {
+function Toggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean
+  onChange: (v: boolean) => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ${
+        checked ? 'bg-teal-500' : 'bg-slate-700'
+      }`}
+      role="switch"
+      aria-checked={checked}
+    >
+      <span
+        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+          checked ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  )
+}
+
+export function CatchForm({
+  species,
+  today,
+  photoPath,
+  captureSource,
+  defaultRelease = false,
+}: Props) {
   const [state, action, pending] = useActionState<CatchState, FormData>(createCatch, null)
+  const [released, setReleased] = useState(defaultRelease)
 
   const photoPreviewUrl = photoPath
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/catches/${photoPath}`
     : null
 
-  const poissons = species.filter(s => s.categorie !== 'crustace')
-  const crustaces = species.filter(s => s.categorie === 'crustace')
+  const poissons   = species.filter(s => s.categorie !== 'crustace')
+  const crustaces  = species.filter(s => s.categorie === 'crustace')
 
   return (
     <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8">
@@ -36,6 +71,10 @@ export function CatchForm({ species, today, photoPath }: Props) {
       )}
 
       <form action={action} className="space-y-5">
+        {/* Champs cachés */}
+        {captureSource && <input type="hidden" name="capture_source" value={captureSource} />}
+        <input type="hidden" name="released" value={released ? 'true' : 'false'} />
+
         {/* Photo pré-uploadée */}
         {photoPreviewUrl && (
           <div className="flex flex-col items-center gap-2">
@@ -68,16 +107,12 @@ export function CatchForm({ species, today, photoPath }: Props) {
             <option value="" disabled>— Sélectionne une espèce —</option>
             {poissons.length > 0 && (
               <optgroup label="Poissons">
-                {poissons.map(s => (
-                  <option key={s.id} value={s.id}>{s.nom_fr}</option>
-                ))}
+                {poissons.map(s => <option key={s.id} value={s.id}>{s.nom_fr}</option>)}
               </optgroup>
             )}
             {crustaces.length > 0 && (
               <optgroup label="Crustacés">
-                {crustaces.map(s => (
-                  <option key={s.id} value={s.id}>{s.nom_fr}</option>
-                ))}
+                {crustaces.map(s => <option key={s.id} value={s.id}>{s.nom_fr}</option>)}
               </optgroup>
             )}
           </select>
@@ -107,8 +142,7 @@ export function CatchForm({ species, today, photoPath }: Props) {
         {/* Lieu */}
         <div>
           <label htmlFor="lieu" className="block text-sm font-medium text-slate-300 mb-1.5">
-            Lieu{' '}
-            <span className="text-slate-500 text-xs font-normal">(optionnel)</span>
+            Lieu <span className="text-slate-500 text-xs font-normal">(optionnel)</span>
           </label>
           <input
             id="lieu"
@@ -123,8 +157,7 @@ export function CatchForm({ species, today, photoPath }: Props) {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="poids_kg" className="block text-sm font-medium text-slate-300 mb-1.5">
-              Poids (kg){' '}
-              <span className="text-slate-500 text-xs font-normal">(opt.)</span>
+              Poids (kg) <span className="text-slate-500 text-xs font-normal">(opt.)</span>
             </label>
             <input
               id="poids_kg"
@@ -141,8 +174,7 @@ export function CatchForm({ species, today, photoPath }: Props) {
           </div>
           <div>
             <label htmlFor="taille_cm" className="block text-sm font-medium text-slate-300 mb-1.5">
-              Taille (cm){' '}
-              <span className="text-slate-500 text-xs font-normal">(opt.)</span>
+              Taille (cm) <span className="text-slate-500 text-xs font-normal">(opt.)</span>
             </label>
             <input
               id="taille_cm"
@@ -159,11 +191,19 @@ export function CatchForm({ species, today, photoPath }: Props) {
           </div>
         </div>
 
+        {/* No-kill toggle */}
+        <div className="flex items-center justify-between rounded-xl bg-slate-800/60 border border-slate-700 px-4 py-3.5">
+          <div>
+            <p className="text-sm font-medium text-slate-200">Poisson relâché</p>
+            <p className="text-xs text-slate-500 mt-0.5">No-kill — retour à l&apos;eau</p>
+          </div>
+          <Toggle checked={released} onChange={setReleased} />
+        </div>
+
         {/* Notes */}
         <div>
           <label htmlFor="notes" className="block text-sm font-medium text-slate-300 mb-1.5">
-            Notes{' '}
-            <span className="text-slate-500 text-xs font-normal">(optionnel)</span>
+            Notes <span className="text-slate-500 text-xs font-normal">(optionnel)</span>
           </label>
           <textarea
             id="notes"
