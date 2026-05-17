@@ -4,7 +4,7 @@ import { Timer, MapPin, Fish, Plus, ArrowRight } from 'lucide-react'
 type Session = {
   id: string
   started_at: string
-  lieu: string | null
+  spot: { nom: string } | null
 }
 
 type Props = {
@@ -38,10 +38,10 @@ export function ActiveSessionCard({ session, catchCount, speciesCount }: Props) 
       </div>
 
       {/* Spot */}
-      {session.lieu && (
+      {session.spot?.nom && (
         <div className="flex items-center gap-1.5">
           <MapPin size={13} className="text-white/40 shrink-0" />
-          <p className="text-sm font-medium text-white truncate">{session.lieu}</p>
+          <p className="text-sm font-medium text-white truncate">{session.spot.nom}</p>
         </div>
       )}
 
@@ -86,7 +86,7 @@ export function ActiveSessionCard({ session, catchCount, speciesCount }: Props) 
   )
 }
 
-export function ActiveSessionInline({ session }: { session: Pick<Session, 'id' | 'started_at' | 'lieu'> }) {
+export function ActiveSessionInline({ session }: { session: Pick<Session, 'id' | 'started_at' | 'spot'> }) {
   return (
     <Link
       href="/sessions"
@@ -97,8 +97,8 @@ export function ActiveSessionInline({ session }: { session: Pick<Session, 'id' |
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-white">Session en cours</p>
-        {session.lieu && (
-          <p className="text-xs text-slate-400 truncate mt-0.5">{session.lieu}</p>
+        {session.spot?.nom && (
+          <p className="text-xs text-slate-400 truncate mt-0.5">{session.spot.nom}</p>
         )}
       </div>
       <ArrowRight size={16} className="text-slate-500 shrink-0" />

@@ -62,30 +62,34 @@ export default async function Home() {
   const email     = user.email ?? ''
 
   // Session active
-  let activeSession: { id: string; started_at: string; lieu: string | null } | null = null
+  let activeSession: { id: string; started_at: string; spot: { nom: string } | null } | null = null
   let sessionCatchCount = 0
   let sessionSpeciesCount = 0
   try {
     const { data } = await supabase
       .from('sessions')
-      .select('id, started_at, lieu')
+      .select('id, started_at, spot:spot_id(nom)')
       .eq('user_id', user.id)
       .is('ended_at', null)
       .single()
-    activeSession = data
+    if (data) {
+      activeSession = {
+        ...data,
+        spot: Array.isArray(data.spot) ? (data.spot[0] ?? null) : data.spot,
+      }
+    }
 
     if (activeSession) {
       const { data: sessionCatches } = await supabase
         .from('catches')
         .select('species_id')
-        .eq('user_id', user.id)
-        .gte('created_at', activeSession.started_at)
+        .eq('session_id', activeSession.id)
       const sc = sessionCatches ?? []
       sessionCatchCount   = sc.length
       sessionSpeciesCount = new Set(sc.map(c => c.species_id).filter(Boolean)).size
     }
   } catch {
-    // table sessions pas encore créée en H2
+    // session non disponible
   }
 
   ensureMissions(user.id).catch(() => null)
