@@ -14,6 +14,7 @@ import { ConditionsWidget } from '@/components/home/ConditionsWidget'
 import { FishdexObjectivesWidget } from '@/components/home/FishdexObjectivesWidget'
 import { getCurrentContext, getReadableLightPhase, getReadableDate, formatTime } from '@/lib/home/context'
 import { getPoeticPhrase } from '@/lib/home/poetic-phrases'
+import { getHomeBackground } from '@/lib/home/background-selector'
 import { ensureMissions } from '@/lib/missions/assigner'
 
 export default async function Home() {
@@ -131,10 +132,11 @@ export default async function Home() {
   ).size
   const totalSpeciesCount = totalSpeciesResult.count ?? 0
 
-  // Contexte et phrase
+  // Contexte, phrase et background dynamique
   const now     = new Date()
   const context = getCurrentContext()
   const phrase  = getPoeticPhrase(context, user.id)
+  const bgUrl   = getHomeBackground(context)
 
   return (
     <main className="relative min-h-screen bg-[#0a0f14]">
@@ -142,10 +144,11 @@ export default async function Home() {
       {/* ── HERO 70vh ────────────────────────────────────────────── */}
       <section className="relative h-[70vh] overflow-hidden">
 
-        {/* Background image */}
+        {/* Background dynamique selon saison × phase lumineuse */}
         <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/backgrounds/home-default.webp)' }}
+          key={bgUrl}
+          className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+          style={{ backgroundImage: `url(${bgUrl})` }}
         />
 
         {/* Vignette */}
