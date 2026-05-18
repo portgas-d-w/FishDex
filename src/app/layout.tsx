@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { BottomNavV2 } from "@/components/BottomNavV2";
+import { PostHogProvider } from "@/components/providers/PostHogProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,10 +46,14 @@ export default function RootLayout({
       className={`${inter.variable} ${outfit.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <main className="flex-1">
-          {children}
-        </main>
-        <BottomNavV2 />
+        <Suspense fallback={null}>
+          <PostHogProvider>
+            <main className="flex-1">
+              {children}
+            </main>
+            <BottomNavV2 />
+          </PostHogProvider>
+        </Suspense>
       </body>
     </html>
   );

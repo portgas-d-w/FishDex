@@ -1,12 +1,15 @@
 'use client'
 
 import { useActionState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { signUp, type AuthState } from '@/app/actions/auth'
 
 export default function SignupPage() {
   const [state, action, pending] = useActionState<AuthState, FormData>(signUp, null)
+  const searchParams = useSearchParams()
+  const inviteCode = searchParams.get('code') ?? ''
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -121,6 +124,22 @@ export default function SignupPage() {
               {state?.fieldErrors?.confirmPassword && (
                 <p className="mt-1.5 text-xs text-red-400">{state.fieldErrors.confirmPassword}</p>
               )}
+            </div>
+
+            {/* Code d'invitation (bêta) */}
+            <div>
+              <label htmlFor="invite_code" className="block text-sm font-medium text-slate-300 mb-1.5">
+                Code d&apos;invitation <span className="text-slate-500 font-normal">(optionnel)</span>
+              </label>
+              <input
+                id="invite_code"
+                name="invite_code"
+                type="text"
+                defaultValue={inviteCode}
+                placeholder="FISH-XXXXXX"
+                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 transition-colors uppercase tracking-widest"
+              />
+              <p className="mt-1.5 text-xs text-slate-500">Reçu par email depuis la liste d&apos;attente bêta.</p>
             </div>
 
             {/* Bouton */}

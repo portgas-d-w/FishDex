@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { validateInviteCode, consumeInviteCode } from '@/app/actions/beta'
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -40,6 +41,7 @@ export async function signUp(
   const password = String(formData.get('password') ?? '')
   const confirmPassword = String(formData.get('confirmPassword') ?? '')
   const username = String(formData.get('username') ?? '').trim()
+  const inviteCode = String(formData.get('invite_code') ?? '').trim().toUpperCase()
 
   const fieldErrors: NonNullable<AuthState>['fieldErrors'] = {}
 
@@ -75,7 +77,15 @@ export async function signUp(
     return { fieldErrors: { username: 'Ce pseudo est déjà utilisé.' } }
   }
 
-  const { error } = await supabase.auth.signUp({
+  // Valider le code invite si fourni
+  let inviteId: string | undefined
+  if (inviteCode) {
+    const { valid, inviteId: id, error: codeError } = await validateInviteCode(inviteCode)
+    if (!valid) return { error: `Code d'invitation invalide : ${codeError}.` }
+    inviteId = id
+  }
+
+  const { data: signUpData, error } = await supabase.auth.signUp({
     email,
     password,
     options: { data: { username } },
@@ -86,6 +96,11 @@ export async function signUp(
       return { fieldErrors: { email: 'Un compte existe déjà avec cette adresse.' } }
     }
     return { error: 'Une erreur est survenue lors de la création du compte. Réessaie.' }
+  }
+
+  // Consommer le code et marquer l'user comme bêta
+  if (inviteId && signUpData.user?.id) {
+    await consumeInviteCode(inviteId, signUpData.user.id)
   }
 
   redirect('/onboarding')
