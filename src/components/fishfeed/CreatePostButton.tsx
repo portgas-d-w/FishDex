@@ -69,99 +69,102 @@ export function CreatePostButton({ recentCatches }: { recentCatches: RecentCatch
           onClick={reset}
         >
           <div
-            className="w-full max-w-lg rounded-t-2xl bg-[#111820] border border-white/10 p-5 space-y-4 max-h-[80vh] overflow-y-auto"
+            className="w-full max-w-lg rounded-t-2xl bg-[#111820] border border-white/10 flex flex-col max-h-[80vh]"
             onClick={e => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold tracking-widest text-cyan-400 uppercase">
-                Nouvelle publication
+            {/* Zone scrollable */}
+            <div className="overflow-y-auto flex-1 p-5 space-y-4">
+
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold tracking-widest text-cyan-400 uppercase">
+                  Nouvelle publication
+                </p>
+                <button onClick={reset} className="text-white/30 hover:text-white/60 transition-colors">
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Sélection capture (optionnel) */}
+              {recentCatches.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs text-white/40">Rattacher une capture <span className="text-white/20">(optionnel)</span></p>
+                  <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                    <button
+                      onClick={() => setSelectedCatchId(null)}
+                      className={`shrink-0 flex flex-col items-center gap-1.5 w-16 rounded-xl p-2 border transition-colors ${
+                        selectedCatchId === null
+                          ? 'bg-cyan-400/12 border-cyan-400/30'
+                          : 'bg-white/4 border-white/8 hover:bg-white/8'
+                      }`}
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-white/8 flex items-center justify-center">
+                        <FileText size={16} className="text-white/40" />
+                      </div>
+                      <span className="text-[9px] text-white/40 leading-tight text-center">Texte seul</span>
+                    </button>
+
+                    {recentCatches.map(c => {
+                      const selected = selectedCatchId === c.id
+                      const imgSrc = c.photo_url
+                        ? `${supabaseUrl}/storage/v1/object/public/catches/${c.photo_url}`
+                        : null
+                      return (
+                        <button
+                          key={c.id}
+                          onClick={() => setSelectedCatchId(c.id)}
+                          className={`shrink-0 flex flex-col items-center gap-1.5 w-16 rounded-xl p-2 border transition-colors ${
+                            selected
+                              ? 'bg-cyan-400/12 border-cyan-400/30'
+                              : 'bg-white/4 border-white/8 hover:bg-white/8'
+                          }`}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-black/30 overflow-hidden flex items-center justify-center">
+                            {imgSrc
+                              ? <img src={imgSrc} alt="" className="w-full h-full object-cover" />
+                              : <Fish size={16} className="text-white/20" />
+                            }
+                          </div>
+                          <span className="text-[9px] text-white/50 leading-tight text-center truncate w-full">
+                            {c.species_nom ?? '?'}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Caption */}
+              <textarea
+                value={caption}
+                onChange={e => setCaption(e.target.value)}
+                placeholder={selectedCatchId ? 'Ajoute quelques mots sur cette prise…' : 'Partage un moment, une réflexion…'}
+                rows={3}
+                maxLength={280}
+                className="w-full rounded-xl bg-white/8 border border-white/10 px-4 py-3 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-cyan-400/50 resize-none"
+              />
+              <p className="text-[10px] text-white/20 text-right -mt-2">{caption.length}/280</p>
+
+              <p className="text-[11px] text-white/20 leading-relaxed">
+                Pas de commentaires · Pas de partage externe · 7 réactions contemplatives uniquement
               </p>
-              <button onClick={reset} className="text-white/30 hover:text-white/60 transition-colors">
-                <X size={16} />
-              </button>
+
             </div>
 
-            {/* Sélection capture (optionnel) */}
-            {recentCatches.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs text-white/40">Rattacher une capture <span className="text-white/20">(optionnel)</span></p>
-                <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-                  {/* Option "texte seul" */}
-                  <button
-                    onClick={() => setSelectedCatchId(null)}
-                    className={`shrink-0 flex flex-col items-center gap-1.5 w-16 rounded-xl p-2 border transition-colors ${
-                      selectedCatchId === null
-                        ? 'bg-cyan-400/12 border-cyan-400/30'
-                        : 'bg-white/4 border-white/8 hover:bg-white/8'
-                    }`}
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-white/8 flex items-center justify-center">
-                      <FileText size={16} className="text-white/40" />
-                    </div>
-                    <span className="text-[9px] text-white/40 leading-tight text-center">Texte seul</span>
-                  </button>
-
-                  {recentCatches.map(c => {
-                    const selected = selectedCatchId === c.id
-                    const imgSrc = c.photo_url
-                      ? `${supabaseUrl}/storage/v1/object/public/catches/${c.photo_url}`
-                      : null
-                    return (
-                      <button
-                        key={c.id}
-                        onClick={() => setSelectedCatchId(c.id)}
-                        className={`shrink-0 flex flex-col items-center gap-1.5 w-16 rounded-xl p-2 border transition-colors ${
-                          selected
-                            ? 'bg-cyan-400/12 border-cyan-400/30'
-                            : 'bg-white/4 border-white/8 hover:bg-white/8'
-                        }`}
-                      >
-                        <div className="w-10 h-10 rounded-lg bg-black/30 overflow-hidden flex items-center justify-center">
-                          {imgSrc
-                            ? <img src={imgSrc} alt="" className="w-full h-full object-cover" />
-                            : <Fish size={16} className="text-white/20" />
-                          }
-                        </div>
-                        <span className="text-[9px] text-white/50 leading-tight text-center truncate w-full">
-                          {c.species_nom ?? '?'}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Caption */}
-            <textarea
-              value={caption}
-              onChange={e => setCaption(e.target.value)}
-              placeholder={selectedCatchId ? 'Ajoute quelques mots sur cette prise…' : 'Partage un moment, une réflexion…'}
-              rows={3}
-              maxLength={280}
-              className="w-full rounded-xl bg-white/8 border border-white/10 px-4 py-3 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-cyan-400/50 resize-none"
-            />
-            <p className="text-[10px] text-white/20 text-right -mt-2">{caption.length}/280</p>
-
-            {/* Disclaimer */}
-            <p className="text-[11px] text-white/20 leading-relaxed">
-              Pas de commentaires · Pas de partage externe · 7 réactions contemplatives uniquement
-            </p>
-
-            {/* Erreur */}
-            {postError && (
-              <p className="text-sm text-red-400 text-center">{postError}</p>
-            )}
-
-            {/* Submit */}
-            <button
-              onClick={handlePublish}
-              disabled={pending || (!selectedCatchId && !caption.trim())}
-              className="w-full py-3 rounded-xl bg-cyan-400 text-[#0a0f14] font-bold text-sm disabled:opacity-40 transition-opacity active:scale-[0.98]"
-            >
-              {pending ? 'Publication…' : 'Publier'}
-            </button>
+            {/* Footer sticky — toujours visible */}
+            <div className="shrink-0 px-5 pb-6 pt-3 border-t border-white/8 space-y-2">
+              {postError && (
+                <p className="text-sm text-red-400 text-center">{postError}</p>
+              )}
+              <button
+                onClick={handlePublish}
+                disabled={pending || (!selectedCatchId && !caption.trim())}
+                className="w-full py-3.5 rounded-xl bg-cyan-400 text-[#0a0f14] font-bold text-sm disabled:opacity-40 transition-opacity active:scale-[0.98]"
+              >
+                {pending ? 'Publication…' : 'Publier'}
+              </button>
+            </div>
           </div>
         </div>
       )}
