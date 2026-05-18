@@ -68,21 +68,27 @@ export function CatchForm({
   // ── IA identification ──────────────────────────────────────────────────────
   const [aiPending, startAI] = useTransition()
   const [aiPredictions, setAiPredictions] = useState<AIPrediction[] | null>(null)
+  const [aiError, setAiError] = useState<string | null>(null)
   const [aiDismissed, setAiDismissed] = useState(false)
 
   useEffect(() => {
     if (!photoPath) return
     startAI(async () => {
       const result = await identifySpeciesFromPhoto(photoPath)
-      // N'afficher que si au moins une prédiction avec un match BDD
-      const withMatch = result.predictions.filter(p => p.matched_species_id)
-      setAiPredictions(withMatch.length > 0 ? withMatch : [])
+      if (result.source === 'failed' || result.predictions.length === 0) {
+        setAiError(result.error ?? 'Aucune espèce reconnue')
+        setAiPredictions([])
+      } else {
+        setAiPredictions(result.predictions)
+        setAiError(null)
+      }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [photoPath])
 
   const topPrediction = aiPredictions?.[0] ?? null
-  const showBanner = !aiDismissed && photoPath && (aiPending || (aiPredictions !== null && topPrediction !== null))
+  const showBanner = !aiDismissed && photoPath &&
+    (aiPending || aiPredictions !== null)
 
   // ── Données formulaire ─────────────────────────────────────────────────────
   const photoPreviewUrl = photoPath
@@ -124,42 +130,59 @@ export function CatchForm({
 
         {/* ── Bannière suggestion IA ─────────────────────────────────────── */}
         {showBanner && (
-          <div className="rounded-xl border border-cyan-500/25 bg-cyan-950/30 px-4 py-3">
-            {aiPending ? (
+          <div className={`rounded-xl border px-4 py-3 ${
+            aiError
+              ? 'border-slate-600/40 bg-slate-800/40'
+              : 'border-cyan-500/25 bg-cyan-950/30'
+          }`}>
+            {/* En-tête commun */}
+            <div className="flex items-center justify-between mb-2">
+              <span className={`text-[10px] font-semibold tracking-widest uppercase ${
+                aiError ? 'text-slate-400' : 'text-cyan-400'
+              }`}>
+                Suggestion IA
+              </span>
+              {!aiPending && (
+                <button
+                  type="button"
+                  onClick={() => setAiDismissed(true)}
+                  className="text-slate-500 hover:text-slate-300 text-xs transition-colors"
+                  aria-label="Ignorer"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* États */}
+            {aiPending && (
               <div className="flex items-center gap-2.5">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
                 <span className="text-xs text-cyan-400/80">Identification de l&apos;espèce en cours…</span>
               </div>
-            ) : topPrediction ? (
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold tracking-widest text-cyan-400 uppercase">
-                      Suggestion IA
-                    </span>
-                    <ConfidenceDot confidence={topPrediction.confidence} />
-                    <span className="text-[10px] text-slate-400">
-                      {Math.round(topPrediction.confidence * 100)}% de confiance
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setAiDismissed(true)}
-                    className="text-slate-500 hover:text-slate-300 text-xs transition-colors"
-                    aria-label="Ignorer la suggestion"
-                  >
-                    ✕
-                  </button>
-                </div>
+            )}
 
+            {!aiPending && aiError && (
+              <p className="text-xs text-slate-400">{aiError}</p>
+            )}
+
+            {!aiPending && !aiError && topPrediction && (
+              <div className="space-y-2">
                 {/* Top prédiction */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">
-                      {topPrediction.matched_nom_fr ?? topPrediction.species_name}
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <ConfidenceDot confidence={topPrediction.confidence} />
+                      <p className="text-sm font-semibold text-white truncate">
+                        {topPrediction.matched_nom_fr ?? topPrediction.species_name}
+                      </p>
+                    </div>
                     <p className="text-[11px] text-slate-400 italic truncate">
                       {topPrediction.scientific_name}
+                      {' · '}{Math.round(topPrediction.confidence * 100)}%
+                      {!topPrediction.matched_species_id && (
+                        <span className="text-amber-500/80"> · absent de FishDex</span>
+                      )}
                     </p>
                   </div>
                   <button
@@ -171,14 +194,15 @@ export function CatchForm({
                     }}
                     disabled={!topPrediction.matched_species_id}
                     className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 hover:bg-cyan-400 text-slate-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    title={!topPrediction.matched_species_id ? 'Espèce non disponible dans FishDex' : undefined}
                   >
                     Appliquer
                   </button>
                 </div>
 
-                {/* Autres prédictions (si plusieurs matches BDD) */}
+                {/* Alternatives */}
                 {aiPredictions && aiPredictions.length > 1 && (
-                  <div className="flex flex-wrap gap-1.5 pt-0.5 border-t border-white/5">
+                  <div className="flex flex-wrap gap-1.5 pt-1.5 border-t border-white/5">
                     {aiPredictions.slice(1, 4).map((p, i) => (
                       <button
                         key={i}
@@ -188,6 +212,7 @@ export function CatchForm({
                         }}
                         disabled={!p.matched_species_id}
                         className="px-2.5 py-1 rounded-lg text-[11px] bg-white/5 border border-white/8 text-slate-300 hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        title={!p.matched_species_id ? 'Absent de FishDex' : undefined}
                       >
                         {p.matched_nom_fr ?? p.species_name}
                         <span className="ml-1 text-slate-500">{Math.round(p.confidence * 100)}%</span>
@@ -196,7 +221,11 @@ export function CatchForm({
                   </div>
                 )}
               </div>
-            ) : null}
+            )}
+
+            {!aiPending && !aiError && aiPredictions?.length === 0 && (
+              <p className="text-xs text-slate-400">Aucune espèce reconnue sur cette photo.</p>
+            )}
           </div>
         )}
 
