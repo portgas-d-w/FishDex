@@ -2,13 +2,13 @@ import type { Season, LightPhase, Weather, Context } from './poetic-phrases';
 
 export type { Season, LightPhase, Weather, Context };
 
-export function getCurrentContext(): Context {
-  const now = new Date();
+export function getCurrentContext(weather: Weather = 'clear'): Context {
+  const now = new Date()
   return {
-    season: getSeason(now),
-    light: getLightPhase(now),
-    weather: 'clear', // placeholder H1 — remplacé par API météo en H3
-  };
+    season:  getSeason(now),
+    light:   getLightPhase(now),
+    weather,
+  }
 }
 
 function getSeason(date: Date): Season {

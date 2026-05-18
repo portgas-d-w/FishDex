@@ -1,4 +1,4 @@
-import type { Season, LightPhase, Context } from './context'
+import type { Season, LightPhase, Weather, Context } from './context'
 
 /**
  * Mapping saison × phase lumineuse → background.
@@ -60,9 +60,19 @@ const BG_MAP: Partial<Record<`${Season | 'any'}-${LightPhase | 'any'}`, string>>
 
 const DEFAULT_BG = '/backgrounds/home-default.webp'
 
+// Backgrounds météo prioritaires (override le mapping saison×lumière)
+const WEATHER_OVERRIDE: Partial<Record<Weather, string>> = {
+  rainy: '/backgrounds/home-orage.webp',
+  snowy: '/backgrounds/home-hiver.webp',
+  foggy: '/backgrounds/home-aube-grise.webp',
+}
+
 export function getHomeBackground(context: Pick<Context, 'season' | 'light' | 'weather'>): string {
-  // En H3 avec API météo réelle, on pourra activer les backgrounds orage/pluie.
-  // Pour l'instant weather='clear' toujours → on ignore ce critère.
+  // Météo défavorable → override prioritaire
+  const weatherOverride = WEATHER_OVERRIDE[context.weather]
+  if (weatherOverride) return weatherOverride
+
+  // Sinon → mapping saison × lumière
   const exact = BG_MAP[`${context.season}-${context.light}`]
   if (exact) return exact
   return DEFAULT_BG

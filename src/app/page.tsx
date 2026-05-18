@@ -15,6 +15,8 @@ import { FishdexObjectivesWidget } from '@/components/home/FishdexObjectivesWidg
 import { getCurrentContext, getReadableLightPhase, getReadableDate, formatTime } from '@/lib/home/context'
 import { getPoeticPhrase } from '@/lib/home/poetic-phrases'
 import { getHomeBackground } from '@/lib/home/background-selector'
+import { getWeatherForUser } from '@/app/actions/weather'
+import { classifyWeather } from '@/lib/weather/classifier'
 import { ensureMissions } from '@/lib/missions/assigner'
 
 export default async function Home() {
@@ -23,7 +25,7 @@ export default async function Home() {
 
   if (!user) return <LandingPageV2 />
 
-  const [profileResult, catchesResult, spotsResult, speciesCountResult, totalSpeciesResult] = await Promise.all([
+  const [profileResult, catchesResult, spotsResult, speciesCountResult, totalSpeciesResult, weatherResult] = await Promise.all([
     supabase
       .from('profiles')
       .select('username, avatar_url, onboarding_completed, collection_choice_completed')
@@ -54,6 +56,8 @@ export default async function Home() {
     supabase
       .from('species')
       .select('id', { count: 'exact', head: true }),
+
+    getWeatherForUser(),
   ])
 
   if (!profileResult.data?.onboarding_completed) redirect('/onboarding')
@@ -133,10 +137,12 @@ export default async function Home() {
   const totalSpeciesCount = totalSpeciesResult.count ?? 0
 
   // Contexte, phrase et background dynamique
-  const now     = new Date()
-  const context = getCurrentContext()
-  const phrase  = getPoeticPhrase(context, user.id)
-  const bgUrl   = getHomeBackground(context)
+  const now              = new Date()
+  const { weather, source: weatherSource } = weatherResult
+  const classified       = weather ? classifyWeather(weather) : 'clear' as const
+  const context          = getCurrentContext(classified)
+  const phrase           = getPoeticPhrase(context, user.id)
+  const bgUrl            = getHomeBackground(context)
 
   return (
     <main className="relative min-h-screen bg-[#0a0f14]">
@@ -191,7 +197,7 @@ export default async function Home() {
 
         {/* WIDGET 2 + 3 — CONDITIONS / OBJECTIFS (côte à côte) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ConditionsWidget />
+          <ConditionsWidget weather={weather} classified={classified} source={weatherSource} />
           <FishdexObjectivesWidget
             caughtCount={caughtSpeciesCount}
             totalCount={totalSpeciesCount}
