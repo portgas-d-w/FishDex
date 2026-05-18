@@ -11,7 +11,7 @@ export default async function FishFeedPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { hasAccess, sessionCount, required } = await checkFeedAccess()
+  const { hasAccess } = await checkFeedAccess()
 
   if (!hasAccess) {
     return (
@@ -20,22 +20,9 @@ export default async function FishFeedPage() {
           <Lock size={24} className="text-white/25" />
         </div>
         <h1 className="text-2xl font-black text-white mb-2">FishFeed</h1>
-        <p className="text-white/50 text-sm leading-relaxed mb-4">
-          Le fil communautaire se débloque après<br />
-          <span className="text-white/70 font-semibold">{required} sessions terminées</span>.
-        </p>
-        <div className="w-48 h-1.5 rounded-full bg-white/8 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-cyan-400/60 transition-all"
-            style={{ width: `${Math.min((sessionCount / required) * 100, 100)}%` }}
-          />
-        </div>
-        <p className="text-[11px] text-white/25 mt-2">
-          {sessionCount} / {required} sessions
-        </p>
-        <p className="text-[11px] text-white/20 mt-6 max-w-xs leading-relaxed">
-          Le FishFeed est réservé aux pêcheurs qui utilisent activement l&apos;app
-          pour garder une communauté authentique.
+        <p className="text-white/50 text-sm leading-relaxed">
+          Enregistre ta première capture pour<br />
+          accéder à la communauté.
         </p>
       </div>
     )

@@ -5,12 +5,12 @@ import { REACTION_EMOJIS } from '@/lib/fishfeed/constants'
 
 type Props = {
   hasAccess: boolean
-  sessionCount: number
+  catchCount: number
   required: number
   previewPosts: FeedPost[]
 }
 
-export function FishFeedWidget({ hasAccess, sessionCount, required, previewPosts }: Props) {
+export function FishFeedWidget({ hasAccess, catchCount, required, previewPosts }: Props) {
   if (!hasAccess) {
     return (
       <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-5">
@@ -18,16 +18,9 @@ export function FishFeedWidget({ hasAccess, sessionCount, required, previewPosts
           <p className="text-xs font-semibold tracking-widest text-cyan-400 uppercase">FishFeed</p>
           <Lock size={12} className="text-white/20" />
         </div>
-        <p className="text-sm text-white/40 mb-3">
-          La communauté se débloque après {required} sessions.
+        <p className="text-sm text-white/40">
+          Enregistre ta première capture pour accéder à la communauté.
         </p>
-        <div className="w-full h-1 rounded-full bg-white/8 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-cyan-400/40 transition-all"
-            style={{ width: `${Math.min((sessionCount / required) * 100, 100)}%` }}
-          />
-        </div>
-        <p className="text-[10px] text-white/20 mt-1.5">{sessionCount} / {required} sessions</p>
       </div>
     )
   }

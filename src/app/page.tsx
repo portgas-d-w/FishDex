@@ -239,7 +239,7 @@ export default async function Home() {
         {/* WIDGET 6 — FISHFEED */}
         <FishFeedWidget
           hasAccess={feedAccess.hasAccess}
-          sessionCount={feedAccess.sessionCount}
+          catchCount={feedAccess.catchCount}
           required={feedAccess.required}
           previewPosts={feedPreview}
         />

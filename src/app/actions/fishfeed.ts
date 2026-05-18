@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { REACTION_EMOJIS, type ReactionKey } from '@/lib/fishfeed/constants'
 
-const FEED_GATE_SESSIONS = 5
+const FEED_GATE_CATCHES = 1
 
 export type FeedPost = {
   id: string
@@ -24,24 +24,23 @@ export type FeedPost = {
 
 export async function checkFeedAccess(): Promise<{
   hasAccess: boolean
-  sessionCount: number
+  catchCount: number
   required: number
 }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { hasAccess: false, sessionCount: 0, required: FEED_GATE_SESSIONS }
+  if (!user) return { hasAccess: false, catchCount: 0, required: FEED_GATE_CATCHES }
 
   const { count } = await supabase
-    .from('sessions')
+    .from('catches')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
-    .not('ended_at', 'is', null)
 
-  const sessionCount = count ?? 0
+  const catchCount = count ?? 0
   return {
-    hasAccess: sessionCount >= FEED_GATE_SESSIONS,
-    sessionCount,
-    required: FEED_GATE_SESSIONS,
+    hasAccess: catchCount >= FEED_GATE_CATCHES,
+    catchCount,
+    required: FEED_GATE_CATCHES,
   }
 }
 
