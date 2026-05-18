@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Users, Lock, ArrowRight } from 'lucide-react'
-import { REACTION_EMOJIS, type FeedPost } from '@/app/actions/fishfeed'
+import type { FeedPost } from '@/app/actions/fishfeed'
+import { REACTION_EMOJIS } from '@/lib/fishfeed/constants'
 
 type Props = {
   hasAccess: boolean

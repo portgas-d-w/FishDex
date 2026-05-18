@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { toggleReaction, REACTION_EMOJIS, type ReactionKey, type FeedPost } from '@/app/actions/fishfeed'
+import { toggleReaction, type FeedPost } from '@/app/actions/fishfeed'
+import { REACTION_EMOJIS, type ReactionKey } from '@/lib/fishfeed/constants'
 
 type Props = {
   postId: string

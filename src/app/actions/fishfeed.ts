@@ -2,22 +2,9 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { REACTION_EMOJIS, type ReactionKey } from '@/lib/fishfeed/constants'
 
-const FEED_GATE_SESSIONS = 5  // sessions requises pour accéder au feed
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-export const REACTION_EMOJIS = [
-  { key: 'respect',  emoji: '🙏', label: 'Respect'  },
-  { key: 'beau',     emoji: '😍', label: 'Beau'     },
-  { key: 'merci',    emoji: '🙌', label: 'Merci'    },
-  { key: 'inspire',  emoji: '✨', label: 'Inspiré'  },
-  { key: 'sage',     emoji: '🧘', label: 'Sage'     },
-  { key: 'sourire',  emoji: '😊', label: 'Sourire'  },
-  { key: 'force',    emoji: '💪', label: 'Force'    },
-] as const
-
-export type ReactionKey = typeof REACTION_EMOJIS[number]['key']
+const FEED_GATE_SESSIONS = 5
 
 export type FeedPost = {
   id: string
