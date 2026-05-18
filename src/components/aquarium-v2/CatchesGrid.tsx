@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { motion } from 'framer-motion'
 import { Filters, type FilterState } from './Filters'
 import { HeroCard } from './HeroCard'
 import { CatchCard } from './CatchCard'
@@ -66,17 +67,27 @@ export function CatchesGrid({ catches, stats, recordsMap }: Props) {
         />
       )}
 
-      {/* Grille */}
+      {/* Grille — stagger capé à 420 ms max pour les grandes collections */}
       {gridCatches.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 px-4 mt-4">
-          {gridCatches.map(c => (
-            <CatchCard
+          {gridCatches.map((c, i) => (
+            <motion.div
               key={c.id}
-              catch_={c}
-              photoUrl={buildPhotoUrl(c.photo_url)}
-              isRecord={c.poids_kg != null && recordsMap[c.species_id] === c.poids_kg}
-              isNew={isNew(c.date_capture)}
-            />
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.42,
+                delay: Math.min(i * 0.06, 0.42),
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <CatchCard
+                catch_={c}
+                photoUrl={buildPhotoUrl(c.photo_url)}
+                isRecord={c.poids_kg != null && recordsMap[c.species_id] === c.poids_kg}
+                isNew={isNew(c.date_capture)}
+              />
+            </motion.div>
           ))}
         </div>
       ) : (

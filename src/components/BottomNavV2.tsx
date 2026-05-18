@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { MapPin, Book, Camera, Fish, Calendar } from 'lucide-react'
 
@@ -51,16 +52,25 @@ export function BottomNavV2() {
 
         {/* FAB Capture — slot central surélevé */}
         <div className="flex-none w-20 relative flex flex-col items-center justify-end pb-2.5">
-          <Link
-            href="/capture"
-            aria-label="Nouvelle capture"
-            className={`absolute -top-5 flex items-center justify-center w-[56px] h-[56px] rounded-full
-              bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.6)] ring-2 ring-cyan-400/30
-              transition-all duration-150 active:scale-90
-              ${captureActive ? 'shadow-[0_0_40px_rgba(34,211,238,0.9)] ring-white/30' : ''}`}
+          <motion.div
+            className="absolute -top-5"
+            animate={captureActive ? { scale: 1 } : {
+              scale: [1, 1.04, 1],
+            }}
+            transition={{ duration: 2.8, repeat: captureActive ? 0 : Infinity, ease: 'easeInOut' }}
           >
-            <Camera size={26} strokeWidth={2} className="text-slate-950" />
-          </Link>
+            <Link
+              href="/capture"
+              aria-label="Nouvelle capture"
+              className={`flex items-center justify-center w-[56px] h-[56px] rounded-full
+                bg-cyan-400 ring-2 ring-cyan-400/30 transition-all duration-150 active:scale-90
+                ${captureActive
+                  ? 'shadow-[0_0_40px_rgba(34,211,238,0.9)] ring-white/30'
+                  : 'shadow-[0_0_30px_rgba(34,211,238,0.6)]'}`}
+            >
+              <Camera size={26} strokeWidth={2} className="text-slate-950" />
+            </Link>
+          </motion.div>
           <span className={`text-[10px] font-medium leading-none ${captureActive ? 'text-cyan-400' : 'text-slate-500'}`}>
             Capture
           </span>

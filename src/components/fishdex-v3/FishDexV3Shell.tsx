@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { motion } from 'framer-motion'
 import { Search, BookOpen, X } from 'lucide-react'
 import { SpeciesCardV3 } from './SpeciesCardV3'
 import { CollectionToggle } from './CollectionToggle'
@@ -143,15 +144,30 @@ export function FishDexV3Shell({
             <p className="text-white/30 text-sm">Aucune espèce trouvée</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {filtered.map(s => (
-              <SpeciesCardV3
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {filtered.map((s, i) => (
+              <motion.div
                 key={s.id}
-                species={s}
-                isDiscovered={discoveredSet.has(s.id)}
-              />
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.38,
+                  delay: Math.min(i * 0.04, 0.36),
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                <SpeciesCardV3
+                  species={s}
+                  isDiscovered={discoveredSet.has(s.id)}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
