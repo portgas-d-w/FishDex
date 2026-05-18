@@ -8,8 +8,9 @@ export type AIPrediction = {
   species_name: string
   scientific_name: string
   confidence: number           // 0–1
-  matched_species_id: string | null
-  matched_nom_fr: string | null
+  // Variétés FishDex correspondant au nom scientifique
+  // 0 = absent BDD  |  1 = match direct  |  >1 = disambiguation requise (ex: carpes)
+  variants: Array<{ id: string; nom_fr: string }>
 }
 
 export type IdentificationResult = {
@@ -138,20 +139,24 @@ async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationRes
     .select('id, nom_fr, nom_scientifique')
     .in('nom_scientifique', scientificNames)
 
-  const matchMap = new Map(
-    (matches ?? []).map(m => [m.nom_scientifique, { id: m.id, nom_fr: m.nom_fr }])
-  )
+  // Grouper par nom_scientifique — plusieurs espèces BDD peuvent partager le même
+  // (ex: Cyprinus carpio → carpe commune, carpe miroir, carpe cuir…)
+  const matchMap = new Map<string, Array<{ id: string; nom_fr: string }>>()
+  for (const m of matches ?? []) {
+    const arr = matchMap.get(m.nom_scientifique) ?? []
+    arr.push({ id: m.id, nom_fr: m.nom_fr })
+    matchMap.set(m.nom_scientifique, arr)
+  }
 
   console.log('[ai-identify] Matches BDD :', (matches ?? []).map(m => m.nom_fr))
 
   const predictions: AIPrediction[] = candidates.map(r => {
-    const dbMatch = matchMap.get(r.taxon.name) ?? null
+    const variants = matchMap.get(r.taxon.name) ?? []
     return {
-      species_name:       dbMatch?.nom_fr ?? r.taxon.preferred_common_name ?? r.taxon.name,
-      scientific_name:    r.taxon.name,
-      confidence:         Math.round(r.combined_score) / 100,
-      matched_species_id: dbMatch?.id ?? null,
-      matched_nom_fr:     dbMatch?.nom_fr ?? null,
+      species_name:    variants[0]?.nom_fr ?? r.taxon.preferred_common_name ?? r.taxon.name,
+      scientific_name: r.taxon.name,
+      confidence:      Math.round(r.combined_score) / 100,
+      variants,
     }
   })
 

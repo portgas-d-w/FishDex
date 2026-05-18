@@ -168,39 +168,53 @@ export function CatchForm({
 
             {!aiPending && !aiError && topPrediction && (
               <div className="space-y-2">
-                {/* Top prédiction */}
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <ConfidenceDot confidence={topPrediction.confidence} />
-                      <p className="text-sm font-semibold text-white truncate">
-                        {topPrediction.matched_nom_fr ?? topPrediction.species_name}
-                      </p>
-                    </div>
-                    <p className="text-[11px] text-slate-400 italic truncate">
-                      {topPrediction.scientific_name}
-                      {' · '}{Math.round(topPrediction.confidence * 100)}%
-                      {!topPrediction.matched_species_id && (
-                        <span className="text-amber-500/80"> · absent de FishDex</span>
-                      )}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (topPrediction.matched_species_id) {
-                        setSelectedSpeciesId(topPrediction.matched_species_id)
-                      }
-                    }}
-                    disabled={!topPrediction.matched_species_id}
-                    className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 hover:bg-cyan-400 text-slate-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    title={!topPrediction.matched_species_id ? 'Espèce non disponible dans FishDex' : undefined}
-                  >
-                    Appliquer
-                  </button>
+                {/* Nom scientifique + confiance */}
+                <div className="flex items-center gap-1.5">
+                  <ConfidenceDot confidence={topPrediction.confidence} />
+                  <p className="text-sm font-semibold text-white truncate">
+                    {topPrediction.species_name}
+                  </p>
+                  <span className="text-[11px] text-slate-400 italic shrink-0">
+                    {topPrediction.scientific_name} · {Math.round(topPrediction.confidence * 100)}%
+                  </span>
                 </div>
 
-                {/* Alternatives */}
+                {/* Cas 1 — absent de FishDex */}
+                {topPrediction.variants.length === 0 && (
+                  <p className="text-[11px] text-amber-500/80">Espèce non encore disponible dans FishDex</p>
+                )}
+
+                {/* Cas 2 — match direct : un seul bouton Appliquer */}
+                {topPrediction.variants.length === 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSpeciesId(topPrediction.variants[0].id)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 hover:bg-cyan-400 text-slate-900 transition-colors"
+                  >
+                    Appliquer — {topPrediction.variants[0].nom_fr}
+                  </button>
+                )}
+
+                {/* Cas 3 — disambiguation : plusieurs variétés pour ce nom scientifique */}
+                {topPrediction.variants.length > 1 && (
+                  <div>
+                    <p className="text-[10px] text-slate-400 mb-1.5">Quelle variété ?</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {topPrediction.variants.map(v => (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => setSelectedSpeciesId(v.id)}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/25 transition-colors"
+                        >
+                          {v.nom_fr}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Autres prédictions (rang 2-4) */}
                 {aiPredictions && aiPredictions.length > 1 && (
                   <div className="flex flex-wrap gap-1.5 pt-1.5 border-t border-white/5">
                     {aiPredictions.slice(1, 4).map((p, i) => (
@@ -208,13 +222,13 @@ export function CatchForm({
                         key={i}
                         type="button"
                         onClick={() => {
-                          if (p.matched_species_id) setSelectedSpeciesId(p.matched_species_id)
+                          if (p.variants[0]) setSelectedSpeciesId(p.variants[0].id)
                         }}
-                        disabled={!p.matched_species_id}
+                        disabled={p.variants.length === 0}
                         className="px-2.5 py-1 rounded-lg text-[11px] bg-white/5 border border-white/8 text-slate-300 hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                        title={!p.matched_species_id ? 'Absent de FishDex' : undefined}
+                        title={p.variants.length === 0 ? 'Absent de FishDex' : undefined}
                       >
-                        {p.matched_nom_fr ?? p.species_name}
+                        {p.species_name}
                         <span className="ml-1 text-slate-500">{Math.round(p.confidence * 100)}%</span>
                       </button>
                     ))}
