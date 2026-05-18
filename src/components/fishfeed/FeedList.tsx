@@ -42,6 +42,7 @@ export function FeedList({
           post={post}
           currentUserId={currentUserId}
           onReported={() => removePost(post.id)}
+          onDeleted={() => removePost(post.id)}
         />
       ))}
     </div>

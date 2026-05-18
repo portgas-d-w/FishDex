@@ -14,6 +14,10 @@ export type FeedPost = {
   catch_id: string | null
   photo_url: string | null
   species_nom: string | null
+  rarete: string | null
+  poids_kg: number | null
+  taille_cm: number | null
+  released: boolean | null
   caption: string | null
   created_at: string
   type: 'capture' | 'session' | 'memory'
@@ -81,11 +85,11 @@ export async function getFeed(limit = 20): Promise<FeedPost[]> {
   for (const p of profiles ?? []) profileMap[p.id] = p
 
   // 3. Données des captures (nécessite la policy 021)
-  const catchMap: Record<string, { photo_url: string | null; species_nom: string | null }> = {}
+  const catchMap: Record<string, { photo_url: string | null; species_nom: string | null; rarete: string | null; poids_kg: number | null; taille_cm: number | null; released: boolean | null }> = {}
   if (catchIds.length > 0) {
     const { data: catches, error: catchesError } = await supabase
       .from('catches')
-      .select('id, photo_url, species:species_id(nom_fr)')
+      .select('id, photo_url, poids_kg, taille_cm, released, species:species_id(nom_fr, rarete)')
       .in('id', catchIds)
 
     if (catchesError) console.error('[getFeed] catches error:', catchesError.message)
@@ -94,7 +98,11 @@ export async function getFeed(limit = 20): Promise<FeedPost[]> {
       const sp = Array.isArray(c.species) ? c.species[0] : c.species
       catchMap[c.id] = {
         photo_url:   c.photo_url ?? null,
-        species_nom: (sp as { nom_fr: string } | null)?.nom_fr ?? null,
+        species_nom: (sp as { nom_fr: string; rarete: string | null } | null)?.nom_fr ?? null,
+        rarete:      (sp as { nom_fr: string; rarete: string | null } | null)?.rarete ?? null,
+        poids_kg:    c.poids_kg ?? null,
+        taille_cm:   c.taille_cm ?? null,
+        released:    c.released ?? null,
       }
     }
   }
@@ -136,6 +144,10 @@ export async function getFeed(limit = 20): Promise<FeedPost[]> {
       catch_id:    p.catch_id,
       photo_url:   catchInfo?.photo_url   ?? null,
       species_nom: catchInfo?.species_nom ?? null,
+      rarete:      catchInfo?.rarete      ?? null,
+      poids_kg:    catchInfo?.poids_kg    ?? null,
+      taille_cm:   catchInfo?.taille_cm   ?? null,
+      released:    catchInfo?.released    ?? null,
       caption:     p.caption,
       created_at:  p.created_at,
       type:        p.type as FeedPost['type'],
@@ -200,6 +212,27 @@ export async function toggleReaction(
     await supabase.from('reactions').insert({ post_id: postId, user_id: user.id, emoji })
     return { userHasReacted: true }
   }
+}
+
+// ── Supprimer son propre post ─────────────────────────────────────────────────
+
+export async function deletePost(
+  postId: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Non authentifié' }
+
+  const { error } = await supabase
+    .from('posts')
+    .delete()
+    .eq('id', postId)
+    .eq('user_id', user.id)
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath('/fishfeed')
+  return { success: true }
 }
 
 // ── Signaler un post ──────────────────────────────────────────────────────────
