@@ -89,7 +89,7 @@ export function Screen4() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/90" />
 
       {/* Contenu centré */}
-      <div className="relative h-full flex flex-col px-7 pt-20 pb-10">
+      <div className="relative h-full flex flex-col px-7 pt-20 pb-52">
         <div>
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400/80 mb-3">
             Quelques permissions

@@ -27,7 +27,7 @@ export function Screen1() {
         </div>
 
         {/* Texte en bas */}
-        <div className="mt-auto px-7 pb-10">
+        <div className="mt-auto px-7 pb-52">
           <h1 className="text-4xl font-black text-white leading-tight tracking-tight mb-4">
             Préserve tes moments<br />de pêche.
           </h1>
