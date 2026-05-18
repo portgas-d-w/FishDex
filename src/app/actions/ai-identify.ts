@@ -130,28 +130,43 @@ async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationRes
     return { source: 'inaturalist', predictions: [], error: 'Aucune espèce reconnue sur cette photo' }
   }
 
-  // Match avec la BDD FishDex via nom_scientifique
   const supabase = await createClient()
-  const scientificNames = candidates.map(r => r.taxon.name)
 
+  // iNat retourne "Cyprinus carpio" mais la BDD a "Cyprinus carpio var. specularis" etc.
+  // → on extrait les 2 premiers mots (genre + espèce) et on fait un ILIKE prefix match
+  const baseMap = new Map<string, string>() // nom iNat → base "Genus species"
+  const uniqueBases: string[] = []
+  for (const r of candidates) {
+    const base = r.taxon.name.split(' ').slice(0, 2).join(' ')
+    baseMap.set(r.taxon.name, base)
+    if (!uniqueBases.includes(base)) uniqueBases.push(base)
+  }
+
+  // Requête avec ILIKE pour matcher toutes les variétés en une passe
+  const orFilter = uniqueBases.map(b => `nom_scientifique.ilike.${b}%`).join(',')
   const { data: matches } = await supabase
     .from('species')
     .select('id, nom_fr, nom_scientifique')
-    .in('nom_scientifique', scientificNames)
+    .or(orFilter)
 
-  // Grouper par nom_scientifique — plusieurs espèces BDD peuvent partager le même
-  // (ex: Cyprinus carpio → carpe commune, carpe miroir, carpe cuir…)
-  const matchMap = new Map<string, Array<{ id: string; nom_fr: string }>>()
+  // Grouper par base (genre espèce) → liste de variétés
+  const variantsByBase = new Map<string, Array<{ id: string; nom_fr: string }>>()
   for (const m of matches ?? []) {
-    const arr = matchMap.get(m.nom_scientifique) ?? []
-    arr.push({ id: m.id, nom_fr: m.nom_fr })
-    matchMap.set(m.nom_scientifique, arr)
+    for (const base of uniqueBases) {
+      if (m.nom_scientifique.startsWith(base)) {
+        const arr = variantsByBase.get(base) ?? []
+        arr.push({ id: m.id, nom_fr: m.nom_fr })
+        variantsByBase.set(base, arr)
+        break
+      }
+    }
   }
 
   console.log('[ai-identify] Matches BDD :', (matches ?? []).map(m => m.nom_fr))
 
   const predictions: AIPrediction[] = candidates.map(r => {
-    const variants = matchMap.get(r.taxon.name) ?? []
+    const base     = baseMap.get(r.taxon.name) ?? r.taxon.name
+    const variants = variantsByBase.get(base) ?? []
     return {
       species_name:    variants[0]?.nom_fr ?? r.taxon.preferred_common_name ?? r.taxon.name,
       scientific_name: r.taxon.name,
