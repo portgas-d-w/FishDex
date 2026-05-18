@@ -51,66 +51,94 @@ export async function getFeed(limit = 20): Promise<FeedPost[]> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
-  // Posts publics + auteur + capture
-  const { data: posts } = await supabase
+  // 1. Posts publics (sans joins — FK vers auth.users incompatible avec PostgREST)
+  const { data: posts, error: postsError } = await supabase
     .from('posts')
-    .select(`
-      id, user_id, catch_id, type, caption, created_at,
-      author:profiles!user_id(username, avatar_url),
-      catch:catches!catch_id(photo_url, species:species_id(nom_fr))
-    `)
+    .select('id, user_id, catch_id, type, caption, created_at')
     .eq('is_public', true)
     .order('created_at', { ascending: false })
     .limit(limit)
 
+  if (postsError) {
+    console.error('[getFeed] posts error:', postsError.message)
+    return []
+  }
   if (!posts?.length) return []
 
-  const postIds = posts.map(p => p.id)
+  const postIds  = posts.map(p => p.id)
+  const userIds  = [...new Set(posts.map(p => p.user_id))]
+  const catchIds = posts.map(p => p.catch_id).filter(Boolean) as string[]
 
-  // Réactions pour ces posts
+  // 2. Profils des auteurs
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, username, avatar_url')
+    .in('id', userIds)
+
+  if (profilesError) console.error('[getFeed] profiles error:', profilesError.message)
+
+  const profileMap: Record<string, { username: string; avatar_url: string | null }> = {}
+  for (const p of profiles ?? []) profileMap[p.id] = p
+
+  // 3. Données des captures (nécessite la policy 021)
+  const catchMap: Record<string, { photo_url: string | null; species_nom: string | null }> = {}
+  if (catchIds.length > 0) {
+    const { data: catches, error: catchesError } = await supabase
+      .from('catches')
+      .select('id, photo_url, species:species_id(nom_fr)')
+      .in('id', catchIds)
+
+    if (catchesError) console.error('[getFeed] catches error:', catchesError.message)
+
+    for (const c of catches ?? []) {
+      const sp = Array.isArray(c.species) ? c.species[0] : c.species
+      catchMap[c.id] = {
+        photo_url:   c.photo_url ?? null,
+        species_nom: (sp as { nom_fr: string } | null)?.nom_fr ?? null,
+      }
+    }
+  }
+
+  // 4. Réactions
   const { data: allReactions } = await supabase
     .from('reactions')
     .select('post_id, emoji, user_id')
     .in('post_id', postIds)
 
-  // Agréger
   const reactionMap: Record<string, Record<string, number>> = {}
-  const userReacted  = new Set<string>()
+  const userReacted = new Set<string>()
   for (const r of allReactions ?? []) {
     if (!reactionMap[r.post_id]) reactionMap[r.post_id] = {}
     reactionMap[r.post_id][r.emoji] = (reactionMap[r.post_id][r.emoji] ?? 0) + 1
     if (r.user_id === user.id) userReacted.add(`${r.post_id}:${r.emoji}`)
   }
 
+  // 5. Assembler
   return posts.map(p => {
-    const author = Array.isArray(p.author) ? p.author[0] : p.author
-    const catchData = p.catch_id ? (Array.isArray(p.catch) ? p.catch[0] : p.catch) : null
-    const rawSpecies = (catchData as { species: unknown } | null)?.species
-    const catchSpecies = Array.isArray(rawSpecies)
-      ? (rawSpecies[0] as { nom_fr: string } | undefined) ?? null
-      : (rawSpecies as { nom_fr: string } | null)
+    const profile  = profileMap[p.user_id] ?? null
+    const catchInfo = p.catch_id ? (catchMap[p.catch_id] ?? null) : null
 
     const reactions = Object.fromEntries(
       REACTION_EMOJIS.map(({ key }) => [
         key,
         {
-          count:           reactionMap[p.id]?.[key] ?? 0,
-          userHasReacted:  userReacted.has(`${p.id}:${key}`),
+          count:          reactionMap[p.id]?.[key] ?? 0,
+          userHasReacted: userReacted.has(`${p.id}:${key}`),
         },
       ])
     ) as FeedPost['reactions']
 
     return {
-      id:           p.id,
-      user_id:      p.user_id,
-      username:     (author as { username: string } | null)?.username ?? 'Pêcheur',
-      avatar_url:   (author as { avatar_url: string | null } | null)?.avatar_url ?? null,
-      catch_id:     p.catch_id,
-      photo_url:    (catchData as { photo_url: string | null } | null)?.photo_url ?? null,
-      species_nom:  (catchSpecies as { nom_fr: string } | null)?.nom_fr ?? null,
-      caption:      p.caption,
-      created_at:   p.created_at,
-      type:         p.type as FeedPost['type'],
+      id:          p.id,
+      user_id:     p.user_id,
+      username:    profile?.username   ?? 'Pêcheur',
+      avatar_url:  profile?.avatar_url ?? null,
+      catch_id:    p.catch_id,
+      photo_url:   catchInfo?.photo_url   ?? null,
+      species_nom: catchInfo?.species_nom ?? null,
+      caption:     p.caption,
+      created_at:  p.created_at,
+      type:        p.type as FeedPost['type'],
       reactions,
     }
   })
