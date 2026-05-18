@@ -16,6 +16,21 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "FishDex — Ton journal de pêche",
   description: "Identifie, collectionne et retrace toutes tes prises.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/logo/favicon.svg",  type: "image/svg+xml" },
+      { url: "/logo/icon-32.png",  sizes: "32x32",   type: "image/png" },
+      { url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: { url: "/logo/icon-180.png", sizes: "180x180" },
+    shortcut: "/logo/icon-32.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "FishDex",
+  },
 };
 
 export default function RootLayout({

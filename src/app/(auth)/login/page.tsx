@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { signIn, type AuthState } from '@/app/actions/auth'
 
 export default function LoginPage() {
@@ -12,11 +13,19 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
 
         {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-teal-400">
-            FishDex
+        <div className="flex flex-col items-center mb-8 gap-3">
+          <Link href="/" className="flex flex-col items-center gap-2">
+            <Image
+              src="/logo/icon-192.png"
+              alt="FishDex"
+              width={64}
+              height={64}
+              className="rounded-2xl"
+              priority
+            />
+            <span className="text-2xl font-black text-white tracking-tight">FishDex</span>
           </Link>
-          <p className="text-slate-400 mt-2">Connecte-toi à ton compte</p>
+          <p className="text-slate-400 text-sm">Connecte-toi à ton compte</p>
         </div>
 
         {/* Carte formulaire */}
