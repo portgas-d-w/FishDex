@@ -14,8 +14,8 @@ export type AIPrediction = {
 
 export type IdentificationResult = {
   source: 'inaturalist' | 'failed'
-  predictions: AIPrediction[]  // toutes les prédictions, match BDD ou non
-  error?: string               // message lisible si échec
+  predictions: AIPrediction[]
+  error?: string
 }
 
 // ── Entrée publique ────────────────────────────────────────────────────────────
@@ -29,13 +29,21 @@ export async function identifySpeciesFromPhoto(
   }
 
   const photoUrl = `${supabaseUrl}/storage/v1/object/public/catches/${photoPath}`
-  console.log('[ai-identify] Analyse de :', photoUrl)
+  console.log('[ai-identify] Téléchargement image :', photoUrl)
 
   try {
-    return await identifyWithINaturalist(photoUrl)
+    // Télécharger l'image côté serveur — iNaturalist n'a pas besoin d'accéder à Supabase
+    const imgRes = await fetch(photoUrl, { signal: AbortSignal.timeout(10_000) })
+    if (!imgRes.ok) {
+      throw new Error(`Impossible de télécharger l'image (HTTP ${imgRes.status})`)
+    }
+    const imgBlob = await imgRes.blob()
+    console.log('[ai-identify] Image téléchargée :', imgBlob.type, Math.round(imgBlob.size / 1024), 'KB')
+
+    return await identifyWithINaturalist(imgBlob)
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
-    console.error('[ai-identify] Échec iNaturalist :', msg)
+    console.error('[ai-identify] Échec :', msg)
     return { source: 'failed', predictions: [], error: msg }
   }
 }
@@ -55,64 +63,57 @@ type INatResult = {
   taxon: INatTaxon
 }
 
-async function identifyWithINaturalist(photoUrl: string): Promise<IdentificationResult> {
-  // URLSearchParams est plus fiable que FormData pour les API tierces en Node.js
-  const body = new URLSearchParams()
-  body.append('image_url', photoUrl)
+const FISH_ICONIC = new Set(['Actinopterygii', 'Fish', 'Fishes'])
+
+async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationResult> {
+  // Envoi en multipart/form-data avec le fichier binaire — format officiel de l'API
+  const body = new FormData()
+  body.append('image', imgBlob, 'photo.jpg')
 
   const response = await fetch(
     'https://api.inaturalist.org/v1/computervision/score_image',
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString(),
-      signal: AbortSignal.timeout(10_000),
+      body,
+      signal: AbortSignal.timeout(12_000),
     }
   )
 
   const remaining = response.headers.get('X-RateLimit-Remaining')
-  if (remaining && Number(remaining) < 10) {
+  if (remaining !== null && Number(remaining) < 10) {
     console.warn('[ai-identify] Rate limit bas :', remaining)
   }
 
   if (!response.ok) {
     const text = await response.text().catch(() => '')
-    throw new Error(`iNaturalist HTTP ${response.status} — ${text.slice(0, 200)}`)
+    throw new Error(`iNaturalist HTTP ${response.status} — ${text.slice(0, 300)}`)
   }
 
   const data = await response.json() as { results?: INatResult[] }
   const allResults: INatResult[] = data.results ?? []
 
   console.log(
-    '[ai-identify] iNat réponse brute — total résultats :',
+    '[ai-identify] Réponse iNat — résultats :',
     allResults.length,
     '| top 3 :',
     allResults.slice(0, 3).map(r => ({
-      name: r.taxon.name,
+      name:   r.taxon.name,
       iconic: r.taxon.iconic_taxon_name,
-      rank: r.taxon.rank,
-      score: r.combined_score,
+      rank:   r.taxon.rank,
+      score:  r.combined_score,
     }))
   )
 
-  // Filtre sur les poissons.
-  // On accepte iconic_taxon_name 'Actinopterygii' OU 'Fish' (certaines versions de l'API)
-  // On accepte rank 'species' ou 'subspecies' ou absent (certains rangs manquent)
-  const FISH_ICONIC = new Set(['Actinopterygii', 'Fish', 'Fishes'])
-  const fishResults = allResults.filter(r => {
-    const isfish = FISH_ICONIC.has(r.taxon.iconic_taxon_name ?? '')
-    const rankOk = !r.taxon.rank || r.taxon.rank === 'species' || r.taxon.rank === 'subspecies'
-    return isfish && rankOk
-  })
+  // Filtre poissons — accepte plusieurs valeurs possibles de iconic_taxon_name
+  const fishResults = allResults.filter(r =>
+    FISH_ICONIC.has(r.taxon.iconic_taxon_name ?? '') &&
+    (!r.taxon.rank || r.taxon.rank === 'species' || r.taxon.rank === 'subspecies')
+  )
 
   console.log('[ai-identify] Poissons filtrés :', fishResults.length)
 
-  // Si aucun poisson, prendre les top 5 résultats quand même (pour débogage + UX)
+  // Fallback si aucun poisson détecté : afficher les top 5 tous taxons
   const candidates = fishResults.length > 0 ? fishResults.slice(0, 5) : allResults.slice(0, 5)
-  const usedfallback = fishResults.length === 0 && allResults.length > 0
-  if (usedfallback) {
-    console.warn('[ai-identify] Aucun poisson détecté, affichage des meilleurs résultats généraux')
-  }
 
   if (candidates.length === 0) {
     return { source: 'inaturalist', predictions: [], error: 'Aucune espèce reconnue sur cette photo' }
@@ -131,10 +132,7 @@ async function identifyWithINaturalist(photoUrl: string): Promise<Identification
     (matches ?? []).map(m => [m.nom_scientifique, { id: m.id, nom_fr: m.nom_fr }])
   )
 
-  console.log(
-    '[ai-identify] Matches BDD :',
-    (matches ?? []).map(m => m.nom_scientifique)
-  )
+  console.log('[ai-identify] Matches BDD :', (matches ?? []).map(m => m.nom_fr))
 
   const predictions: AIPrediction[] = candidates.map(r => {
     const dbMatch = matchMap.get(r.taxon.name) ?? null
