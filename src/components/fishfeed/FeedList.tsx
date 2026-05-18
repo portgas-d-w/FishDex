@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { FeedPost } from '@/app/actions/fishfeed'
 import { FeedCard } from './FeedCard'
 
@@ -12,6 +12,11 @@ export function FeedList({
   currentUserId: string
 }) {
   const [posts, setPosts] = useState(initialPosts)
+
+  // Resync quand le serveur envoie de nouveaux posts (après router.refresh)
+  useEffect(() => {
+    setPosts(initialPosts)
+  }, [initialPosts])
 
   function removePost(id: string) {
     setPosts(prev => prev.filter(p => p.id !== id))
