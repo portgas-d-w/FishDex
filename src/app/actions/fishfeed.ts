@@ -186,31 +186,40 @@ export async function createPost(input: {
   return { post_id: data.id }
 }
 
-// ── Toggler une réaction ──────────────────────────────────────────────────────
+// ── Toggler une réaction (une seule par user par post) ───────────────────────
 
 export async function toggleReaction(
   postId: string,
   emoji: ReactionKey
-): Promise<{ userHasReacted: boolean; error?: string }> {
+): Promise<{ selected: ReactionKey | null; previous: ReactionKey | null; error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { userHasReacted: false, error: 'Non authentifié' }
+  if (!user) return { selected: null, previous: null, error: 'Non authentifié' }
 
-  // Vérifier si la réaction existe déjà
+  // Réaction actuelle de l'user sur ce post (au plus 1 avec la new contrainte)
   const { data: existing } = await supabase
     .from('reactions')
-    .select('id')
+    .select('id, emoji')
     .eq('post_id', postId)
     .eq('user_id', user.id)
-    .eq('emoji', emoji)
     .maybeSingle()
 
+  const previous = (existing?.emoji as ReactionKey) ?? null
+
   if (existing) {
-    await supabase.from('reactions').delete().eq('id', existing.id)
-    return { userHasReacted: false }
+    if (existing.emoji === emoji) {
+      // Même réaction → désélectionner
+      await supabase.from('reactions').delete().eq('id', existing.id)
+      return { selected: null, previous }
+    } else {
+      // Réaction différente → remplacer
+      await supabase.from('reactions').update({ emoji }).eq('id', existing.id)
+      return { selected: emoji, previous }
+    }
   } else {
+    // Pas encore de réaction → insérer
     await supabase.from('reactions').insert({ post_id: postId, user_id: user.id, emoji })
-    return { userHasReacted: true }
+    return { selected: emoji, previous: null }
   }
 }
 
