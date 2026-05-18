@@ -153,7 +153,7 @@ export function CreatePostButton({ recentCatches }: { recentCatches: RecentCatch
             </div>
 
             {/* Footer sticky — toujours visible */}
-            <div className="shrink-0 px-5 pb-6 pt-3 border-t border-white/8 space-y-2">
+            <div className="shrink-0 px-5 pt-3 border-t border-white/8 space-y-2" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom) + 70px)' }}>
               {postError && (
                 <p className="text-sm text-red-400 text-center">{postError}</p>
               )}
