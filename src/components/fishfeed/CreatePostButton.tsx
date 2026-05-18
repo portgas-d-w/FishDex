@@ -17,6 +17,7 @@ export function CreatePostButton({ recentCatches }: { recentCatches: RecentCatch
   const [open, setOpen] = useState(false)
   const [selectedCatchId, setSelectedCatchId] = useState<string | null>(null)
   const [caption, setCaption] = useState('')
+  const [postError, setPostError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
@@ -25,16 +26,26 @@ export function CreatePostButton({ recentCatches }: { recentCatches: RecentCatch
     setOpen(false)
     setSelectedCatchId(null)
     setCaption('')
+    setPostError(null)
   }
 
   function handlePublish() {
+    setPostError(null)
     startTransition(async () => {
       const { post_id, error } = await createPost({
         catch_id:   selectedCatchId ?? undefined,
         type:       selectedCatchId ? 'capture' : 'memory',
         caption:    caption.trim() || undefined,
       })
-      if (error || !post_id) return
+      if (error) {
+        console.error('[FishFeed] createPost error:', error)
+        setPostError(error)
+        return
+      }
+      if (!post_id) {
+        setPostError('Erreur inattendue, réessaie.')
+        return
+      }
       reset()
       router.refresh()
     })
@@ -137,6 +148,11 @@ export function CreatePostButton({ recentCatches }: { recentCatches: RecentCatch
             <p className="text-[11px] text-white/20 leading-relaxed">
               Pas de commentaires · Pas de partage externe · 7 réactions contemplatives uniquement
             </p>
+
+            {/* Erreur */}
+            {postError && (
+              <p className="text-sm text-red-400 text-center">{postError}</p>
+            )}
 
             {/* Submit */}
             <button

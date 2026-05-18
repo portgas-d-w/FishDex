@@ -128,10 +128,6 @@ export async function createPost(input: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié' }
 
-  // Vérifier l'accès
-  const { hasAccess } = await checkFeedAccess()
-  if (!hasAccess) return { error: 'Accès au feed non débloqué' }
-
   const { data, error } = await supabase
     .from('posts')
     .insert({
