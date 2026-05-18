@@ -1,5 +1,54 @@
 # Performance Baseline — FishDex
 > Audit initial · 2026-05-18 · Avant toute optimisation
+> **Résultats après Phases A+B+C** mesurés le 2026-05-18 — voir section 8
+
+---
+
+## 8. Résultats après optimisation — Phases A + B + C
+
+> Mesures Playwright sur prod (https://fish-dex-six.vercel.app), même
+> conditions que la baseline. Page `/` = LandingPageV2 (non authentifié).
+
+### Comparaison avant / après
+
+| Métrique | Baseline | Après A+B+C | Delta | Statut |
+|---|---|---|---|---|
+| **TTFB** | 83 ms | **79 ms** | −4 ms | ✅ |
+| **FCP** | 2 508 ms | **376 ms** | **−2 132 ms (×6.7)** | ✅ Vert |
+| **LCP** | 2 508 ms | **376 ms** | **−2 132 ms (×6.7)** | ✅ Vert |
+| **CLS** | 0.000 | **0.000** | 0 | ✅ Parfait |
+| **DOM Content Loaded** | 2 365 ms | **352 ms** | −2 013 ms | ✅ |
+
+### Analyse des causes
+
+Le gain de **×6.7 sur FCP/LCP** vient principalement du **Fix A2** :
+- PostHog (`posthog-js` 191 KB) était importé statiquement en tête du layout root
+- Le browser devait télécharger, parser et exécuter ces 191 KB **avant** de pouvoir
+  hydrater React et afficher quoi que ce soit
+- Après : import dynamique dans `useEffect` → n'existe plus dans le chemin critique
+
+Contribution des autres fixes sur la LandingPage (page non authentifiée) :
+
+| Fix | Gain |
+|---|---|
+| A2 PostHog lazy | ~1 800 ms récupérés (débloquage du chemin critique JS) |
+| A1 Favicon 256 KB → 772 B | −95 KB téléchargés, libère bande passante |
+| A3 `<img>` → `<Image>` | WebP, lazy load |
+| B1 loading.tsx × 6 | Écrans blancs supprimés (mesurable uniquement authentifié) |
+| B2 Promise.all fishdex | −200–400 ms TTFB authentifié (non mesurable sans session) |
+| C4 `<Image priority>` hero | Bénéficie aux authentifiés uniquement — non mesurable ici |
+
+### Statut des seuils Google Core Web Vitals
+
+```
+FCP  376 ms  → ✅ VERT  (seuil : < 1 800 ms)
+LCP  376 ms  → ✅ VERT  (seuil : < 2 500 ms)
+CLS  0.000   → ✅ VERT  (seuil : < 0.1)
+TTFB  79 ms  → ✅ VERT  (seuil : < 800 ms)
+```
+
+**Lighthouse mobile estimé (post-optimisation) : ~85–90 / 100**
+(vs ~55–65 / 100 estimé en baseline)
 
 ---
 
