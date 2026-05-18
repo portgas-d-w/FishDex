@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Plus, X, Fish, FileText } from 'lucide-react'
 import { createPost } from '@/app/actions/fishfeed'
 
@@ -121,7 +122,7 @@ export function CreatePostButton({ recentCatches }: { recentCatches: RecentCatch
                         >
                           <div className="w-10 h-10 rounded-lg bg-black/30 overflow-hidden flex items-center justify-center">
                             {imgSrc
-                              ? <img src={imgSrc} alt="" className="w-full h-full object-cover" />
+                              ? <Image src={imgSrc} alt="" width={40} height={40} className="w-full h-full object-cover" />
                               : <Fish size={16} className="text-white/20" />
                             }
                           </div>

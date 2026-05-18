@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { Camera, Fish, MapPin } from 'lucide-react'
 
 type Props = {
@@ -23,8 +24,13 @@ export function ProfileHero({ username, avatarUrl, memberSince, country }: Props
             shadow-[0_0_30px_rgba(34,211,238,0.4)]"
         >
           {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+            <Image
+              src={avatarUrl}
+              alt={username}
+              width={100}
+              height={100}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <span className="text-3xl font-black text-cyan-400 select-none">{initials}</span>
           )}
