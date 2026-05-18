@@ -11,6 +11,7 @@ import { EndSessionButton } from '@/components/sessions/EndSessionButton'
 import { BookmarkButton } from '@/components/sessions/BookmarkButton'
 import { DeleteSessionButton } from '@/components/sessions/DeleteSessionButton'
 import { SessionShareButton } from '@/components/sessions/SessionShareButton'
+import { AttachOrphanCatches } from '@/components/sessions/AttachOrphanCatches'
 import { SessionTimelineHorizontal, SessionTimelineVertical } from '@/components/sessions/SessionTimeline'
 import { SessionNotesEditor } from '@/components/sessions/SessionNotesEditor'
 import type { TimelineEvent } from '@/components/sessions/SessionTimeline'
@@ -118,6 +119,31 @@ export default async function SessionDetailPage({
       ? { time: fmt(session.ended_at), label: 'Fin', type: 'end' as TimelineEvent['type'] }
       : { time: 'En cours', label: 'Session active', type: 'end' as TimelineEvent['type'] },
   ]
+
+  // Captures orphelines proches (pour sessions rétro uniquement)
+  type OrphanCatchRow = {
+    id: string; created_at: string; taille_cm: number | null; poids_kg: number | null; lieu: string | null
+    species: { nom_fr: string } | { nom_fr: string }[] | null
+  }
+  let orphanCatches: { id: string; created_at: string; species_nom: string | null; taille_cm: number | null; poids_kg: number | null; lieu: string | null }[] = []
+  if (session.is_retro) {
+    const sessionDate = new Date(session.started_at)
+    const from = new Date(sessionDate.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const to   = new Date(sessionDate.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    const { data: orphanRows } = await supabase
+      .from('catches')
+      .select('id, created_at, taille_cm, poids_kg, lieu, species:species_id(nom_fr)')
+      .eq('user_id', user.id)
+      .is('session_id', null)
+      .gte('created_at', from)
+      .lte('created_at', to)
+      .order('created_at', { ascending: false })
+      .limit(20)
+    orphanCatches = (orphanRows as OrphanCatchRow[] ?? []).map(c => {
+      const sp = Array.isArray(c.species) ? c.species[0] : c.species
+      return { id: c.id, created_at: c.created_at, species_nom: (sp as { nom_fr: string } | null)?.nom_fr ?? null, taille_cm: c.taille_cm, poids_kg: c.poids_kg, lieu: c.lieu }
+    })
+  }
 
   const SeasonIcon = SEASON_ICON[session.season ?? ''] ?? Cloud
   const seasonColor = SEASON_COLOR[session.season ?? ''] ?? 'text-white/30'
@@ -282,6 +308,11 @@ export default async function SessionDetailPage({
               : <SessionTimelineHorizontal events={events} />
             }
           </div>
+        )}
+
+        {/* CAPTURES ORPHELINES (sessions rétro) */}
+        {session.is_retro && orphanCatches.length > 0 && (
+          <AttachOrphanCatches sessionId={id} catches={orphanCatches} />
         )}
 
         {/* NOTES */}

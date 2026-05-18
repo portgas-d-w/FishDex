@@ -13,6 +13,7 @@ export type Session = {
   ressenti: string | null;
   notes: string | null;
   is_bookmarked: boolean;
+  is_retro: boolean;
   season: 'printemps' | 'été' | 'automne' | 'hiver' | null;
   light_phase: 'aube' | 'matin' | 'midi' | 'aprem' | 'crépuscule' | 'nuit' | null;
   meteo_data: Record<string, unknown> | null;

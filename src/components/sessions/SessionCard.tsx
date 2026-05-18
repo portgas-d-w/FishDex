@@ -8,6 +8,7 @@ type Session = {
   ended_at: string | null
   season: string | null
   is_bookmarked: boolean
+  is_retro?: boolean | null
   spot: { nom: string } | null
 }
 
@@ -51,6 +52,11 @@ export function SessionCard({ session, catchCount }: { session: Session; catchCo
             <p className="text-sm font-semibold text-white truncate">{name}</p>
             {session.is_bookmarked && (
               <Bookmark size={10} className="text-amber-400 fill-amber-400 shrink-0" />
+            )}
+            {session.is_retro && (
+              <span className="text-[9px] font-semibold text-white/30 bg-white/8 border border-white/10 px-1.5 py-0.5 rounded-full shrink-0 leading-none">
+                rétro
+              </span>
             )}
           </div>
           <div className="flex items-center gap-2 flex-wrap">

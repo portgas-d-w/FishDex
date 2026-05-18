@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { Plus, Clock } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getActiveSession, getSessions } from '@/app/actions/sessions'
 import { ActiveSessionBanner } from '@/components/sessions/ActiveSessionBanner'
@@ -70,35 +70,37 @@ export default async function SessionsPage() {
           <h1 className="text-3xl font-black text-white">Les Sessions</h1>
           <p className="text-sm text-white/40 mt-0.5">Retrouve tes plus beaux souvenirs de pêche</p>
         </div>
-        {!activeSession && sessions.length > 0 && (
-          <Link
-            href="/sessions/new"
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-cyan-400 text-[#0a0f14] hover:bg-cyan-300 transition-colors shadow-[0_0_16px_rgba(34,211,238,0.4)]"
-          >
-            <Plus size={18} strokeWidth={2.5} />
-          </Link>
-        )}
+        {/* vide : CTAs déplacés plus bas */}
       </div>
 
       {/* Banner active */}
       {activeSession && <ActiveSessionBanner session={activeSession} />}
+
+      {/* CTAs si pas de session active */}
+      {!activeSession && (
+        <div className="px-4 mb-4 flex gap-2">
+          <Link
+            href="/sessions/new"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-cyan-400 text-[#0a0f14] font-semibold text-sm hover:bg-cyan-300 transition-colors"
+          >
+            <Plus size={16} strokeWidth={2.5} />
+            Démarrer
+          </Link>
+          <Link
+            href="/sessions/retro"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-white/70 font-semibold text-sm hover:bg-white/8 transition-colors"
+          >
+            <Clock size={14} />
+            Souvenir passé
+          </Link>
+        </div>
+      )}
 
       {/* Contenu */}
       {sessions.length === 0 ? (
         <EmptyState hasActive={!!activeSession} />
       ) : (
         <SessionsList sessions={enrichedSessions} catchCountMap={catchCountMap} />
-      )}
-
-      {/* FAB */}
-      {!activeSession && sessions.length > 0 && (
-        <Link
-          href="/sessions/new"
-          aria-label="Nouvelle session"
-          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-cyan-400 flex items-center justify-center shadow-[0_0_24px_rgba(34,211,238,0.5)] hover:bg-cyan-300 transition-all active:scale-95 z-40"
-        >
-          <Plus size={24} strokeWidth={2.5} className="text-[#0a0f14]" />
-        </Link>
       )}
     </div>
   )

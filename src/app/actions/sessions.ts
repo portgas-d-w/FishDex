@@ -275,7 +275,81 @@ export async function bookmarkSession(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 9. attachCaptureToSession — rattacher/détacher une prise
+// 9. createRetroSession — créer une session pour une sortie passée
+// ─────────────────────────────────────────────────────────────────────────────
+export async function createRetroSession(input: {
+  date: string          // YYYY-MM-DD
+  spot_id?: string
+  spot_nom?: string
+  style_peche?: string
+  notes?: string
+  ressenti?: string
+  catch_ids?: string[]
+}): Promise<{ session: Session | null; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return err('Non authentifié');
+
+  // Valider la date (doit être dans le passé)
+  const startedAt = new Date(`${input.date}T08:00:00`);
+  if (startedAt >= new Date()) return err('La date doit être dans le passé');
+
+  const endedAt = new Date(startedAt.getTime() + 3 * 60 * 60 * 1000); // +3h
+
+  // Résoudre / créer le spot
+  let spotId = input.spot_id ?? null;
+  if (!spotId && input.spot_nom?.trim()) {
+    const nom = input.spot_nom.trim();
+    const { data: existing } = await supabase
+      .from('spots').select('id').eq('user_id', user.id).ilike('nom', nom).maybeSingle();
+    if (existing) {
+      spotId = existing.id;
+    } else {
+      const { data: newSpot } = await supabase
+        .from('spots').insert({ user_id: user.id, nom, nb_visites: 0 }).select('id').single();
+      spotId = newSpot?.id ?? null;
+    }
+  }
+
+  // Créer la session (is_retro = true, editable_until = null)
+  const { data: session, error } = await supabase
+    .from('sessions')
+    .insert({
+      user_id:     user.id,
+      spot_id:     spotId,
+      style_peche: input.style_peche ?? null,
+      notes:       input.notes       ?? null,
+      ressenti:    input.ressenti     ?? null,
+      started_at:  startedAt.toISOString(),
+      ended_at:    endedAt.toISOString(),
+      is_retro:    true,
+      editable_until: null,
+    })
+    .select('*')
+    .single();
+
+  if (error) return err(error.message);
+
+  // Rattacher les captures sélectionnées
+  if (input.catch_ids && input.catch_ids.length > 0) {
+    await supabase
+      .from('catches')
+      .update({ session_id: session.id })
+      .in('id', input.catch_ids)
+      .eq('user_id', user.id);
+  }
+
+  if (spotId) {
+    try { await supabase.rpc('increment_spot_visits', { spot_id_param: spotId }); } catch { /* optionnel */ }
+  }
+
+  revalidatePath('/sessions');
+  revalidatePath('/');
+  return { session: session as Session };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. attachCaptureToSession — rattacher/détacher une prise
 // ─────────────────────────────────────────────────────────────────────────────
 export async function attachCaptureToSession(
   catchId: string,
