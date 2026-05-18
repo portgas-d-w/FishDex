@@ -66,13 +66,17 @@ type INatResult = {
 const FISH_ICONIC = new Set(['Actinopterygii', 'Fish', 'Fishes'])
 
 async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationResult> {
+  const token = process.env.INATURALIST_API_TOKEN?.trim()
+  console.log('[ai-identify] Token présent :', !!token, '| longueur :', token?.length ?? 0)
+
   // Envoi en multipart/form-data avec le fichier binaire — format officiel de l'API
   const body = new FormData()
   body.append('image', imgBlob, 'photo.jpg')
 
   const headers: Record<string, string> = {}
-  if (process.env.INATURALIST_API_TOKEN) {
-    headers['Authorization'] = `Bearer ${process.env.INATURALIST_API_TOKEN}`
+  if (token) {
+    // iNaturalist accepte "JWT <token>" (scheme historique de leur API)
+    headers['Authorization'] = `JWT ${token}`
   }
 
   const response = await fetch(
