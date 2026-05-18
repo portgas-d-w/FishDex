@@ -1,0 +1,8 @@
+docs/
+MASTER_CONTINUITY_v2.md
+ARCHITECTURE.md
+ROADMAP.md.txt
+*.md
+!README.md
+tsconfig.tsbuildinfo
+scripts/

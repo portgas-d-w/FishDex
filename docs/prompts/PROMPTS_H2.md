@@ -1169,10 +1169,10 @@ Commit : "feat(aquarium): add camera, no-kill, and session indicators on catch c
 
 # ✅ CHECKLIST FINALE H2 — avant de passer à H2.5
 
-- [ ] **S2.1 — Migration BDD** : sessions + spots + alter catches + triggers + RLS
-- [ ] **S2.2 — Server Actions** : 9 actions + types + RPC increment_spot_visits
-- [ ] **S2.3 — Écrans Sessions** : 6 écrans fonctionnels + composants partagés
-- [ ] **S2.4 — Intégration capture** : auto-attach + capture_source + released + toast
+- [✅] **S2.1 — Migration BDD** : sessions + spots + alter catches + triggers + RLS
+- [✅] **S2.2 — Server Actions** : 9 actions + types + RPC increment_spot_visits
+- [✅] **S2.3 — Écrans Sessions** : 6 écrans fonctionnels + composants partagés
+- [✅] **S2.4 — Intégration capture** : auto-attach + capture_source + released + toast
 - [ ] **S2.5 — UI/UX détails** : icônes camera + leaf + session sur cards
 
 **Tests parcours complet :**

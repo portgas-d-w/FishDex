@@ -423,13 +423,13 @@ INSTRUCTIONS :
 
 Cocher quand validé :
 
-- [ ] **S0.1 — Fix XP** : DÉFINITIF, 5 tests passés, commit poussé
-- [ ] **S0.2 — Sécurité** : service_role régénérée, RLS auditées + fixées
-- [ ] **S0.3 — Nettoyage** : code mort supprimé, deps inutiles retirées
-- [ ] **S0.4 — Doc** : ARCHITECTURE.md créé et à jour
-- [ ] `npx tsc --noEmit` : passe sans erreur
-- [ ] Build Vercel : OK
-- [ ] App tourne en prod : https://fish-dex-six.vercel.app
+- [✅ ] **S0.1 — Fix XP** : DÉFINITIF, 5 tests passés, commit poussé
+- [✅ ] **S0.2 — Sécurité** : service_role régénérée, RLS auditées + fixées
+- [✅ ] **S0.3 — Nettoyage** : code mort supprimé, deps inutiles retirées
+- [✅ ] **S0.4 — Doc** : ARCHITECTURE.md créé et à jour
+- [ ✅] `npx tsc --noEmit` : passe sans erreur
+- [✅ ] Build Vercel : OK
+- [✅ ] App tourne en prod : https://fish-dex-six.vercel.app
 
 ⚠️ **Tant qu'un seul item est KO, NE PAS passer à H1.**
 
