@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Fish } from 'lucide-react'
+import { buildCatchImageUrl } from '@/components/ui/CatchImage'
 
 type CatchItem = {
   id: string
@@ -39,7 +40,7 @@ function CatchCard({ item }: { item: CatchItem }) {
   const r = item.species?.rarete ?? 'commun'
   const style = RARETE_STYLES[r] ?? RARETE_STYLES.commun
   const imgSrc = item.photo_url
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/catches/${item.photo_url}`
+    ? buildCatchImageUrl(item.photo_url, 'thumb')
     : item.species?.image_url ?? null
 
   const stat = item.taille_cm != null

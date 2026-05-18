@@ -8,11 +8,12 @@ import { EmptyState } from './EmptyState'
 import { StatsCards } from './StatsCards'
 import type { CatchWithSpecies, AquariumStats, RecordsMap } from '@/types/aquarium'
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+import { buildCatchImageUrl } from '@/components/ui/CatchImage'
 
-function buildPhotoUrl(photoUrl: string | null): string | null {
+// Grille → thumbs (300px), Hero card → medium (800px)
+function buildPhotoUrl(photoUrl: string | null, variant: 'thumb' | 'medium' = 'thumb'): string | null {
   if (!photoUrl) return null
-  return `${SUPABASE_URL}/storage/v1/object/public/catches/${photoUrl}`
+  return buildCatchImageUrl(photoUrl, variant)
 }
 
 function isNew(dateCapture: string): boolean {
@@ -61,7 +62,7 @@ export function CatchesGrid({ catches, stats, recordsMap }: Props) {
       {filter.mode === 'all' && (
         <HeroCard
           catch_={hero}
-          photoUrl={buildPhotoUrl(hero.photo_url)}
+          photoUrl={buildPhotoUrl(hero.photo_url, 'medium')}
         />
       )}
 

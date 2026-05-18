@@ -10,7 +10,7 @@ import { SpeciesInfo } from '@/components/aquarium-v2/detail/SpeciesInfo'
 import { ActionsBar } from '@/components/aquarium-v2/detail/ActionsBar'
 import type { Rarete } from '@/types/fishdex'
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+import { buildCatchImageUrl } from '@/components/ui/CatchImage'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -67,9 +67,9 @@ export default async function CatchDetailPage({ params }: Props) {
   const totalForSpecies = (catchesForSpecies ?? []).length
   const isNewSpecies = totalForSpecies === 1
 
-  // URLs photo
+  // URL photo — variante large pour la page détail
   const photoUrl = catch_.photo_url
-    ? `${SUPABASE_URL}/storage/v1/object/public/catches/${catch_.photo_url}`
+    ? buildCatchImageUrl(catch_.photo_url, 'large')
     : null
   const fallbackUrl = species.image_url
 

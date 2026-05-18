@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation'
 import { X, Info, Camera } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import { compressForUpload } from '@/lib/images/upload'
+import { generateThumbnails } from '@/app/actions/images'
 import { ScanFrame } from './ScanFrame'
 import { ScanAnimation } from './ScanAnimation'
 import { CaptureFeedback } from './CaptureFeedback'
 import { CaptureFooter } from './CaptureFooter'
 
-const MAX_SIZE = 5 * 1024 * 1024
+const MAX_SIZE = 50 * 1024 * 1024  // 50 MB avant compression (on compresse après)
 const ALLOWED = ['image/jpeg', 'image/png', 'image/webp']
 const SCAN_DURATION = 2000
 const FEEDBACK_DISPLAY = 1200
@@ -70,32 +72,36 @@ export function CaptureOverlay({ userId }: Props) {
     setUploadError(null)
     setUploadPath(null)
 
-    // Lecture de la photo + démarrage du scan en parallèle
-    const [dataUrl] = await Promise.all([
+    // Lecture pour preview + compression en parallèle
+    const [dataUrl, compressed] = await Promise.all([
       readAsDataUrl(file),
-      Promise.resolve(), // lecture rapide, pas besoin d'attendre
+      compressForUpload(file),
     ])
 
     setPhotoUrl(dataUrl)
     setPhase('scanning')
 
-    // Upload + timer 2s en parallèle
-    const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg'
-    const path = `${userId}/temp/${Date.now()}.${ext}`
+    // Upload de la version compressée vers /original/ + timer scan
+    const ext  = compressed.type === 'image/webp' ? 'webp' : 'jpg'
+    const path = `${userId}/original/${Date.now()}.${ext}`
     const supabase = createClient()
 
     const [uploadResult] = await Promise.all([
-      supabase.storage.from('catches').upload(path, file, { contentType: file.type, upsert: false }),
+      supabase.storage.from('catches').upload(path, compressed, { contentType: compressed.type, upsert: false }),
       new Promise(r => setTimeout(r, SCAN_DURATION)),
     ])
 
     if (uploadResult.error) {
       setUploadError("Échec de l'envoi. Vérifie ta connexion.")
-    } else {
-      setUploadPath(path)
+      setPhase('done')
+      return
     }
 
+    setUploadPath(path)
     setPhase('done')
+
+    // Génération des thumbnails en arrière-plan (non bloquant)
+    generateThumbnails(path).catch(() => null)
   }
 
   function handleFileChange(source: 'camera' | 'gallery') {
