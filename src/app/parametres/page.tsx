@@ -24,7 +24,7 @@ export default async function ParametresPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, avatar_url, suggest_session_on_capture, default_release')
+    .select('username, avatar_url, suggest_session_on_capture, default_release, ai_data_consent')
     .eq('id', user.id)
     .single()
 
@@ -77,7 +77,7 @@ export default async function ParametresPage() {
         defaultRelease={profile?.default_release ?? false}
       />
 
-      <PrivacySection />
+      <PrivacySection aiDataConsent={profile?.ai_data_consent ?? true} />
 
       <OtherSection />
 

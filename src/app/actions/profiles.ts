@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-type BoolPreference = 'suggest_session_on_capture' | 'default_release'
+type BoolPreference = 'suggest_session_on_capture' | 'default_release' | 'ai_data_consent'
 
 export async function updateProfilePreference(
   field: BoolPreference,

@@ -66,13 +66,13 @@ export async function createCatch(
     .maybeSingle()
   const session_id = activeSession?.id ?? null
 
-  // ── Préférence suggest_session ─────────────────────────────────────────────
-  let shouldSuggest = false
-  if (!session_id) {
-    const { data: profile } = await supabase
-      .from('profiles').select('suggest_session_on_capture').eq('id', user.id).single()
-    shouldSuggest = profile?.suggest_session_on_capture !== false
-  }
+  // ── Préférences profil ─────────────────────────────────────────────────────
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('suggest_session_on_capture, ai_data_consent')
+    .eq('id', user.id)
+    .single()
+  const shouldSuggest = !session_id && (profile?.suggest_session_on_capture !== false)
 
   const { data: newCatch, error } = await supabase.from('catches').insert({
     user_id: user.id,
@@ -118,6 +118,17 @@ export async function createCatch(
     const msg = xpErr instanceof Error ? xpErr.message : String(xpErr)
     const stack = xpErr instanceof Error ? xpErr.stack : ''
     console.error('[XP] pipeline failed:', msg, '\n', stack)
+  }
+
+  // ── Data flywheel IA (silencieux, consentement requis, photo requise) ────────
+  if (photo_url && profile?.ai_data_consent !== false) {
+    void supabase.from('ai_training_data').insert({
+      user_id:              user.id,
+      catch_id:             newCatch.id,
+      photo_url,
+      species_id_validated: species_id,
+      user_corrected:       false,
+    })
   }
 
   revalidatePath('/aquarium')
