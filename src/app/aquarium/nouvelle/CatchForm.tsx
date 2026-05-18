@@ -1,9 +1,10 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useState, useEffect, useTransition } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { createCatch, type CatchState } from '@/app/actions/catches'
+import { identifySpeciesFromPhoto, type AIPrediction } from '@/app/actions/ai-identify'
 
 type Species = {
   id: string
@@ -45,6 +46,14 @@ function Toggle({
   )
 }
 
+function ConfidenceDot({ confidence }: { confidence: number }) {
+  const color =
+    confidence >= 0.8 ? 'bg-emerald-400' :
+    confidence >= 0.6 ? 'bg-amber-400' :
+    'bg-slate-500'
+  return <span className={`inline-block w-2 h-2 rounded-full ${color}`} />
+}
+
 export function CatchForm({
   species,
   today,
@@ -54,13 +63,34 @@ export function CatchForm({
 }: Props) {
   const [state, action, pending] = useActionState<CatchState, FormData>(createCatch, null)
   const [released, setReleased] = useState(defaultRelease)
+  const [selectedSpeciesId, setSelectedSpeciesId] = useState('')
 
+  // ── IA identification ──────────────────────────────────────────────────────
+  const [aiPending, startAI] = useTransition()
+  const [aiPredictions, setAiPredictions] = useState<AIPrediction[] | null>(null)
+  const [aiDismissed, setAiDismissed] = useState(false)
+
+  useEffect(() => {
+    if (!photoPath) return
+    startAI(async () => {
+      const result = await identifySpeciesFromPhoto(photoPath)
+      // N'afficher que si au moins une prédiction avec un match BDD
+      const withMatch = result.predictions.filter(p => p.matched_species_id)
+      setAiPredictions(withMatch.length > 0 ? withMatch : [])
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photoPath])
+
+  const topPrediction = aiPredictions?.[0] ?? null
+  const showBanner = !aiDismissed && photoPath && (aiPending || (aiPredictions !== null && topPrediction !== null))
+
+  // ── Données formulaire ─────────────────────────────────────────────────────
   const photoPreviewUrl = photoPath
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/catches/${photoPath}`
     : null
 
-  const poissons   = species.filter(s => s.categorie !== 'crustace')
-  const crustaces  = species.filter(s => s.categorie === 'crustace')
+  const poissons  = species.filter(s => s.categorie !== 'crustace')
+  const crustaces = species.filter(s => s.categorie === 'crustace')
 
   return (
     <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8">
@@ -92,6 +122,84 @@ export function CatchForm({
           </div>
         )}
 
+        {/* ── Bannière suggestion IA ─────────────────────────────────────── */}
+        {showBanner && (
+          <div className="rounded-xl border border-cyan-500/25 bg-cyan-950/30 px-4 py-3">
+            {aiPending ? (
+              <div className="flex items-center gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
+                <span className="text-xs text-cyan-400/80">Identification de l&apos;espèce en cours…</span>
+              </div>
+            ) : topPrediction ? (
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-semibold tracking-widest text-cyan-400 uppercase">
+                      Suggestion IA
+                    </span>
+                    <ConfidenceDot confidence={topPrediction.confidence} />
+                    <span className="text-[10px] text-slate-400">
+                      {Math.round(topPrediction.confidence * 100)}% de confiance
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAiDismissed(true)}
+                    className="text-slate-500 hover:text-slate-300 text-xs transition-colors"
+                    aria-label="Ignorer la suggestion"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Top prédiction */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-white truncate">
+                      {topPrediction.matched_nom_fr ?? topPrediction.species_name}
+                    </p>
+                    <p className="text-[11px] text-slate-400 italic truncate">
+                      {topPrediction.scientific_name}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (topPrediction.matched_species_id) {
+                        setSelectedSpeciesId(topPrediction.matched_species_id)
+                      }
+                    }}
+                    disabled={!topPrediction.matched_species_id}
+                    className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 hover:bg-cyan-400 text-slate-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Appliquer
+                  </button>
+                </div>
+
+                {/* Autres prédictions (si plusieurs matches BDD) */}
+                {aiPredictions && aiPredictions.length > 1 && (
+                  <div className="flex flex-wrap gap-1.5 pt-0.5 border-t border-white/5">
+                    {aiPredictions.slice(1, 4).map((p, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => {
+                          if (p.matched_species_id) setSelectedSpeciesId(p.matched_species_id)
+                        }}
+                        disabled={!p.matched_species_id}
+                        className="px-2.5 py-1 rounded-lg text-[11px] bg-white/5 border border-white/8 text-slate-300 hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {p.matched_nom_fr ?? p.species_name}
+                        <span className="ml-1 text-slate-500">{Math.round(p.confidence * 100)}%</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </div>
+        )}
+
         {/* Espèce */}
         <div>
           <label htmlFor="species_id" className="block text-sm font-medium text-slate-300 mb-1.5">
@@ -101,7 +209,8 @@ export function CatchForm({
             id="species_id"
             name="species_id"
             required
-            defaultValue=""
+            value={selectedSpeciesId}
+            onChange={e => setSelectedSpeciesId(e.target.value)}
             className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:border-teal-500 transition-colors"
           >
             <option value="" disabled>— Sélectionne une espèce —</option>
