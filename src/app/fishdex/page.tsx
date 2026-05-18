@@ -18,38 +18,39 @@ export default async function FishDexPage() {
   let username  = 'Pêcheur'
   let email     = ''
   let avatarUrl: string | null = null
-
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('username, avatar_url, preferred_collection_slug')
-      .eq('id', user.id)
-      .single()
-    preferredSlug = (profile?.preferred_collection_slug as CollectionSlug | null) ?? null
-    username  = profile?.username  ?? 'Pêcheur'
-    avatarUrl = profile?.avatar_url ?? null
-    email     = user.email ?? ''
-  }
-
-  // IDs des espèces capturées
   let discoveredIds: string[] = []
-  if (user) {
-    const { data: catches } = await supabase
-      .from('catches').select('species_id').eq('user_id', user.id)
-    discoveredIds = [...new Set((catches ?? []).map(c => c.species_id).filter(Boolean))]
-  }
-
-  // Toutes les espèces (Mirages non capturés filtrés côté serveur)
-  const allSpecies = await getSpeciesForCollection(null, discoveredIds)
-
-  // Progression par collection
   const slugs: CollectionSlug[] = ['paisibles', 'predateurs', 'eaux-vives']
   const progressBySlug = {} as Record<CollectionSlug, CollectionProgress>
 
   if (user) {
-    const progressList = await getAllCollectionProgress()
+    // Profil, captures et progression en parallèle — 1 round-trip au lieu de 3
+    const [profileRes, catchesRes, progressList] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('username, avatar_url, preferred_collection_slug')
+        .eq('id', user.id)
+        .single(),
+      supabase
+        .from('catches')
+        .select('species_id')
+        .eq('user_id', user.id),
+      getAllCollectionProgress(),
+    ])
+
+    preferredSlug = (profileRes.data?.preferred_collection_slug as CollectionSlug | null) ?? null
+    username  = profileRes.data?.username  ?? 'Pêcheur'
+    avatarUrl = profileRes.data?.avatar_url ?? null
+    email     = user.email ?? ''
+
+    discoveredIds = [...new Set((catchesRes.data ?? []).map(c => c.species_id).filter(Boolean))]
+
     for (const p of progressList) progressBySlug[p.slug] = p
-  } else {
+  }
+
+  // Toutes les espèces — après discoveredIds résolu
+  const allSpecies = await getSpeciesForCollection(null, discoveredIds)
+
+  if (!user) {
     for (const slug of slugs) {
       const cnt = allSpecies.filter(s => s.collections.includes(slug) && !s.is_hidden_in_dex).length
       progressBySlug[slug] = buildCollectionProgress(slug, cnt, 0, 0)
