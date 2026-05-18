@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <rect width="144" height="144" fill="#0a0f14" rx="18"/>
+  <!-- Bloc composant React -->
+  <rect x="30" y="40" width="84" height="56" rx="6" fill="none" stroke="#a855f7" stroke-width="2"/>
+  <!-- Chevrons < > -->
+  <polyline points="42,63 36,69 42,75" fill="none" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="102,63 108,69 102,75" fill="none" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Slash diagonal au centre -->
+  <line x1="66" y1="56" x2="78" y2="82" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
+  <!-- Étincelles / génération -->
+  <line x1="94" y1="34" x2="94" y2="40" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
+  <line x1="104" y1="38" x2="100" y2="42" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
+  <line x1="108" y1="48" x2="102" y2="48" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
+  <text x="72" y="118" text-anchor="middle" fill="#a855f7" font-family="monospace" font-size="10" font-weight="600" letter-spacing="1">COMPONENT</text>
+</svg>

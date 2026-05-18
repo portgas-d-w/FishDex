@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <rect width="144" height="144" fill="#0a0f14" rx="18"/>
+  <!-- Fichier gauche (avant) -->
+  <rect x="22" y="35" width="44" height="56" rx="4" fill="none" stroke="#34d399" stroke-width="2"/>
+  <!-- Lignes rouge (suppression) -->
+  <line x1="30" y1="51" x2="58" y2="51" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>
+  <line x1="30" y1="62" x2="52" y2="62" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>
+  <!-- Fichier droite (après) -->
+  <rect x="78" y="35" width="44" height="56" rx="4" fill="none" stroke="#34d399" stroke-width="2"/>
+  <!-- Lignes vert (ajout) -->
+  <line x1="86" y1="51" x2="114" y2="51" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+  <line x1="86" y1="62" x2="110" y2="62" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+  <line x1="86" y1="73" x2="106" y2="73" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+  <!-- Flèche centrale -->
+  <line x1="66" y1="63" x2="78" y2="63" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+  <polyline points="74,59 78,63 74,67" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="72" y="118" text-anchor="middle" fill="#34d399" font-family="monospace" font-size="13" font-weight="600" letter-spacing="1">DIFF</text>
+</svg>
