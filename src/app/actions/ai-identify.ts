@@ -70,10 +70,16 @@ async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationRes
   const body = new FormData()
   body.append('image', imgBlob, 'photo.jpg')
 
+  const headers: Record<string, string> = {}
+  if (process.env.INATURALIST_API_TOKEN) {
+    headers['Authorization'] = `Bearer ${process.env.INATURALIST_API_TOKEN}`
+  }
+
   const response = await fetch(
     'https://api.inaturalist.org/v1/computervision/score_image',
     {
       method: 'POST',
+      headers,
       body,
       signal: AbortSignal.timeout(12_000),
     }
