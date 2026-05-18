@@ -10,6 +10,7 @@ import { SessionTimer } from '@/components/sessions/SessionTimer'
 import { EndSessionButton } from '@/components/sessions/EndSessionButton'
 import { BookmarkButton } from '@/components/sessions/BookmarkButton'
 import { DeleteSessionButton } from '@/components/sessions/DeleteSessionButton'
+import { SessionShareButton } from '@/components/sessions/SessionShareButton'
 import { SessionTimelineHorizontal, SessionTimelineVertical } from '@/components/sessions/SessionTimeline'
 import { SessionNotesEditor } from '@/components/sessions/SessionNotesEditor'
 import type { TimelineEvent } from '@/components/sessions/SessionTimeline'
@@ -327,20 +328,33 @@ export default async function SessionDetailPage({
         {/* ACTIONS SESSION TERMINÉE */}
         {!isActive && (
           <div className="flex items-center justify-between pt-2 pb-4">
-            {isEditable ? (
-              <Link
-                href={`/sessions/${id}/edit`}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/8 transition-colors"
-              >
-                <Pencil size={14} />
-                Modifier
-              </Link>
-            ) : (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/4 border border-white/8">
-                <Lock size={12} className="text-white/25" />
-                <span className="text-xs text-white/30">Session figée</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              {isEditable ? (
+                <Link
+                  href={`/sessions/${id}/edit`}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/8 transition-colors"
+                >
+                  <Pencil size={14} />
+                  Modifier
+                </Link>
+              ) : (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/4 border border-white/8">
+                  <Lock size={12} className="text-white/25" />
+                  <span className="text-xs text-white/30">Session figée</span>
+                </div>
+              )}
+              <SessionShareButton data={{
+                sessionId: id,
+                date: fmtDate(session.started_at),
+                duration: session.ended_at ? fmtDuration(session.started_at, session.ended_at) : '—',
+                spotNom,
+                catchCount: catchList.length,
+                uniqueSpecies: uniqueSpecies.size,
+                bestPoids,
+                season: session.season ?? null,
+                ressenti: ressentiOpt ? { emoji: ressentiOpt.emoji, label: ressentiOpt.label } : null,
+              }} />
+            </div>
             <DeleteSessionButton sessionId={id} />
           </div>
         )}

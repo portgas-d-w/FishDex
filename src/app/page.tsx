@@ -17,6 +17,8 @@ import { getPoeticPhrase } from '@/lib/home/poetic-phrases'
 import { getHomeBackground } from '@/lib/home/background-selector'
 import { getWeatherForUser } from '@/app/actions/weather'
 import { classifyWeather } from '@/lib/weather/classifier'
+import { getCyclicMemory } from '@/lib/home/cyclic-memories'
+import { CyclicMemoryCard } from '@/components/home/CyclicMemoryCard'
 import { ensureMissions } from '@/lib/missions/assigner'
 
 export default async function Home() {
@@ -25,7 +27,7 @@ export default async function Home() {
 
   if (!user) return <LandingPageV2 />
 
-  const [profileResult, catchesResult, spotsResult, speciesCountResult, totalSpeciesResult, weatherResult] = await Promise.all([
+  const [profileResult, catchesResult, spotsResult, speciesCountResult, totalSpeciesResult, weatherResult, cyclicMemory] = await Promise.all([
     supabase
       .from('profiles')
       .select('username, avatar_url, onboarding_completed, collection_choice_completed')
@@ -58,6 +60,7 @@ export default async function Home() {
       .select('id', { count: 'exact', head: true }),
 
     getWeatherForUser(),
+    getCyclicMemory(user.id),
   ])
 
   if (!profileResult.data?.onboarding_completed) redirect('/onboarding')
@@ -229,7 +232,10 @@ export default async function Home() {
           </div>
         )}
 
-        {/* WIDGET 6 — CONSEIL DU JOUR */}
+        {/* WIDGET 6 — SOUVENIR CYCLIQUE */}
+        {cyclicMemory && <CyclicMemoryCard memory={cyclicMemory} />}
+
+        {/* WIDGET 7 — CONSEIL DU JOUR */}
         <DailyAdviceCard context={context} />
 
       </section>
