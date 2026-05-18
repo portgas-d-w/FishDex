@@ -1,24 +1,11 @@
+import { Skeleton } from '@/components/ui/Skeleton'
+import { SkeletonCatchGrid } from '@/components/ui/SkeletonCards'
+
 function StatPill() {
   return (
-    <div className="rounded-2xl bg-white/5 border border-white/8 p-3 flex flex-col items-center gap-1.5 animate-pulse">
-      <div className="h-6 w-10 bg-white/10 rounded-lg" />
-      <div className="h-2.5 w-14 bg-white/5 rounded-full" />
-    </div>
-  )
-}
-
-function CatchCard() {
-  return (
-    <div className="rounded-2xl bg-white/5 border border-white/8 overflow-hidden animate-pulse">
-      <div className="aspect-[4/3] bg-white/8" />
-      <div className="p-3 space-y-2">
-        <div className="h-4 bg-white/10 rounded-lg w-3/4" />
-        <div className="h-3 bg-white/5 rounded-full w-1/2" />
-        <div className="flex gap-1.5 mt-1">
-          <div className="h-5 w-14 rounded-full bg-white/5" />
-          <div className="h-5 w-12 rounded-full bg-white/5" />
-        </div>
-      </div>
+    <div className="rounded-2xl bg-white/5 border border-white/8 p-3 flex flex-col items-center gap-1.5">
+      <Skeleton className="h-6 w-10 rounded-lg" />
+      <Skeleton className="h-2.5 w-14 rounded-full" />
     </div>
   )
 }
@@ -35,10 +22,10 @@ export default function AquariumLoading() {
       {/* Header */}
       <div className="px-4 pt-14 pb-4 flex items-center justify-between">
         <div className="space-y-2">
-          <div className="h-8 w-28 bg-white/8 rounded-xl animate-pulse" />
-          <div className="h-3.5 w-44 bg-white/5 rounded-full animate-pulse" />
+          <Skeleton className="h-8 w-28 rounded-xl" />
+          <Skeleton className="h-3.5 w-44 rounded-full" />
         </div>
-        <div className="w-10 h-10 rounded-full bg-white/8 animate-pulse" />
+        <Skeleton className="w-10 h-10 rounded-full" />
       </div>
 
       {/* Stats */}
@@ -49,14 +36,11 @@ export default function AquariumLoading() {
       {/* Filtres */}
       <div className="px-4 mb-4 flex gap-2 overflow-hidden">
         {[60, 72, 56, 68].map((w, i) => (
-          <div key={i} className="h-8 shrink-0 rounded-full bg-white/5 border border-white/8 animate-pulse" style={{ width: w }} />
+          <Skeleton key={i} className="h-8 shrink-0 rounded-full" style={{ width: w }} />
         ))}
       </div>
 
-      {/* Grille prises */}
-      <div className="px-4 grid grid-cols-2 gap-3">
-        {Array.from({ length: 6 }).map((_, i) => <CatchCard key={i} />)}
-      </div>
+      <SkeletonCatchGrid count={6} />
     </div>
   )
 }

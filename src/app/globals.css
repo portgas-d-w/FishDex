@@ -137,8 +137,15 @@
   50%       { opacity: 1;   transform: scale(1.05); }
 }
 
+/* Balayage horizontal pour les skeleton loaders */
+@keyframes skeleton-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
 @theme inline {
-  --animate-shimmer: shimmer 3s ease-in-out infinite;
+  --animate-shimmer:        shimmer 3s ease-in-out infinite;
+  --animate-skeleton-sweep: skeleton-sweep 1.8s ease-in-out infinite;
 }
 
 /* ─── Styles de base ──────────────────────────────────────── */
