@@ -2,15 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MapPin, Book, Camera, Fish, Calendar, Users } from 'lucide-react'
+import { MapPin, Book, Camera, Fish, Calendar } from 'lucide-react'
 
 const LEFT_TABS  = [
-  { href: '/',          label: 'Le Spot',  Icon: MapPin   },
-  { href: '/fishdex',   label: 'FishDex',  Icon: Book     },
+  { href: '/',        label: 'Le Spot',  Icon: MapPin   },
+  { href: '/fishdex', label: 'FishDex',  Icon: Book     },
 ]
 const RIGHT_TABS = [
   { href: '/aquarium',  label: 'Aquarium', Icon: Fish     },
-  { href: '/fishfeed',  label: 'Feed',     Icon: Users    },
   { href: '/sessions',  label: 'Sessions', Icon: Calendar },
 ]
 

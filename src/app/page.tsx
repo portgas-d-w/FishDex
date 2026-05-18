@@ -19,6 +19,8 @@ import { getWeatherForUser } from '@/app/actions/weather'
 import { classifyWeather } from '@/lib/weather/classifier'
 import { getCyclicMemory } from '@/lib/home/cyclic-memories'
 import { CyclicMemoryCard } from '@/components/home/CyclicMemoryCard'
+import { FishFeedWidget } from '@/components/home/FishFeedWidget'
+import { checkFeedAccess, getFeed } from '@/app/actions/fishfeed'
 import { ensureMissions } from '@/lib/missions/assigner'
 
 export default async function Home() {
@@ -27,7 +29,7 @@ export default async function Home() {
 
   if (!user) return <LandingPageV2 />
 
-  const [profileResult, catchesResult, spotsResult, speciesCountResult, totalSpeciesResult, weatherResult, cyclicMemory] = await Promise.all([
+  const [profileResult, catchesResult, spotsResult, speciesCountResult, totalSpeciesResult, weatherResult, cyclicMemory, feedAccess] = await Promise.all([
     supabase
       .from('profiles')
       .select('username, avatar_url, onboarding_completed, collection_choice_completed')
@@ -61,6 +63,7 @@ export default async function Home() {
 
     getWeatherForUser(),
     getCyclicMemory(user.id),
+    checkFeedAccess(),
   ])
 
   if (!profileResult.data?.onboarding_completed) redirect('/onboarding')
@@ -142,6 +145,7 @@ export default async function Home() {
   // Contexte, phrase et background dynamique
   const now              = new Date()
   const { weather, source: weatherSource } = weatherResult
+  const feedPreview = feedAccess.hasAccess ? await getFeed(2) : []
   const classified       = weather ? classifyWeather(weather) : 'clear' as const
   const context          = getCurrentContext(classified)
   const phrase           = getPoeticPhrase(context, user.id)
@@ -232,7 +236,15 @@ export default async function Home() {
           </div>
         )}
 
-        {/* WIDGET 6 — SOUVENIR CYCLIQUE */}
+        {/* WIDGET 6 — FISHFEED */}
+        <FishFeedWidget
+          hasAccess={feedAccess.hasAccess}
+          sessionCount={feedAccess.sessionCount}
+          required={feedAccess.required}
+          previewPosts={feedPreview}
+        />
+
+        {/* WIDGET 7 — SOUVENIR CYCLIQUE */}
         {cyclicMemory && <CyclicMemoryCard memory={cyclicMemory} />}
 
         {/* WIDGET 7 — CONSEIL DU JOUR */}
