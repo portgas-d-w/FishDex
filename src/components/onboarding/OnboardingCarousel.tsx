@@ -3,21 +3,19 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ChevronLeft, Fish, Camera } from 'lucide-react'
+import { ArrowRight, ChevronLeft } from 'lucide-react'
 import { completeOnboarding } from '@/app/actions/onboarding'
 import { ProgressIndicators } from './ProgressIndicators'
 import { Screen1 } from './screens/Screen1'
 import { Screen2 } from './screens/Screen2'
 import { Screen3 } from './screens/Screen3'
 import { Screen4 } from './screens/Screen4'
-import { Screen5 } from './screens/Screen5'
 
 const SCREENS = [
-  { component: Screen1, cta: "Commencer l'aventure", ctaIcon: ArrowRight },
-  { component: Screen2, cta: 'Commencer la détection', ctaIcon: ArrowRight },
-  { component: Screen3, cta: "Compléter mon FishDex", ctaIcon: Fish },
-  { component: Screen4, cta: 'Voir mon historique', ctaIcon: Fish },
-  { component: Screen5, cta: 'Rejoindre la communauté', ctaIcon: Camera },
+  { component: Screen1, cta: 'Suivant',           ctaIcon: ArrowRight },
+  { component: Screen2, cta: 'Suivant',           ctaIcon: ArrowRight },
+  { component: Screen3, cta: 'Suivant',           ctaIcon: ArrowRight },
+  { component: Screen4, cta: 'Découvrir FishDex', ctaIcon: ArrowRight },
 ]
 
 const SWIPE_THRESHOLD = 50
@@ -47,41 +45,27 @@ export function OnboardingCarousel() {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex flex-col overflow-hidden"
-      style={{
-        background: 'radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.1) 0%, transparent 50%), linear-gradient(to bottom, #020c14, #0a1929 50%, #0d1117)',
-      }}
-    >
-      {/* ── Header ── */}
-      <div className="relative z-10 flex items-center justify-between px-4 pt-12 pb-2 shrink-0">
+    <div className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-black">
+      {/* ── Header flottant (par-dessus les photos) ── */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 pt-12 pb-2">
         {/* Retour (caché sur écran 1) */}
         <div className="w-10">
           {page > 0 && (
             <button
               onClick={() => go(page - 1, -1)}
               aria-label="Précédent"
-              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              className="w-10 h-10 rounded-full bg-black/40 border border-white/15 backdrop-blur-sm flex items-center justify-center text-white/60 hover:text-white transition-colors"
             >
               <ChevronLeft size={20} />
             </button>
           )}
         </div>
 
-        {/* Logo */}
-        <div className="flex items-center gap-1.5">
-          <svg viewBox="0 0 20 14" className="w-5 h-3.5" fill="none">
-            <ellipse cx="11" cy="7" rx="7" ry="4.5" fill="rgb(34,211,238)" opacity="0.9" />
-            <path d="M4 7 L0 2.5 L0 11.5 Z" fill="rgb(34,211,238)" opacity="0.7" />
-          </svg>
-          <span className="text-sm font-bold text-cyan-400">FishDex</span>
-        </div>
-
-        {/* Passer */}
+        {/* Passer (discret) */}
         <button
           onClick={handleComplete}
           disabled={completing}
-          className="text-xs text-slate-500 hover:text-slate-300 transition-colors px-2 py-1"
+          className="text-xs text-white/30 hover:text-white/60 transition-colors px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-sm"
         >
           Passer
         </button>
@@ -112,40 +96,41 @@ export function OnboardingCarousel() {
         </AnimatePresence>
       </div>
 
-      {/* ── Footer ── */}
-      <div className="relative z-10 flex flex-col items-center gap-4 px-6 pb-12 pt-2 shrink-0">
-        {/* Indicateurs */}
+      {/* ── Footer flottant ── */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex flex-col items-center gap-4 px-6 pb-12 pt-6"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)' }}
+      >
+        {/* Progress dots */}
         <ProgressIndicators
           total={SCREENS.length}
           current={page}
           onChange={(i) => go(i, i > page ? 1 : -1)}
         />
 
-        {/* CTA principal */}
+        {/* CTA */}
         {isLast ? (
           <form action={handleComplete} className="w-full">
             <button
               type="submit"
               disabled={completing}
-              className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-base text-slate-900 transition-all duration-200 active:scale-[0.98] disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-base text-[#0a0f14] transition-all duration-200 active:scale-[0.98] disabled:opacity-60"
               style={{
                 background: 'linear-gradient(135deg, rgb(34,211,238) 0%, rgb(6,182,212) 100%)',
-                boxShadow: '0 0 30px rgba(34,211,238,0.5), 0 0 60px rgba(34,211,238,0.2)',
+                boxShadow: '0 0 30px rgba(34,211,238,0.5)',
               }}
             >
               <CtaIcon size={18} />
-              {completing ? 'Chargement…' : "C'est parti !"}
+              {completing ? 'Chargement…' : cta}
             </button>
           </form>
         ) : (
           <button
             onClick={() => go(page + 1, 1)}
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-base transition-all duration-200 active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-base text-white transition-all duration-200 active:scale-[0.98]"
             style={{
-              background: 'linear-gradient(135deg, rgba(34,211,238,0.15) 0%, rgba(6,182,212,0.08) 100%)',
-              border: '1px solid rgba(34,211,238,0.4)',
-              color: 'rgb(34,211,238)',
-              boxShadow: '0 0 20px rgba(34,211,238,0.15)',
+              background: 'rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(8px)',
             }}
           >
             {cta}
@@ -156,10 +141,10 @@ export function OnboardingCarousel() {
         {/* Se connecter */}
         <Link
           href="/login"
-          className="text-sm text-slate-500 hover:text-slate-300 transition-colors py-1"
+          className="text-sm text-white/35 hover:text-white/60 transition-colors py-1"
         >
           Déjà un compte ?{' '}
-          <span className="text-cyan-400/70 hover:text-cyan-400">Se connecter</span>
+          <span className="text-cyan-400/60 hover:text-cyan-400">Se connecter</span>
         </Link>
       </div>
     </div>
