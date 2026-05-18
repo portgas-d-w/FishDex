@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { LandingPageV2 } from '@/components/spot-v2/LandingPage'
@@ -157,11 +158,16 @@ export default async function Home() {
       {/* ── HERO 70vh ────────────────────────────────────────────── */}
       <section className="relative h-[70vh] overflow-hidden">
 
-        {/* Background dynamique selon saison × phase lumineuse */}
-        <div
+        {/* Background dynamique — <Image priority> signale fetchpriority=high au browser */}
+        <Image
           key={bgUrl}
-          className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
-          style={{ backgroundImage: `url(${bgUrl})` }}
+          src={bgUrl}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+          quality={85}
         />
 
         {/* Vignette */}
