@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { MapPin, Clock, Fish, Bookmark } from 'lucide-react'
+import Image from 'next/image'
+import { MapPin, Clock, Fish, Thermometer } from 'lucide-react'
 
-type Session = {
+export type SessionCardData = {
   id: string
   title: string | null
   started_at: string
@@ -10,7 +11,14 @@ type Session = {
   is_bookmarked: boolean
   is_retro?: boolean | null
   spot: { nom: string } | null
+  notes: string | null
+  ressenti: string | null
+  photo_ambiance_url: string | null
+  light_phase: string | null
+  meteo_data: Record<string, unknown> | null
 }
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
@@ -18,72 +26,161 @@ function formatDate(iso: string) {
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 }
-function formatDuration(start: string, end: string): string {
-  const diff = new Date(end).getTime() - new Date(start).getTime()
-  const h = Math.floor(diff / 3_600_000)
-  const m = Math.floor((diff % 3_600_000) / 60_000)
-  if (h > 0) return `${h}h${String(m).padStart(2,'0')}`
-  return `${m} min`
+
+// Phase lunaire approximative basée sur la date
+function getMoonPhase(iso: string): { label: string; symbol: string } {
+  const date    = new Date(iso)
+  const known   = new Date('2000-01-06') // nouvelle lune connue
+  const synodic = 29.53058867
+  const diff    = (date.getTime() - known.getTime()) / 86_400_000
+  const phase   = ((diff % synodic) + synodic) % synodic
+
+  if (phase < 1.85)  return { label: 'Nouvelle lune',    symbol: '🌑' }
+  if (phase < 7.38)  return { label: 'Lune croissante',  symbol: '🌒' }
+  if (phase < 11.08) return { label: 'Premier quartier', symbol: '🌓' }
+  if (phase < 14.77) return { label: 'Lune gibbeuse',    symbol: '🌔' }
+  if (phase < 16.61) return { label: 'Pleine lune',      symbol: '🌕' }
+  if (phase < 23.15) return { label: 'Lune décroissante',symbol: '🌖' }
+  if (phase < 25)    return { label: 'Dernier quartier', symbol: '🌗' }
+  return               { label: 'Lune croissante',  symbol: '🌘' }
 }
 
-const SEASON_DOT: Record<string, string> = {
-  printemps: 'bg-emerald-400',
-  été:       'bg-amber-400',
-  automne:   'bg-orange-400',
-  hiver:     'bg-blue-400',
+const SEASON_SKETCH: Record<string, string> = {
+  printemps: '🌿', été: '🌾', automne: '🍂', hiver: '❄️',
 }
 
-export function SessionCard({ session, catchCount }: { session: Session; catchCount: number }) {
-  const spot = Array.isArray(session.spot) ? session.spot[0] : session.spot
-  const name = session.title ?? spot?.nom ?? 'Session'
-  const dot  = SEASON_DOT[session.season ?? ''] ?? 'bg-white/20'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+
+// ── Composant ─────────────────────────────────────────────────────────────────
+
+export function SessionCard({
+  session,
+  catchCount,
+}: {
+  session: SessionCardData
+  catchCount: number
+}) {
+  const spot  = Array.isArray(session.spot) ? session.spot[0] : session.spot
+  const title = session.title ?? spot?.nom ?? 'Session'
+  const moon  = getMoonPhase(session.started_at)
+  const sketch = SEASON_SKETCH[session.season ?? ''] ?? '🍃'
+
+  const photoUrl = session.photo_ambiance_url
+    ? `${SUPABASE_URL}/storage/v1/object/public/catches/${session.photo_ambiance_url}`
+    : null
+
+  const temp = session.meteo_data
+    ? (session.meteo_data as { temp?: number }).temp
+    : null
 
   return (
-    <Link href={`/sessions/${session.id}`} className="block">
-      {/* Texture papier beige en fond — overlay sombre laisse la texture transparaître */}
+    <Link href={`/sessions/${session.id}`} className="block active:scale-[0.98] transition-transform">
       <div
-        className="group relative overflow-hidden flex items-center gap-3 rounded-2xl border border-white/8 px-4 py-3.5 transition-all"
-        style={{ backgroundImage: 'url(/backgrounds/sessions-card-texture.webp)', backgroundSize: 'cover' }}
+        className="relative rounded-2xl overflow-hidden shadow-md"
+        style={{
+          backgroundImage: 'url(/backgrounds/sessions-card-notebook.webp)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'left center',
+        }}
       >
-        <div className="absolute inset-0 bg-[#0a0f14]/80 group-hover:bg-[#0a0f14]/72 transition-colors rounded-2xl" />
+        {/* Légère teinte chaleureuse pour unifier */}
+        <div className="absolute inset-0 bg-amber-950/8" />
 
-        {/* Saison dot */}
-        <div className="relative z-10 w-9 h-9 rounded-xl bg-white/8 flex items-center justify-center shrink-0">
-          <span className={`w-2.5 h-2.5 rounded-full ${dot}`} />
-        </div>
+        <div className="relative flex gap-0 min-h-[120px]">
 
-        {/* Infos */}
-        <div className="relative z-10 flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <p className="text-sm font-semibold text-white truncate">{name}</p>
-            {session.is_bookmarked && (
-              <Bookmark size={10} className="text-amber-400 fill-amber-400 shrink-0" />
-            )}
-            {session.is_retro && (
-              <span className="text-[9px] font-semibold text-white/30 bg-white/8 border border-white/10 px-1.5 py-0.5 rounded-full shrink-0 leading-none">
-                rétro
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1">
-              <MapPin size={10} className="text-white/25 shrink-0" />
-              <span className="text-[11px] text-white/35">{formatDate(session.started_at)}</span>
+          {/* ── Colonne gauche — photo ──────────────────────────────────────── */}
+          <div className="w-[108px] shrink-0 p-3 pr-0 flex items-center justify-center">
+            <div
+              className="w-[90px] h-[90px] rounded-lg overflow-hidden shadow-[2px_3px_8px_rgba(0,0,0,0.35)]"
+              style={{ transform: 'rotate(-1.5deg)' }}
+            >
+              {photoUrl ? (
+                <Image
+                  src={photoUrl}
+                  alt={title}
+                  width={90}
+                  height={90}
+                  unoptimized
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div
+                  className="w-full h-full flex items-center justify-center text-3xl"
+                  style={{ background: 'rgba(139,90,43,0.12)' }}
+                >
+                  {sketch}
+                </div>
+              )}
             </div>
-            {session.ended_at && (
-              <div className="flex items-center gap-1">
-                <Clock size={10} className="text-white/25 shrink-0" />
-                <span className="text-[11px] text-white/35">
-                  {formatTime(session.started_at)} – {formatTime(session.ended_at)}
+          </div>
+
+          {/* ── Colonne droite — contenu journal ───────────────────────────── */}
+          <div className="flex-1 py-3 pr-3 pl-2 flex flex-col justify-between">
+
+            {/* En-tête : titre + phase lunaire */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <h3
+                  className="text-[18px] leading-tight text-stone-800 font-semibold truncate"
+                  style={{ fontFamily: 'var(--font-handwriting)' }}
+                >
+                  {title}
+                </h3>
+                {session.notes && (
+                  <p className="text-[11px] italic text-stone-500 mt-0.5 line-clamp-1">
+                    {session.notes}
+                  </p>
+                )}
+              </div>
+
+              {/* Phase lunaire */}
+              <div className="shrink-0 flex flex-col items-center gap-0.5 mt-0.5">
+                <span className="text-[18px] leading-none">{moon.symbol}</span>
+                <span className="text-[8px] text-stone-500 text-center leading-tight max-w-[44px]">
+                  {moon.label}
                 </span>
               </div>
-            )}
-            {catchCount > 0 && (
-              <div className="flex items-center gap-1">
-                <Fish size={10} className="text-cyan-400/60 shrink-0" />
-                <span className="text-[11px] text-cyan-400/70">{catchCount} prise{catchCount > 1 ? 's' : ''}</span>
-              </div>
-            )}
+            </div>
+
+            {/* Méta */}
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
+              <span className="flex items-center gap-1 text-[10px] text-stone-500">
+                <Clock size={9} className="shrink-0" />
+                {formatDate(session.started_at)}
+                {session.ended_at && (
+                  <span className="text-stone-400">
+                    · {formatTime(session.started_at)} – {formatTime(session.ended_at)}
+                  </span>
+                )}
+              </span>
+
+              {temp != null && (
+                <span className="flex items-center gap-1 text-[10px] text-stone-500">
+                  <Thermometer size={9} className="shrink-0" />
+                  {temp}°C
+                </span>
+              )}
+
+              {spot?.nom && (
+                <span className="flex items-center gap-1 text-[10px] text-stone-500">
+                  <MapPin size={9} className="shrink-0" />
+                  {spot.nom}
+                </span>
+              )}
+            </div>
+
+            {/* Pied : trait + catch count */}
+            <div className="flex items-end justify-between mt-1.5 pt-1.5 border-t border-stone-300/60">
+              <p className="text-[9px] italic text-stone-400 truncate flex-1 mr-2">
+                {session.ressenti ? `"${session.ressenti}"` : sketch}
+              </p>
+              {catchCount > 0 && (
+                <span className="flex items-center gap-1 text-[10px] font-semibold text-stone-600 shrink-0">
+                  <Fish size={10} />
+                  {catchCount} prise{catchCount > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>

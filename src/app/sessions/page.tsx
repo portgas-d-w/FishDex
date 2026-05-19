@@ -50,7 +50,7 @@ export default async function SessionsPage() {
     }
   }
 
-  // Enrichir sessions avec spot
+  // Enrichir sessions avec spot + champs journal
   const spotIds = [...new Set(sessions.map(s => s.spot_id).filter(Boolean))] as string[]
   const spotMap: Record<string, string> = {}
   if (spotIds.length > 0) {
@@ -60,52 +60,87 @@ export default async function SessionsPage() {
 
   const enrichedSessions = sessions.map(s => ({
     ...s,
-    spot: s.spot_id ? { nom: spotMap[s.spot_id] ?? '' } : null,
+    spot:               s.spot_id ? { nom: spotMap[s.spot_id] ?? '' } : null,
+    notes:              s.notes ?? null,
+    ressenti:           s.ressenti ?? null,
+    photo_ambiance_url: s.photo_ambiance_url ?? null,
+    light_phase:        s.light_phase ?? null,
+    meteo_data:         s.meteo_data ?? null,
   }))
 
   return (
     <PageBackground
-      bgUrl="/backgrounds/sessions-bg.webp"
-      overlay="bg-[#0a0f14]/72"
+      bgUrl="/backgrounds/sessions-page-bg.webp"
+      overlay="bg-[#060b12]/68"
       className="pb-28"
     >
-      {/* Header */}
-      <div className="px-4 pt-14 pb-5 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-white">Les Sessions</h1>
-          <p className="text-sm text-white/40 mt-0.5">Retrouve tes plus beaux souvenirs de pêche</p>
-        </div>
-        {/* vide : CTAs déplacés plus bas */}
+      {/* ── Header journal ──────────────────────────────────────────────── */}
+      <div className="px-5 pt-14 pb-2">
+        <h1
+          className="text-[2.6rem] leading-tight text-white/90"
+          style={{ fontFamily: 'var(--font-handwriting)' }}
+        >
+          Les Sessions
+        </h1>
+        <p className="text-sm text-white/40 mt-1 italic">
+          Tes souvenirs de pêche,<br />écrits par la nature.
+        </p>
       </div>
 
-      {/* Banner active */}
-      {activeSession && <ActiveSessionBanner session={activeSession} />}
+      {/* ── Banner session active ────────────────────────────────────────── */}
+      {activeSession && (
+        <div className="px-4 mb-2">
+          <ActiveSessionBanner session={activeSession} />
+        </div>
+      )}
 
-      {/* CTAs si pas de session active */}
+      {/* ── CTAs ────────────────────────────────────────────────────────── */}
       {!activeSession && (
-        <div className="px-4 mb-4 flex gap-2">
+        <div className="px-4 mb-5 mt-3 flex gap-2.5">
           <Link
             href="/sessions/new"
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-cyan-400 text-[#0a0f14] font-semibold text-sm hover:bg-cyan-300 transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95"
+            style={{
+              background: 'linear-gradient(135deg, #1a4a3a 0%, #0f3328 100%)',
+              border: '1px solid rgba(52,211,153,0.25)',
+              color: '#6ee7b7',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)',
+            }}
           >
-            <Plus size={16} strokeWidth={2.5} />
+            <Plus size={15} strokeWidth={2.5} />
             Démarrer
           </Link>
           <Link
             href="/sessions/retro"
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-white/70 font-semibold text-sm hover:bg-white/8 transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95"
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              color: 'rgba(255,255,255,0.55)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
+            }}
           >
-            <Clock size={14} />
+            <Clock size={13} />
             Souvenir passé
           </Link>
         </div>
       )}
 
-      {/* Contenu */}
+      {/* ── Liste sessions ───────────────────────────────────────────────── */}
       {sessions.length === 0 ? (
         <EmptyState hasActive={!!activeSession} />
       ) : (
         <SessionsList sessions={enrichedSessions} catchCountMap={catchCountMap} />
+      )}
+
+      {/* ── Citation de bas de page ─────────────────────────────────────── */}
+      {sessions.length > 0 && (
+        <p
+          className="text-center text-xs italic text-white/20 px-8 pb-4 pt-2"
+          style={{ fontFamily: 'var(--font-handwriting)', fontSize: '0.85rem' }}
+        >
+          &ldquo;Ce ne sont pas les prises qui restent,<br />ce sont les moments.&rdquo;
+        </p>
       )}
     </PageBackground>
   )

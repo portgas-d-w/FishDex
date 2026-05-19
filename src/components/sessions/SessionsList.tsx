@@ -1,20 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { SessionCard } from './SessionCard'
+import { SessionCard, type SessionCardData } from './SessionCard'
 
-type Session = {
-  id: string
-  title: string | null
-  started_at: string
-  ended_at: string | null
-  season: string | null
-  is_bookmarked: boolean
-  spot: { nom: string } | null
-}
-
-function groupByMonth(sessions: Session[]): { label: string; items: Session[] }[] {
-  const groups: Record<string, Session[]> = {}
+function groupByMonth(sessions: SessionCardData[]): { label: string; items: SessionCardData[] }[] {
+  const groups: Record<string, SessionCardData[]> = {}
   for (const s of sessions) {
     const key = new Date(s.started_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
     if (!groups[key]) groups[key] = []
@@ -23,21 +13,20 @@ function groupByMonth(sessions: Session[]): { label: string; items: Session[] }[
   return Object.entries(groups).map(([label, items]) => ({ label, items }))
 }
 
-// Index global pour les délais stagger cross-groupe
 let globalIndex = 0
 
 export function SessionsList({
   sessions,
   catchCountMap,
 }: {
-  sessions: Session[]
+  sessions: SessionCardData[]
   catchCountMap: Record<string, number>
 }) {
   const groups = groupByMonth(sessions)
-  globalIndex = 0
+  globalIndex  = 0
 
   return (
-    <div className="px-4 space-y-6 pb-4">
+    <div className="px-4 space-y-6 pb-8">
       {groups.map(({ label, items }) => (
         <motion.div
           key={label}
@@ -45,10 +34,15 @@ export function SessionsList({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="text-[11px] font-semibold tracking-widest text-white/30 uppercase mb-2 capitalize">
+          {/* Label mois — style carnet */}
+          <p
+            className="text-[11px] font-bold tracking-[0.18em] uppercase mb-3 px-1"
+            style={{ color: 'rgba(255,255,255,0.35)' }}
+          >
             {label}
           </p>
-          <div className="space-y-2">
+
+          <div className="space-y-3">
             {items.map(s => {
               const delay = Math.min(globalIndex++ * 0.07, 0.42)
               return (

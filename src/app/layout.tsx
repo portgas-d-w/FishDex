@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Outfit, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import { BottomNavV2 } from "@/components/BottomNavV2";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
@@ -13,6 +13,12 @@ const inter = Inter({
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
+});
+
+const dancingScript = Dancing_Script({
+  variable: "--font-handwriting",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -43,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${inter.variable} ${outfit.variable} h-full antialiased dark`}
+      className={`${inter.variable} ${outfit.variable} ${dancingScript.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Suspense fallback={null}>
