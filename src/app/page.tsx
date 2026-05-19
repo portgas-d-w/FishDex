@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { ChevronDown } from 'lucide-react'
+import { HeroWithParallax } from '@/components/home/HeroWithParallax'
 import { createClient } from '@/lib/supabase/server'
 import { LandingPageV2 } from '@/components/spot-v2/LandingPage'
 import { NotificationBell } from '@/components/home/NotificationBell'
@@ -155,21 +155,8 @@ export default async function Home() {
   return (
     <main className="relative min-h-screen bg-[#0a0f14]">
 
-      {/* ── HERO 70vh ────────────────────────────────────────────── */}
-      <section className="relative h-[70vh] overflow-hidden">
-
-        {/* Background dynamique — <Image priority> signale fetchpriority=high au browser */}
-        <Image
-          key={bgUrl}
-          src={bgUrl}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-          quality={85}
-        />
-
+      {/* ── HERO 70vh avec parallax ──────────────────────────────── */}
+      <HeroWithParallax bgUrl={bgUrl}>
         {/* Vignette */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-transparent" />
 
@@ -197,7 +184,7 @@ export default async function Home() {
 
         {/* Gradient transition vers le fond sombre */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-[#0a0f14] pointer-events-none z-10" />
-      </section>
+      </HeroWithParallax>
 
       {/* ── CONTENU SCROLLABLE ───────────────────────────────────── */}
       <section className="px-4 py-6 space-y-4 pb-32">
