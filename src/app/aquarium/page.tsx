@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { AquariumHeader } from '@/components/aquarium-v2/Header'
 import { CatchesGrid } from '@/components/aquarium-v2/CatchesGrid'
 import { SessionSuggestToast } from '@/components/sessions/SessionSuggestToast'
+import { PageBackground } from '@/components/ui/PageBackground'
 import type { CatchWithSpecies, AquariumStats, RecordsMap } from '@/types/aquarium'
 
 export const metadata = {
@@ -78,12 +79,10 @@ export default async function AquariumPage({ searchParams }: Props) {
   }
 
   return (
-    <div
-      className="min-h-screen flex flex-col pb-28"
-      style={{
-        background:
-          'radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.12) 0%, transparent 55%), linear-gradient(to bottom, #020c14, #0a1929 40%, #0d1117)',
-      }}
+    <PageBackground
+      bgUrl="/backgrounds/aquarium-bg.webp"
+      overlay="bg-gradient-to-b from-[#020c14]/55 via-[#020c14]/45 to-[#020c14]/75"
+      className="flex flex-col pb-28"
     >
       <AquariumHeader
         username={profile?.username ?? 'Pêcheur'}
@@ -99,6 +98,6 @@ export default async function AquariumPage({ searchParams }: Props) {
       />
 
       <SessionSuggestToast show={suggest} />
-    </div>
+    </PageBackground>
   )
 }

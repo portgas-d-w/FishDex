@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Search, BookOpen, X } from 'lucide-react'
+import { PageBackground } from '@/components/ui/PageBackground'
 import { SpeciesCardV3 } from './SpeciesCardV3'
 import { CollectionToggle } from './CollectionToggle'
 import { CollectionHeader } from './CollectionHeader'
@@ -81,11 +82,10 @@ export function FishDexV3Shell({
     : null
 
   return (
-    <div
-      className="min-h-screen flex flex-col pb-24"
-      style={{
-        background: 'radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.10) 0%, transparent 55%), linear-gradient(to bottom, #020c14, #0a1929 40%, #0d1117)',
-      }}
+    <PageBackground
+      bgUrl="/backgrounds/fishdex-bg.webp"
+      overlay="bg-[#020c14]/50"
+      className="flex flex-col pb-24"
     >
       <PageHeader
         leftAction={
@@ -170,6 +170,6 @@ export function FishDexV3Shell({
           </motion.div>
         )}
       </div>
-    </div>
+    </PageBackground>
   )
 }
