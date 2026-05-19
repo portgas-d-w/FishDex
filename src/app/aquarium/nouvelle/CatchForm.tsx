@@ -1,9 +1,9 @@
 'use client'
 
-import { useActionState, useState, useEffect, useTransition } from 'react'
+import { useActionState, useState, useEffect, useTransition, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ArrowRight } from 'lucide-react'
+import { ChevronLeft, ArrowRight, ChevronDown, X } from 'lucide-react'
 import { createCatch, type CatchState } from '@/app/actions/catches'
 import { identifySpeciesFromPhoto, type AIPrediction } from '@/app/actions/ai-identify'
 
@@ -259,6 +259,158 @@ type DetailsFormProps = {
   onBack: () => void
 }
 
+// ── Combobox espèce — cherche en tapant OU défile la liste ──────────────────
+
+function SpeciesCombobox({
+  species,
+  value,
+  onChange,
+  error,
+}: {
+  species: Species[]
+  value: string
+  onChange: (id: string) => void
+  error?: string
+}) {
+  const [inputText, setInputText]   = useState('')
+  const [open, setOpen]             = useState(false)
+  const containerRef                = useRef<HTMLDivElement>(null)
+
+  // Affiche le nom quand une valeur est sélectionnée (y compris depuis l'IA)
+  const selectedName = species.find(s => s.id === value)?.nom_fr ?? ''
+
+  // Quand la valeur change depuis l'extérieur (suggestion IA), ferme le dropdown
+  useEffect(() => {
+    if (value) setOpen(false)
+  }, [value])
+
+  // Filtre : si l'user tape, filtre ; sinon affiche tout
+  const query    = inputText.trim().toLowerCase()
+  const filtered = query
+    ? species.filter(s => s.nom_fr.toLowerCase().includes(query))
+    : species
+
+  const poissons  = filtered.filter(s => s.categorie !== 'crustace')
+  const crustaces = filtered.filter(s => s.categorie === 'crustace')
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setInputText(e.target.value)
+    setOpen(true)
+    if (!e.target.value) onChange('')   // désélectionne si texte effacé
+  }
+
+  function handleSelect(id: string) {
+    onChange(id)
+    setInputText('')
+    setOpen(false)
+  }
+
+  function handleClear(e: React.MouseEvent) {
+    e.stopPropagation()
+    onChange('')
+    setInputText('')
+    setOpen(false)
+  }
+
+  // Ferme au clic en dehors
+  useEffect(() => {
+    function onOutside(e: MouseEvent) {
+      if (!containerRef.current?.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onOutside)
+    return () => document.removeEventListener('mousedown', onOutside)
+  }, [])
+
+  return (
+    <div ref={containerRef} className="relative">
+      {/* Champ texte */}
+      <div
+        className={`flex items-center gap-2 w-full px-4 py-2.5 bg-white/5 border rounded-xl transition-colors cursor-text ${
+          open ? 'border-cyan-500/50' : error ? 'border-red-500/50' : 'border-white/10'
+        }`}
+        onClick={() => setOpen(v => !v)}
+      >
+        <input
+          type="text"
+          value={open ? inputText : selectedName}
+          onChange={handleInputChange}
+          onFocus={() => setOpen(true)}
+          placeholder={selectedName || '— Rechercher ou défiler —'}
+          className="flex-1 bg-transparent text-sm text-white placeholder-white/25 outline-none"
+        />
+        {/* Champ caché pour la soumission du formulaire */}
+        <input type="hidden" name="species_id" value={value} />
+
+        {value ? (
+          <button type="button" onClick={handleClear} className="text-white/30 hover:text-white/60 transition-colors shrink-0">
+            <X size={14} />
+          </button>
+        ) : (
+          <ChevronDown size={14} className={`text-white/30 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        )}
+      </div>
+
+      {/* Dropdown */}
+      {open && (
+        <div className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-white/10 shadow-2xl"
+          style={{ background: 'rgba(8,14,22,0.97)', backdropFilter: 'blur(16px)' }}
+        >
+          {filtered.length === 0 ? (
+            <p className="px-4 py-3 text-sm text-white/30">Aucune espèce trouvée</p>
+          ) : (
+            <>
+              {poissons.length > 0 && (
+                <>
+                  {crustaces.length > 0 && (
+                    <p className="px-4 pt-2.5 pb-1 text-[10px] font-bold tracking-widest text-white/25 uppercase">Poissons</p>
+                  )}
+                  {poissons.map(s => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onMouseDown={() => handleSelect(s.id)}
+                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                        s.id === value
+                          ? 'text-cyan-400 bg-cyan-400/8'
+                          : 'text-white/80 hover:bg-white/6 hover:text-white'
+                      }`}
+                    >
+                      {s.nom_fr}
+                    </button>
+                  ))}
+                </>
+              )}
+              {crustaces.length > 0 && (
+                <>
+                  <p className="px-4 pt-2.5 pb-1 text-[10px] font-bold tracking-widest text-white/25 uppercase border-t border-white/5 mt-1">Crustacés</p>
+                  {crustaces.map(s => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onMouseDown={() => handleSelect(s.id)}
+                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                        s.id === value
+                          ? 'text-cyan-400 bg-cyan-400/8'
+                          : 'text-white/80 hover:bg-white/6 hover:text-white'
+                      }`}
+                    >
+                      {s.nom_fr}
+                    </button>
+                  ))}
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {error && <p className="mt-1.5 text-xs text-red-400">{error}</p>}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function DetailsForm({
   species, today, photoPath, captureSource,
   defaultRelease, prefilledSpeciesId, prefilledSpeciesName, onBack,
@@ -270,9 +422,6 @@ function DetailsForm({
   const photoPreviewUrl = photoPath
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/catches/${photoPath}`
     : null
-
-  const poissons  = species.filter(s => s.categorie !== 'crustace')
-  const crustaces = species.filter(s => s.categorie === 'crustace')
 
   return (
     <div className="flex flex-col gap-5">
@@ -328,36 +477,15 @@ function DetailsForm({
 
         {/* Espèce */}
         <div>
-          <label htmlFor="species_id" className="block text-sm font-medium text-white/70 mb-1.5">
+          <label className="block text-sm font-medium text-white/70 mb-1.5">
             Espèce <span className="text-red-400">*</span>
           </label>
-          <select
-            id="species_id"
-            name="species_id"
-            required
+          <SpeciesCombobox
+            species={species}
             value={selectedSpeciesId}
-            onChange={e => setSelectedSpeciesId(e.target.value)}
-            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500/50 transition-colors"
-          >
-            <option value="" disabled className="bg-slate-900">— Sélectionne une espèce —</option>
-            {poissons.length > 0 && (
-              <optgroup label="Poissons">
-                {poissons.map(s => (
-                  <option key={s.id} value={s.id} className="bg-slate-900">{s.nom_fr}</option>
-                ))}
-              </optgroup>
-            )}
-            {crustaces.length > 0 && (
-              <optgroup label="Crustacés">
-                {crustaces.map(s => (
-                  <option key={s.id} value={s.id} className="bg-slate-900">{s.nom_fr}</option>
-                ))}
-              </optgroup>
-            )}
-          </select>
-          {state?.fieldErrors?.species_id && (
-            <p className="mt-1.5 text-xs text-red-400">{state.fieldErrors.species_id}</p>
-          )}
+            onChange={setSelectedSpeciesId}
+            error={state?.fieldErrors?.species_id}
+          />
         </div>
 
         {/* Date */}
