@@ -20,6 +20,12 @@ const FILTERS: { value: Rarete | 'toutes'; label: string; dot?: string; active: 
     active: 'bg-emerald-400 text-slate-900 border-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.5)]',
   },
   {
+    value: 'peu commun',
+    label: 'Peu commun',
+    dot: 'bg-teal-400',
+    active: 'bg-teal-400 text-slate-900 border-teal-400 shadow-[0_0_12px_rgba(45,212,191,0.5)]',
+  },
+  {
     value: 'rare',
     label: 'Rare',
     dot: 'bg-blue-400',

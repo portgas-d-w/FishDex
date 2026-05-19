@@ -1,21 +1,23 @@
 import type { Rarete } from '@/types/fishdex'
 
-export const rareteOrder: Rarete[] = ['commun', 'rare', 'epique', 'legendaire', 'mirage']
+export const rareteOrder: Rarete[] = ['commun', 'peu commun', 'rare', 'epique', 'legendaire', 'mirage']
 
 export const RARETE_COUNTS: Record<Rarete, number> = {
-  commun:     13,
-  rare:       14,
-  epique:     15,
-  legendaire: 10,
-  mirage:      5,
+  commun:       12,
+  'peu commun': 10,
+  rare:         15,
+  epique:        3,
+  legendaire:    5,
+  mirage:       30,
 }
 
 export const rareteLabels: Record<Rarete, string> = {
-  commun:     'Commun',
-  rare:       'Rare',
-  epique:     'Épique',
-  legendaire: 'Légendaire',
-  mirage:     'Mirage ✨',
+  commun:       'Commun',
+  'peu commun': 'Peu commun',
+  rare:         'Rare',
+  epique:       'Épique',
+  legendaire:   'Légendaire',
+  mirage:       'Mirage ✨',
 }
 
 type RareteStyle = {
@@ -37,6 +39,15 @@ export const rareteConfig: Record<Rarete, RareteStyle> = {
     badge:       'bg-emerald-900/60 text-emerald-300',
     badgeBorder: 'border-emerald-500/40',
     glow:        'hover:border-emerald-400/60 hover:shadow-[0_0_16px_rgba(52,211,153,0.2)]',
+  },
+  'peu commun': {
+    label:       'Peu commun',
+    dot:         'bg-teal-400',
+    text:        'text-teal-400',
+    border:      'border-teal-500/40',
+    badge:       'bg-teal-900/60 text-teal-300',
+    badgeBorder: 'border-teal-500/40',
+    glow:        'hover:border-teal-400/60 hover:shadow-[0_0_16px_rgba(45,212,191,0.2)]',
   },
   rare: {
     label:       'Rare',

@@ -3,7 +3,7 @@
 export type Eau = 'douce' | 'salee' | 'saumatre';
 export type Regime = 'carnivore' | 'omnivore' | 'herbivore';
 export type Profondeur = 'surface' | 'moyenne' | 'fond';
-export type Rarete = 'commun' | 'rare' | 'epique' | 'legendaire' | 'mirage';
+export type Rarete = 'commun' | 'peu commun' | 'rare' | 'epique' | 'legendaire' | 'mirage';
 export type Categorie = 'poisson' | 'crustace';
 
 export type SpeciesRow = {
