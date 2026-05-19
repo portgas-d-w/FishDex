@@ -49,9 +49,8 @@ export function HeroWithParallax({ children, bgUrl }: Props) {
           alt=""
           fill
           priority
-          sizes="100vw"
+          unoptimized
           className="object-cover object-center"
-          quality={85}
         />
       </motion.div>
 
