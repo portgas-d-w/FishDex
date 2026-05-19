@@ -6,6 +6,7 @@ import { getActiveSession, getSessions } from '@/app/actions/sessions'
 import { ActiveSessionBanner } from '@/components/sessions/ActiveSessionBanner'
 import { SessionsList } from '@/components/sessions/SessionsList'
 import { EmptyState } from '@/components/sessions/EmptyState'
+import { PageBackground } from '@/components/ui/PageBackground'
 
 export const metadata = { title: 'Sessions — FishDex' }
 
@@ -63,7 +64,11 @@ export default async function SessionsPage() {
   }))
 
   return (
-    <div className="min-h-screen bg-[#0a0f14] pb-28">
+    <PageBackground
+      bgUrl="/backgrounds/sessions-bg.webp"
+      overlay="bg-[#0a0f14]/72"
+      className="pb-28"
+    >
       {/* Header */}
       <div className="px-4 pt-14 pb-5 flex items-center justify-between">
         <div>
@@ -102,6 +107,6 @@ export default async function SessionsPage() {
       ) : (
         <SessionsList sessions={enrichedSessions} catchCountMap={catchCountMap} />
       )}
-    </div>
+    </PageBackground>
   )
 }

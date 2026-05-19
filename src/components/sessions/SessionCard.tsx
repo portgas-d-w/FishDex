@@ -40,14 +40,20 @@ export function SessionCard({ session, catchCount }: { session: Session; catchCo
 
   return (
     <Link href={`/sessions/${session.id}`} className="block">
-      <div className="flex items-center gap-3 rounded-2xl bg-white/5 border border-white/8 px-4 py-3.5 hover:bg-white/8 transition-colors">
+      {/* Texture papier beige en fond — overlay sombre laisse la texture transparaître */}
+      <div
+        className="group relative overflow-hidden flex items-center gap-3 rounded-2xl border border-white/8 px-4 py-3.5 transition-all"
+        style={{ backgroundImage: 'url(/backgrounds/sessions-card-texture.webp)', backgroundSize: 'cover' }}
+      >
+        <div className="absolute inset-0 bg-[#0a0f14]/80 group-hover:bg-[#0a0f14]/72 transition-colors rounded-2xl" />
+
         {/* Saison dot */}
-        <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+        <div className="relative z-10 w-9 h-9 rounded-xl bg-white/8 flex items-center justify-center shrink-0">
           <span className={`w-2.5 h-2.5 rounded-full ${dot}`} />
         </div>
 
         {/* Infos */}
-        <div className="flex-1 min-w-0">
+        <div className="relative z-10 flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
             <p className="text-sm font-semibold text-white truncate">{name}</p>
             {session.is_bookmarked && (
