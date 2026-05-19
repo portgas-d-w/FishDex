@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { MapPin, Book, Camera, Fish, Calendar } from 'lucide-react'
+import { haptic } from '@/lib/haptics'
 
 const LEFT_TABS  = [
   { href: '/',        label: 'Le Spot',  Icon: MapPin   },
@@ -62,6 +63,7 @@ export function BottomNavV2() {
             <Link
               href="/capture"
               aria-label="Nouvelle capture"
+              onClick={() => haptic('medium')}
               className={`flex items-center justify-center w-[56px] h-[56px] rounded-full
                 bg-cyan-400 ring-2 ring-cyan-400/30 transition-all duration-150 active:scale-90
                 ${captureActive

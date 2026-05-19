@@ -1,5 +1,7 @@
 'use client'
 
+import { haptic } from '@/lib/haptics'
+
 type Props = {
   checked: boolean
   onChange: (value: boolean) => void
@@ -12,7 +14,7 @@ export function ToggleSwitch({ checked, onChange, label }: Props) {
       role="switch"
       aria-checked={checked}
       aria-label={label}
-      onClick={() => onChange(!checked)}
+      onClick={() => { haptic('light'); onChange(!checked) }}
       className={`relative w-12 h-6 rounded-full border transition-all duration-300 shrink-0
         ${checked
           ? 'bg-cyan-500/30 border-cyan-400/60 shadow-[0_0_10px_rgba(34,211,238,0.3)]'

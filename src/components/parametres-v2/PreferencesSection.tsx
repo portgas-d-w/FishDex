@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { Scale, Moon, Globe, SlidersHorizontal, ChevronRight } from 'lucide-react'
+import { Scale, Moon, Globe, SlidersHorizontal, ChevronRight, Vibrate } from 'lucide-react'
 import { Section } from './Section'
 import { SettingItem } from './SettingItem'
 import { SegmentedControl } from './SegmentedControl'
+import { ToggleSwitch } from './ToggleSwitch'
+import { isHapticsEnabled, setHapticsEnabled } from '@/lib/haptics'
 
 const UNITS = [
   { value: 'kg', label: 'kg' },
@@ -19,6 +21,12 @@ const THEMES = [
 export function PreferencesSection() {
   const [unit, setUnit] = useState('kg')
   const [theme, setTheme] = useState('dark')
+  const [haptics, setHaptics] = useState(isHapticsEnabled)
+
+  function handleHapticsChange(enabled: boolean) {
+    setHaptics(enabled)
+    setHapticsEnabled(enabled)
+  }
 
   return (
     <Section icon={<SlidersHorizontal size={13} className="text-cyan-400" />} title="Préférences">
@@ -31,6 +39,12 @@ export function PreferencesSection() {
         icon={<Moon size={15} className="text-slate-400" />}
         label="Thème"
         control={<SegmentedControl options={THEMES} value={theme} onChange={setTheme} />}
+      />
+      <SettingItem
+        icon={<Vibrate size={15} className="text-slate-400" />}
+        label="Vibrations"
+        subtitle="Retour haptique sur les actions (Android)"
+        control={<ToggleSwitch checked={haptics} onChange={handleHapticsChange} label="Vibrations" />}
       />
       <SettingItem
         icon={<Globe size={15} className="text-slate-400" />}

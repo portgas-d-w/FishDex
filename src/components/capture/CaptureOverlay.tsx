@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { X, Info, Camera } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { haptic } from '@/lib/haptics'
 import { createClient } from '@/lib/supabase/client'
 import { compressForUpload } from '@/lib/images/upload'
 import { generateThumbnails } from '@/app/actions/images'
@@ -59,11 +60,13 @@ export function CaptureOverlay({ userId }: Props) {
   async function handleFile(file: File, source: 'camera' | 'gallery') {
     setCaptureSource(source)
     if (!ALLOWED.includes(file.type)) {
+      haptic('error')
       setUploadError('Format non supporté (JPG, PNG, WebP).')
       setPhase('done')
       return
     }
     if (file.size > MAX_SIZE) {
+      haptic('error')
       setUploadError('Photo trop lourde (max 5 Mo).')
       setPhase('done')
       return
@@ -92,11 +95,13 @@ export function CaptureOverlay({ userId }: Props) {
     ])
 
     if (uploadResult.error) {
+      haptic('error')
       setUploadError("Échec de l'envoi. Vérifie ta connexion.")
       setPhase('done')
       return
     }
 
+    haptic('success')
     setUploadPath(path)
     setPhase('done')
 
