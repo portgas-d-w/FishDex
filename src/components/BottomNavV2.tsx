@@ -1,121 +1,162 @@
 'use client'
 
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
-import { MapPin, BookOpen, Camera, Fish, CalendarDays } from 'lucide-react'
+import { MapPin, Book, Camera, Fish, Calendar } from 'lucide-react'
 import { haptic } from '@/lib/haptics'
 
-const TABS = [
-  { href: '/',         label: 'Le Spot',  Icon: MapPin      },
-  { href: '/fishdex',  label: 'FishDex',  Icon: BookOpen    },
-  { href: '/capture',  label: 'Capture',  Icon: Camera, isFab: true },
-  { href: '/aquarium', label: 'Aquarium', Icon: Fish        },
-  { href: '/sessions', label: 'Sessions', Icon: CalendarDays },
+const LEFT_TABS = [
+  { href: '/',        label: 'Le Spot', Icon: MapPin  },
+  { href: '/fishdex', label: 'FishDex', Icon: Book    },
+]
+const RIGHT_TABS = [
+  { href: '/aquarium', label: 'Aquarium', Icon: Fish     },
+  { href: '/sessions', label: 'Sessions', Icon: Calendar },
 ]
 
-export function BottomNavV2() {
+function NavTab({ href, label, Icon }: { href: string; label: string; Icon: React.ElementType }) {
   const pathname = usePathname()
+  const active   = href === '/' ? pathname === '/' : pathname.startsWith(href)
+
+  return (
+    <Link
+      href={href}
+      aria-current={active ? 'page' : undefined}
+      onClick={() => haptic('light')}
+      className="flex-1 flex flex-col items-center justify-center gap-1.5 relative h-full transition-all duration-200 active:scale-90"
+    >
+      {/* Pill actif — slide via layoutId */}
+      <AnimatePresence>
+        {active && (
+          <motion.span
+            layoutId="nav-pill"
+            className="absolute inset-x-2 inset-y-2 rounded-2xl pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse at 50% 30%, rgba(34,211,238,0.15) 0%, rgba(34,211,238,0.04) 100%)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)',
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+          />
+        )}
+      </AnimatePresence>
+
+      <Icon
+        size={20}
+        strokeWidth={active ? 2.2 : 1.6}
+        className={`relative transition-all duration-200 ${
+          active
+            ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]'
+            : 'text-white/30'
+        }`}
+      />
+      <span className={`text-[10px] font-semibold tracking-wide relative transition-colors duration-200 ${
+        active ? 'text-cyan-400' : 'text-white/25'
+      }`}>
+        {label}
+      </span>
+
+      {/* Dot bioluminescent */}
+      {active && (
+        <motion.span
+          className="absolute bottom-1.5 w-1 h-1 rounded-full bg-cyan-400"
+          style={{ boxShadow: '0 0 6px 2px rgba(34,211,238,0.7)' }}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.08, type: 'spring', stiffness: 500, damping: 25 }}
+        />
+      )}
+    </Link>
+  )
+}
+
+export function BottomNavV2() {
+  const pathname      = usePathname()
+  const captureActive = pathname.startsWith('/capture')
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 flex justify-center px-2"
-      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}
+      className="fixed bottom-0 left-0 right-0 z-50 px-3.5"
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 10px)' }}
     >
-      {/* Halo ambiant derrière la barre */}
+      {/* Halo ambiant cyan sous la barre */}
       <div
-        className="absolute inset-x-4 bottom-0 h-20 pointer-events-none"
+        className="absolute inset-x-12 bottom-0 h-16 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at 50% 100%, rgba(34,211,238,0.10) 0%, transparent 65%)',
-          filter: 'blur(12px)',
+          background: 'radial-gradient(ellipse at 50% 120%, rgba(34,211,238,0.14) 0%, transparent 70%)',
+          filter: 'blur(10px)',
         }}
       />
 
-      {/* Barre principale */}
-      <nav
-        className="relative w-full flex items-center justify-around h-[62px] rounded-full px-2"
+      {/* Barre principale — PAS d'overflow:hidden pour laisser le FAB déborder */}
+      <div
+        className="relative flex items-center rounded-[26px] h-[62px]"
         style={{
-          background: 'rgba(6, 10, 16, 0.88)',
-          backdropFilter: 'blur(24px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(14,20,28,0.75) 100%)',
+          backdropFilter: 'blur(28px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(160%)',
           boxShadow: [
-            '0 0 0 1px rgba(34,211,238,0.18)',
-            '0 0 16px rgba(34,211,238,0.08)',
-            '0 8px 30px rgba(0,0,0,0.6)',
-            'inset 0 1px 0 rgba(255,255,255,0.06)',
+            '0 0 0 1px rgba(255,255,255,0.09)',
+            '0 8px 32px rgba(0,0,0,0.50)',
+            '0 2px 8px rgba(0,0,0,0.35)',
+            'inset 0 1px 0 rgba(255,255,255,0.13)',
           ].join(','),
         }}
       >
-        {TABS.map(({ href, label, Icon, isFab }) => {
-          const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
+        {/* Reflet supérieur */}
+        <div
+          className="absolute top-0 inset-x-0 h-px rounded-t-[26px] pointer-events-none"
+          style={{
+            background: 'linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.22) 35%, rgba(34,211,238,0.35) 55%, rgba(255,255,255,0.15) 80%, transparent 95%)',
+          }}
+        />
 
-          if (isFab) {
-            return (
-              <Link
-                key={href}
-                href={href}
-                aria-label="Nouvelle capture"
-                onClick={() => haptic('medium')}
-                className="flex flex-col items-center justify-center gap-1 active:scale-90 transition-transform duration-100"
-              >
-                <motion.div
-                  animate={active ? { scale: 1 } : { scale: [1, 1.06, 1] }}
-                  transition={{ duration: 3.2, repeat: active ? 0 : Infinity, ease: 'easeInOut' }}
-                  className="flex items-center justify-center w-[52px] h-[52px] rounded-full"
-                  style={{
-                    background: 'rgba(8, 14, 22, 0.9)',
-                    boxShadow: active
-                      ? [
-                          '0 0 0 2.5px rgba(34,211,238,0.9)',
-                          '0 0 16px 3px rgba(34,211,238,0.7)',
-                          '0 0 40px 8px rgba(34,211,238,0.25)',
-                        ].join(',')
-                      : [
-                          '0 0 0 2px rgba(34,211,238,0.55)',
-                          '0 0 12px 2px rgba(34,211,238,0.40)',
-                          '0 0 28px 6px rgba(34,211,238,0.14)',
-                        ].join(','),
-                  }}
-                >
-                  <Camera
-                    size={22}
-                    strokeWidth={1.8}
-                    className={active ? 'text-cyan-300' : 'text-white/80'}
-                  />
-                </motion.div>
-                <span className={`text-[10px] font-medium leading-none ${active ? 'text-cyan-400' : 'text-white/35'}`}>
-                  {label}
-                </span>
-              </Link>
-            )
-          }
+        {LEFT_TABS.map(t => <NavTab key={t.href} {...t} />)}
 
-          return (
+        {/* Slot FAB central */}
+        <div className="flex-none w-[72px] flex flex-col items-center justify-center gap-1 relative h-full">
+          {/* Séparateurs */}
+          <div className="absolute left-0 top-3 bottom-3 w-px bg-white/8 pointer-events-none" />
+          <div className="absolute right-0 top-3 bottom-3 w-px bg-white/8 pointer-events-none" />
+
+          {/* FAB surélevé — en dehors du flux, pas besoin d'overflow:hidden */}
+          <motion.div
+            className="absolute"
+            style={{ top: '-18px' }}
+            animate={captureActive ? { scale: 1 } : { scale: [1, 1.05, 1] }}
+            transition={{ duration: 3, repeat: captureActive ? 0 : Infinity, ease: 'easeInOut' }}
+          >
             <Link
-              key={href}
-              href={href}
-              aria-current={active ? 'page' : undefined}
-              onClick={() => haptic('light')}
-              className="flex-1 flex flex-col items-center justify-center gap-1 h-full active:scale-90 transition-all duration-150"
+              href="/capture"
+              aria-label="Nouvelle capture"
+              onClick={() => haptic('medium')}
+              className="flex items-center justify-center w-[52px] h-[52px] rounded-full active:scale-90 transition-transform duration-100"
+              style={{
+                background: 'linear-gradient(145deg, #a5f3fc 0%, #22d3ee 45%, #0891b2 100%)',
+                boxShadow: captureActive
+                  ? '0 0 0 3px rgba(34,211,238,0.35), 0 0 20px 6px rgba(34,211,238,0.65), 0 0 50px 12px rgba(34,211,238,0.25), inset 0 1px 0 rgba(255,255,255,0.45)'
+                  : '0 0 0 2px rgba(34,211,238,0.22), 0 0 16px 4px rgba(34,211,238,0.50), 0 0 36px 8px rgba(34,211,238,0.18), 0 4px 12px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.38)',
+              }}
             >
-              <Icon
-                size={20}
-                strokeWidth={active ? 2 : 1.5}
-                className={`transition-all duration-200 ${
-                  active
-                    ? 'text-white drop-shadow-[0_0_6px_rgba(34,211,238,0.6)]'
-                    : 'text-white/30'
-                }`}
-              />
-              <span className={`text-[10px] font-medium leading-none transition-colors duration-200 ${
-                active ? 'text-white/80' : 'text-white/25'
-              }`}>
-                {label}
-              </span>
+              <Camera size={22} strokeWidth={2.3} className="text-slate-950" />
             </Link>
-          )
-        })}
-      </nav>
+          </motion.div>
+
+          {/* Label Capture */}
+          <span
+            className={`absolute bottom-2 text-[10px] font-semibold tracking-wide ${
+              captureActive ? 'text-cyan-400' : 'text-white/28'
+            }`}
+          >
+            Capture
+          </span>
+        </div>
+
+        {RIGHT_TABS.map(t => <NavTab key={t.href} {...t} />)}
+      </div>
     </div>
   )
 }
