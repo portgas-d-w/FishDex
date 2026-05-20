@@ -1,4 +1,4 @@
-import { MapPin } from 'lucide-react'
+import { MapPin, ChevronRight } from 'lucide-react'
 
 type Spot = {
   name: string
@@ -6,11 +6,21 @@ type Spot = {
 }
 
 export function FavoriteSpotsGrid({ spots }: { spots: Spot[] }) {
-  if (spots.length === 0) {
+  if (spots.length === 0) return null
+
+  if (spots.length === 1) {
     return (
-      <div className="flex items-center gap-3 rounded-xl bg-white/4 border border-white/8 px-4 py-4 text-white/30">
-        <MapPin size={16} />
-        <span className="text-sm">Aucun spot enregistré pour l&apos;instant.</span>
+      <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-5 flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <MapPin className="h-4 w-4 text-cyan-400" />
+            <p className="font-semibold text-white">{spots[0].name}</p>
+          </div>
+          <p className="text-sm text-white/60">
+            {spots[0].count} prise{spots[0].count > 1 ? 's' : ''}
+          </p>
+        </div>
+        <ChevronRight className="h-5 w-5 text-white/30" />
       </div>
     )
   }
