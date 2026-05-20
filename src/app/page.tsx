@@ -54,13 +54,14 @@ export default async function Home() {
 
     supabase
       .from('catches')
-      .select('species_id')
+      .select('species_id, species:species_id(rarete)')
       .eq('user_id', user.id)
       .not('species_id', 'is', null),
 
     supabase
       .from('species')
-      .select('id', { count: 'exact', head: true }),
+      .select('id', { count: 'exact', head: true })
+      .neq('rarete', 'mirage'),
 
     getWeatherForUser(),
     getCyclicMemory(user.id),
@@ -138,10 +139,24 @@ export default async function Home() {
     .map(([name, count]) => ({ name, count }))
 
   // Objectifs FishDex
-  const caughtSpeciesCount = new Set(
-    (speciesCountResult.data ?? []).map(c => c.species_id).filter(Boolean)
-  ).size
-  const totalSpeciesCount = totalSpeciesResult.count ?? 0
+  type CaughtSpeciesRow = {
+    species_id: string | null
+    species: { rarete: string | null } | { rarete: string | null }[] | null
+  }
+  const caughtRows = speciesCountResult.data as CaughtSpeciesRow[] ?? []
+  const caughtSpeciesIds = new Set(caughtRows.map(c => c.species_id).filter(Boolean))
+  const mirageSpeciesIds = new Set(
+    caughtRows
+      .filter(c => {
+        const r = Array.isArray(c.species) ? c.species[0]?.rarete : c.species?.rarete
+        return r === 'mirage'
+      })
+      .map(c => c.species_id)
+      .filter(Boolean)
+  )
+  const caughtSpeciesCount = caughtSpeciesIds.size
+  const miragesCapturedCount = mirageSpeciesIds.size
+  const totalSpeciesCount = totalSpeciesResult.count ?? 92
 
   // Contexte, phrase et background dynamique
   const now              = new Date()
@@ -201,6 +216,7 @@ export default async function Home() {
           <FishdexObjectivesWidget
             caughtCount={caughtSpeciesCount}
             totalCount={totalSpeciesCount}
+            miragesCaptured={miragesCapturedCount}
           />
         </div>
 

@@ -1,6 +1,7 @@
 type Props = {
   caughtCount: number
   totalCount: number
+  miragesCaptured?: number
 }
 
 function DonutChart({ percent }: { percent: number }) {
@@ -36,7 +37,7 @@ function DonutChart({ percent }: { percent: number }) {
   )
 }
 
-export function FishdexObjectivesWidget({ caughtCount, totalCount }: Props) {
+export function FishdexObjectivesWidget({ caughtCount, totalCount, miragesCaptured = 0 }: Props) {
   const percent = totalCount > 0 ? Math.round((caughtCount / totalCount) * 100) : 0
 
   return (
@@ -48,16 +49,12 @@ export function FishdexObjectivesWidget({ caughtCount, totalCount }: Props) {
       <div className="flex items-center gap-4 flex-1">
         <DonutChart percent={percent} />
         <div>
-          <p className="text-2xl font-semibold text-white">{percent} / 100</p>
+          <p className="text-2xl font-semibold text-white">{caughtCount} / {totalCount}</p>
           <p className="text-xs text-white/60 mt-0.5">
-            {caughtCount} / {totalCount} espèces capturées
+            {caughtCount} espèce{caughtCount > 1 ? 's' : ''} capturée{caughtCount > 1 ? 's' : ''}
+            {miragesCaptured > 0 && ` · ${miragesCaptured} Mirage${miragesCaptured > 1 ? 's' : ''}`}
           </p>
         </div>
-      </div>
-
-      <div className="mt-4 rounded-xl bg-white/4 border border-white/8 px-3 py-2.5">
-        <p className="text-[10px] text-white/30 mb-0.5">Prochaine cible suggérée</p>
-        <p className="text-xs text-white/25 italic">À venir avec Collections</p>
       </div>
     </div>
   )
