@@ -3,11 +3,12 @@
 import { useActionState, useState, useEffect, useTransition, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ArrowRight, ChevronDown, X } from 'lucide-react'
+import { ChevronLeft, ArrowRight, ChevronDown, X, AlertTriangle } from 'lucide-react'
 import { createCatch, type CatchState } from '@/app/actions/catches'
 import { identifySpeciesFromPhoto, type AIPrediction } from '@/app/actions/ai-identify'
+import { validateCatchValues, type ValidationWarning } from '@/lib/catches/validation'
 
-type Species = { id: string; nom_fr: string; categorie: string | null }
+type Species = { id: string; nom_fr: string; categorie: string | null; slug: string | null }
 
 type Props = {
   species: Species[]
@@ -418,6 +419,21 @@ function DetailsForm({
   const [state, action, pending] = useActionState<CatchState, FormData>(createCatch, null)
   const [released, setReleased] = useState(defaultRelease)
   const [selectedSpeciesId, setSelectedSpeciesId] = useState(prefilledSpeciesId)
+  const [tailleValue, setTailleValue] = useState('')
+  const [poidsValue, setPoidsValue] = useState('')
+  const [validationWarnings, setValidationWarnings] = useState<ValidationWarning[]>([])
+
+  useEffect(() => {
+    const selected = species.find(s => s.id === selectedSpeciesId)
+    const slug = selected?.slug ?? 'default'
+    const taille = tailleValue ? parseFloat(tailleValue) : undefined
+    const poids = poidsValue ? parseFloat(poidsValue) : undefined
+    if (taille !== undefined || poids !== undefined) {
+      setValidationWarnings(validateCatchValues(slug, taille, poids))
+    } else {
+      setValidationWarnings([])
+    }
+  }, [selectedSpeciesId, tailleValue, poidsValue, species])
 
   const photoPreviewUrl = photoPath
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/catches/${photoPath}`
@@ -523,6 +539,8 @@ function DetailsForm({
             </label>
             <input
               id="poids_kg" name="poids_kg" type="number" min="0.001" step="0.001"
+              value={poidsValue}
+              onChange={e => setPoidsValue(e.target.value)}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-cyan-500/50 transition-colors"
               placeholder="3.250"
             />
@@ -536,6 +554,8 @@ function DetailsForm({
             </label>
             <input
               id="taille_cm" name="taille_cm" type="number" min="0.1" step="0.1"
+              value={tailleValue}
+              onChange={e => setTailleValue(e.target.value)}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-cyan-500/50 transition-colors"
               placeholder="52.0"
             />
@@ -544,6 +564,17 @@ function DetailsForm({
             )}
           </div>
         </div>
+
+        {validationWarnings.length > 0 && (
+          <div className="space-y-1">
+            {validationWarnings.map((w, i) => (
+              <p key={i} className="text-xs text-amber-400 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3 shrink-0" />
+                {w.message}
+              </p>
+            ))}
+          </div>
+        )}
 
         {/* No-kill */}
         <div className="flex items-center justify-between rounded-xl bg-white/5 border border-white/8 px-4 py-3.5">

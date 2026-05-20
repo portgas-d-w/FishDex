@@ -17,7 +17,7 @@ export default async function NouvellePrisePage({ searchParams }: Props) {
   if (!user) redirect('/login')
 
   const [speciesRes, profileRes] = await Promise.all([
-    supabase.from('species').select('id, nom_fr, categorie').order('categorie').order('nom_fr'),
+    supabase.from('species').select('id, nom_fr, categorie, slug').order('categorie').order('nom_fr'),
     supabase.from('profiles').select('default_release, suggest_session_on_capture').eq('id', user.id).single(),
   ])
 

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { awardXpForCatch } from '@/lib/xp/award'
 import { ensureMissions, updateMissionProgress } from '@/lib/missions/assigner'
+import { isAbsurdCatchValue } from '@/lib/catches/validation'
 
 export type CatchState = {
   error?: string
@@ -56,6 +57,18 @@ export async function createCatch(
   }
 
   if (Object.keys(fieldErrors).length > 0) return { fieldErrors }
+
+  // ── Validation biologique côté serveur ────────────────────────────────────
+  if (species_id) {
+    const { data: speciesRow } = await supabase
+      .from('species')
+      .select('slug')
+      .eq('id', species_id)
+      .single()
+    if (speciesRow?.slug && isAbsurdCatchValue(speciesRow.slug, taille_cm, poids_kg)) {
+      return { error: 'Les valeurs de taille ou poids sont biologiquement impossibles pour cette espèce.' }
+    }
+  }
 
   // ── Session active : auto-attachement ──────────────────────────────────────
   const { data: activeSession } = await supabase
