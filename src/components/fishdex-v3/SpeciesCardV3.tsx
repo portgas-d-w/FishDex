@@ -130,14 +130,6 @@ export function SpeciesCardV3({ species: s, isDiscovered }: Props) {
           </>
         )}
 
-        {/* Difficulté (étoiles) */}
-        {isDiscovered && s.difficulte != null && (
-          <div className="flex items-center gap-0.5 mt-0.5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i} className={`text-[9px] ${i < s.difficulte! ? 'text-amber-400' : 'text-white/15'}`}>★</span>
-            ))}
-          </div>
-        )}
       </div>
     </Link>
   )

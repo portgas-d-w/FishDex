@@ -82,13 +82,13 @@ function filterStatutText(text: string): string {
 
 function getRareteStyle(rarete: string | null): { bg: string; color: string; label: string } {
   switch (rarete) {
-    case 'commun':     return { bg: '#065f46', color: '#6ee7b7', label: 'Commun ✦' }
-    case 'peu commun': return { bg: '#0f5142', color: '#5eead4', label: 'Peu commun ✦' }
-    case 'rare':       return { bg: '#1e3a5f', color: '#60a5fa', label: 'Rare ⭐' }
-    case 'epique':     return { bg: '#581c87', color: '#d8b4fe', label: 'Épique ⭐' }
-    case 'legendaire': return { bg: '#78350f', color: '#fcd34d', label: 'Légendaire ⭐' }
-    case 'mirage':     return { bg: '#831843', color: '#fbcfe8', label: 'Mirage ✨' }
-    default:           return { bg: '#065f46', color: '#6ee7b7', label: 'Commun ✦' }
+    case 'commun':     return { bg: '#065f46', color: '#6ee7b7', label: 'Commun' }
+    case 'peu commun': return { bg: '#0f5142', color: '#5eead4', label: 'Peu commun' }
+    case 'rare':       return { bg: '#1e3a5f', color: '#60a5fa', label: 'Rare' }
+    case 'epique':     return { bg: '#581c87', color: '#d8b4fe', label: 'Épique' }
+    case 'legendaire': return { bg: '#78350f', color: '#fcd34d', label: 'Légendaire' }
+    case 'mirage':     return { bg: '#831843', color: '#fbcfe8', label: 'Mirage' }
+    default:           return { bg: '#065f46', color: '#6ee7b7', label: 'Commun' }
   }
 }
 
