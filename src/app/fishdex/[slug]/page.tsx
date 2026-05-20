@@ -711,7 +711,11 @@ export default async function SpeciesPage({
                     )}
                   </div>
                 ) : (
-                  <p className="text-[11px] text-white/28">Aucun record.</p>
+                  <div className="flex flex-col items-center justify-center py-4 text-center">
+                    <Trophy className="h-6 w-6 text-white/20 mb-1.5" />
+                    <p className="text-[10px] text-white/40">Pas encore de record</p>
+                    <p className="text-[9px] text-white/25 mt-0.5">Ta prochaine prise pourrait l&apos;être</p>
+                  </div>
                 )}
                 {/* Silhouette poisson — 70px, opacity 0.20 */}
                 {species.image_url && (
