@@ -57,25 +57,42 @@ function mapToWeatherData(raw: Record<string, unknown>): WeatherData {
   }
 }
 
+// ── Clés API avec rotation ────────────────────────────────────────────────────
+
+const OPENWEATHER_KEYS = [
+  process.env.OPENWEATHER_API_KEY_1,
+  process.env.OPENWEATHER_API_KEY_2,
+  process.env.OPENWEATHER_API_KEY,
+].filter((k): k is string => Boolean(k))
+
+async function fetchWeatherWithFallback(lat: number, lng: number): Promise<Record<string, unknown> | null> {
+  if (OPENWEATHER_KEYS.length === 0) {
+    console.warn('[Weather] Aucune clé API OpenWeather configurée')
+    return null
+  }
+
+  for (const key of OPENWEATHER_KEYS) {
+    try {
+      const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&lang=fr&appid=${key}`,
+        { next: { revalidate: 900 } }
+      )
+      if (res.ok) return await res.json() as Record<string, unknown>
+      console.warn('[Weather] Clé échouée:', res.status)
+    } catch {
+      // essaie la clé suivante
+    }
+  }
+  return null
+}
+
 // ── Fetch avec cache 15 min ───────────────────────────────────────────────────
 
 const _fetchWeather = unstable_cache(
   async (lat: number, lng: number): Promise<WeatherData | null> => {
-    const apiKey = process.env.OPENWEATHER_API_KEY
-    if (!apiKey) {
-      console.warn('[Weather] OPENWEATHER_API_KEY manquante — météo désactivée')
-      return null
-    }
-
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&lang=fr&appid=${apiKey}`
-
     try {
-      const res = await fetch(url, { next: { revalidate: 900 } })
-      if (!res.ok) {
-        console.error('[Weather] API error:', res.status, await res.text())
-        return null
-      }
-      const data = await res.json() as Record<string, unknown>
+      const data = await fetchWeatherWithFallback(lat, lng)
+      if (!data) return null
       return mapToWeatherData(data)
     } catch (e) {
       console.error('[Weather] Fetch failed:', e)
@@ -102,7 +119,7 @@ const DEFAULT_COORDS = { lat: 48.8566, lng: 2.3522, city: 'Paris' }
 export async function getWeatherForUser(): Promise<{
   weather: WeatherData | null
   coords: { lat: number; lng: number }
-  source: 'spot' | 'default'
+  source: 'spot' | 'default' | 'gps'
 }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

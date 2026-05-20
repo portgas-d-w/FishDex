@@ -1,11 +1,16 @@
-import { Cloud, Sun, CloudRain, Snowflake, Wind, Gauge, Sunrise, Sunset } from 'lucide-react'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Cloud, Sun, CloudRain, Snowflake, Sunrise, Sunset } from 'lucide-react'
 import type { WeatherData } from '@/app/actions/weather'
+import { getWeather } from '@/app/actions/weather'
+import { getClientCoordinates } from '@/lib/weather/client'
 import type { Weather } from '@/lib/home/poetic-phrases'
 
 type Props = {
   weather: WeatherData | null
   classified: Weather
-  source?: 'spot' | 'default'
+  source?: 'spot' | 'default' | 'gps'
 }
 
 const ICON_MAP: Record<Weather, React.ElementType> = {
@@ -24,7 +29,33 @@ const COLOR_MAP: Record<Weather, string> = {
   snowy:  'text-blue-200',
 }
 
-export function ConditionsWidget({ weather, classified, source }: Props) {
+function classifyFromData(w: WeatherData): Weather {
+  const id = w.condition_id ?? 800
+  if (id === 800) return 'clear'
+  if (id >= 801 && id <= 804) return 'cloudy'
+  if (id >= 300 && id < 600) return 'rainy'
+  if (id >= 600 && id < 700) return 'snowy'
+  if (id >= 700 && id < 800) return 'foggy'
+  return 'clear'
+}
+
+export function ConditionsWidget({ weather: initialWeather, classified: initialClassified, source: initialSource }: Props) {
+  const [weather, setWeather] = useState<WeatherData | null>(initialWeather)
+  const [classified, setClassified] = useState<Weather>(initialClassified)
+  const [source, setSource] = useState(initialSource)
+
+  useEffect(() => {
+    getClientCoordinates().then(async (coords) => {
+      if (!coords) return
+      const gpsWeather = await getWeather(coords.lat, coords.lon)
+      if (gpsWeather) {
+        setWeather(gpsWeather)
+        setClassified(classifyFromData(gpsWeather))
+        setSource('gps')
+      }
+    })
+  }, [])
+
   const WeatherIcon = ICON_MAP[classified]
   const iconColor   = COLOR_MAP[classified]
 
@@ -39,7 +70,7 @@ export function ConditionsWidget({ weather, classified, source }: Props) {
           <span className="text-sm text-white/25 italic">Météo indisponible</span>
         </div>
         <p className="text-[10px] text-white/15 mt-auto pt-2 border-t border-white/8">
-          Ajoute ta clé OPENWEATHER_API_KEY pour activer la météo
+          <span className="text-white/40 text-xs">Active la géoloc pour la météo locale</span>
         </p>
       </div>
     )
@@ -101,7 +132,7 @@ export function ConditionsWidget({ weather, classified, source }: Props) {
 
       {source === 'default' && (
         <p className="text-[9px] text-white/15 mt-3 pt-2 border-t border-white/8">
-          Localisation par défaut — active la géoloc dans ton spot pour la météo locale
+          <span className="text-white/40 text-xs">Active la géoloc pour la météo locale</span>
         </p>
       )}
     </div>
