@@ -157,6 +157,12 @@ const TECHNIQUE_IMAGES: Record<string, string> = {
   // Feeder
   'method feeder':           '/techniques/method-feeder.png',
   'feeder':                  '/techniques/feeder.png',
+  // Pêche au coup (couvre toutes les variantes "coup")
+  'au coup':                 '/techniques/coup.png',
+  'coup fond':               '/techniques/coup.png',
+  'coup en surface':         '/techniques/coup.png',
+  'coup ultra':              '/techniques/coup.png',
+  'coup à la godille':       '/techniques/coup.png',
   // "cheveu" n'a plus d'image dédiée — feeder-cheveu.png supprimé (c'était un hair rig)
 
   // Leurres — du plus spécifique au général
