@@ -230,9 +230,7 @@ export default async function Home() {
               Voir tout
             </Link>
           </div>
-          <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
-            <RecentCatchesGrid catches={recentCatches} />
-          </div>
+          <RecentCatchesGrid catches={recentCatches} />
         </div>
 
         {/* WIDGET 5 — SPOTS FAVORIS */}

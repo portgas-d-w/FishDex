@@ -102,19 +102,21 @@ export function RecentCatchesGrid({ catches }: { catches: CatchItem[] }) {
 
   return (
     <>
-      {/* Mobile : scroll horizontal */}
-      <div className="flex md:hidden gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-none -mx-4 px-4">
-        {catches.map((item) => (
-          <div key={item.id} className="snap-start w-[44vw] min-w-[160px] shrink-0">
-            <CatchCard item={item} />
-          </div>
-        ))}
-        <Link
-          href="/aquarium"
-          className="snap-start w-14 shrink-0 rounded-xl border border-white/8 bg-white/4 flex items-center justify-center text-slate-600 hover:text-slate-400 transition-colors self-stretch"
-        >
-          <span className="text-xs rotate-90 select-none">›</span>
-        </Link>
+      {/* Mobile : scroll horizontal pleine largeur */}
+      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 md:hidden">
+        <div className="flex gap-3 snap-x snap-mandatory w-max pb-2">
+          {catches.map((item) => (
+            <div key={item.id} className="w-48 h-60 flex-shrink-0 snap-start">
+              <CatchCard item={item} />
+            </div>
+          ))}
+          <Link
+            href="/aquarium"
+            className="snap-start w-14 h-60 flex-shrink-0 rounded-xl border border-white/8 bg-white/4 flex items-center justify-center text-slate-600 hover:text-slate-400 transition-colors"
+          >
+            <span className="text-xs rotate-90 select-none">›</span>
+          </Link>
+        </div>
       </div>
 
       {/* Desktop : grille 4 colonnes */}

@@ -148,6 +148,17 @@
   --animate-skeleton-sweep: skeleton-sweep 1.8s ease-in-out infinite;
 }
 
+/* ─── Utilitaires custom ──────────────────────────────────── */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* ─── Styles de base ──────────────────────────────────────── */
 @layer base {
   * {
