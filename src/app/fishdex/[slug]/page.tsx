@@ -156,8 +156,8 @@ const TECHNIQUE_IMAGES: Record<string, string> = {
 
   // Feeder
   'method feeder':           '/techniques/method-feeder.png',
-  'feeder':                  '/techniques/feeder-cheveu.png',
-  'cheveu':                  '/techniques/feeder-cheveu.png',
+  'feeder':                  '/techniques/feeder.png',
+  // "cheveu" n'a plus d'image dédiée — feeder-cheveu.png supprimé (c'était un hair rig)
 
   // Leurres — du plus spécifique au général
   'leurre dur':              '/techniques/leurre-dur.png',
@@ -170,13 +170,16 @@ const TECHNIQUE_IMAGES: Record<string, string> = {
   'jerkbait':                '/techniques/jerkbait.png',
   'jekbait':                 '/techniques/jerkbait.png',
   'jig':                     '/techniques/jig.png',
+  'cuillère':                '/techniques/cuiller.png',
   'cuiller':                 '/techniques/cuiller.png',
   'traîne':                  '/techniques/traine.png',
   'traine':                  '/techniques/traine.png',
   'verticale':               '/techniques/verticale.png',
   'lancer':                  '/techniques/lancer.png',
   'crank':                   '/techniques/crank.png',
-  'devon':                   '/techniques/devon.png',
+  // devon.png renommé en grub.png (contenu = leurre worm, pas devon minnow)
+  'grub':                    '/techniques/grub.png',
+  'shad':                    '/techniques/grub.png',
   'spinnerbait':             '/techniques/spinnerbait.png',
   'swimbait':                '/techniques/swimbait.png',
   'streamer':                '/techniques/streamer.png',
@@ -208,8 +211,8 @@ const TECHNIQUE_IMAGES: Record<string, string> = {
   'pinkie':                  '/techniques/pinkie.png',
   'wurm':                    '/techniques/wurm.png',
   'morceau de poisson':      '/techniques/morceau-poisson.png',
-  'mort manié':              '/techniques/mort-manie.png',
-  'mort manie':              '/techniques/mort-manie.png',
+  // mort-manie.png renommé en ver-dropshot.png (contenu = ver, pas poisson mort)
+  // la technique "mort manié" n'a donc plus d'image correcte
 
   // Techniques spéciales
   'au vif':                  '/techniques/vif.png',
