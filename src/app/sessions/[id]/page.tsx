@@ -324,7 +324,7 @@ export default async function SessionDetailPage({
             readonly={!isActive && !isEditable}
           />
           {!isActive && isEditable && editableUntilLabel && (
-            <p className="text-[10px] text-white/20 mt-2">Modifiable jusqu&apos;au {editableUntilLabel}</p>
+            <p className="text-[10px] text-white/20 mt-2 italic">Tu peux encore modifier ce souvenir jusqu&apos;au {editableUntilLabel}</p>
           )}
         </div>
 
