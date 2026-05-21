@@ -86,8 +86,10 @@ async function identifyWithHuggingFace(imgBlob: Blob): Promise<IdentificationRes
   const arrayBuffer = await imgBlob.arrayBuffer()
   const base64Image = Buffer.from(arrayBuffer).toString('base64')
 
+  // Classic Inference API (pas le router) — clip-vit-base-patch32 est hosted par défaut
+  // Format CLIP : inputs.image (base64) + inputs.text (labels candidats)
   const response = await fetch(
-    'https://router.huggingface.co/hf-inference/models/openai/clip-vit-large-patch14',
+    'https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32',
     {
       method: 'POST',
       headers: {
@@ -95,8 +97,10 @@ async function identifyWithHuggingFace(imgBlob: Blob): Promise<IdentificationRes
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        inputs: base64Image,
-        parameters: { candidate_labels: candidateLabels },
+        inputs: {
+          image: base64Image,
+          text: candidateLabels,
+        },
       }),
       signal: AbortSignal.timeout(30_000),
     }
