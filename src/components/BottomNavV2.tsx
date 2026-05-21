@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation'
 import { MapPin, Book, Camera, Fish, Calendar } from 'lucide-react'
 import { haptic } from '@/lib/haptics'
 
+const PUBLIC_PATHS = ['/login', '/signup', '/mot-de-passe-oublie', '/nouveau-mot-de-passe', '/onboarding']
+
 const LEFT_TABS = [
   { href: '/',        label: 'Le Spot', Icon: MapPin  },
   { href: '/fishdex', label: 'FishDex', Icon: Book    },
@@ -76,6 +78,8 @@ function NavTab({ href, label, Icon }: { href: string; label: string; Icon: Reac
 export function BottomNavV2() {
   const pathname      = usePathname()
   const captureActive = pathname.startsWith('/capture')
+
+  if (PUBLIC_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'))) return null
 
   return (
     <div
