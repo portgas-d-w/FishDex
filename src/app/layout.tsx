@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Inter, Outfit, Dancing_Script } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 import { BottomNavV2 } from "@/components/BottomNavV2";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
@@ -20,6 +21,10 @@ const dancingScript = Dancing_Script({
   subsets: ["latin"],
   weight: ["400", "700"],
 });
+
+export const viewport: Viewport = {
+  themeColor: '#0a0f14',
+};
 
 export const metadata: Metadata = {
   title: "FishDex — Ton journal de pêche",
@@ -60,6 +65,18 @@ export default function RootLayout({
             <BottomNavV2 />
           </PostHogProvider>
         </Suspense>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: 'rgba(10, 15, 20, 0.9)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: 'white',
+            },
+            duration: 3000,
+          }}
+        />
       </body>
     </html>
   );

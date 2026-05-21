@@ -163,6 +163,11 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
@@ -173,4 +178,12 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-outfit), sans-serif;
   }
+}
+
+/* ─── Safe area spacing ───────────────────────────────────── */
+@layer utilities {
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  .pl-safe { padding-left: env(safe-area-inset-left); }
+  .pr-safe { padding-right: env(safe-area-inset-right); }
 }

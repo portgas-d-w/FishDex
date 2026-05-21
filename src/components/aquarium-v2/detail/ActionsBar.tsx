@@ -1,6 +1,7 @@
 'use client'
 
 import { Heart, Share2, Edit } from 'lucide-react'
+import { toast } from 'sonner'
 
 type Props = {
   catchId: string
@@ -21,7 +22,7 @@ export function ActionsBar({ catchId, speciesName, photoUrl }: Props) {
       }
     } else {
       await navigator.clipboard.writeText(url)
-      alert('Lien copié dans le presse-papier !')
+      toast('Lien copié dans le presse-papier !')
     }
   }
 

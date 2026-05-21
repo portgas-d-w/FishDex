@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { toast } from 'sonner'
 import { generateBetaInvites } from '@/app/actions/beta'
 
 export function GenerateInvitesButton({ adminEmail }: { adminEmail: string }) {
@@ -11,7 +12,7 @@ export function GenerateInvitesButton({ adminEmail }: { adminEmail: string }) {
   function generate() {
     startTransition(async () => {
       const { codes, error } = await generateBetaInvites(count, adminEmail)
-      if (error) alert(error)
+      if (error) toast.error(error)
       else setResult(codes ?? [])
     })
   }

@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { MapPin, Fish } from 'lucide-react'
+import { PullToRefresh } from '@/components/ui/PullToRefresh'
 import { Filters, type FilterState } from './Filters'
 import { HeroCard } from './HeroCard'
 import { CatchCard } from './CatchCard'
@@ -131,6 +132,7 @@ export function CatchesGrid({ catches, stats, recordsMap }: Props) {
     : filtered
 
   return (
+    <PullToRefresh>
     <>
       <StatsCards stats={stats} />
       <Filters filter={filter} onChange={setFilter} />
@@ -190,5 +192,6 @@ export function CatchesGrid({ catches, stats, recordsMap }: Props) {
         </>
       )}
     </>
+    </PullToRefresh>
   )
 }

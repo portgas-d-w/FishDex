@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { SessionCard, type SessionCardData } from './SessionCard'
+import { PullToRefresh } from '@/components/ui/PullToRefresh'
 
 function groupByMonth(sessions: SessionCardData[]): { label: string; items: SessionCardData[] }[] {
   const groups: Record<string, SessionCardData[]> = {}
@@ -26,6 +27,7 @@ export function SessionsList({
   globalIndex  = 0
 
   return (
+    <PullToRefresh>
     <div className="px-4 space-y-6 pb-8">
       {groups.map(({ label, items }) => (
         <motion.div
@@ -63,5 +65,6 @@ export function SessionsList({
         </motion.div>
       ))}
     </div>
+    </PullToRefresh>
   )
 }
