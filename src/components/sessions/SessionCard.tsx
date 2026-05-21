@@ -82,10 +82,12 @@ export function SessionCard({
     ? (session.meteo_data as { temp?: number }).temp
     : null
 
+  const isRecent = (Date.now() - new Date(session.started_at).getTime()) < 24 * 60 * 60 * 1000
+
   return (
     <Link href={`/sessions/${session.id}`} className="block active:scale-[0.98] transition-transform">
       <div
-        className="relative rounded-2xl overflow-hidden shadow-md"
+        className={`relative rounded-2xl overflow-hidden shadow-lg shadow-black/20 ${isRecent ? 'ring-1 ring-cyan-400/30' : ''}`}
         style={{
           backgroundImage: 'url(/backgrounds/sessions-card-notebook.webp)',
           backgroundSize: 'cover',
