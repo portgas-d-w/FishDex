@@ -14,7 +14,7 @@ export type AIPrediction = {
 }
 
 export type IdentificationResult = {
-  source: 'inaturalist' | 'failed'
+  source: 'huggingface' | 'inaturalist' | 'failed'
   predictions: AIPrediction[]
   error?: string
 }
@@ -33,7 +33,6 @@ export async function identifySpeciesFromPhoto(
   console.log('[ai-identify] Téléchargement image :', photoUrl)
 
   try {
-    // Télécharger l'image côté serveur — iNaturalist n'a pas besoin d'accéder à Supabase
     const imgRes = await fetch(photoUrl, { signal: AbortSignal.timeout(10_000) })
     if (!imgRes.ok) {
       throw new Error(`Impossible de télécharger l'image (HTTP ${imgRes.status})`)
@@ -41,7 +40,7 @@ export async function identifySpeciesFromPhoto(
     const imgBlob = await imgRes.blob()
     console.log('[ai-identify] Image téléchargée :', imgBlob.type, Math.round(imgBlob.size / 1024), 'KB')
 
-    return await identifyWithINaturalist(imgBlob)
+    return await identifyWithHuggingFace(imgBlob)
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     console.error('[ai-identify] Échec :', msg)
@@ -49,8 +48,100 @@ export async function identifySpeciesFromPhoto(
   }
 }
 
-// ── iNaturalist ───────────────────────────────────────────────────────────────
+// ── Hugging Face CLIP zero-shot ────────────────────────────────────────────────
+// Modèle : openai/clip-vit-large-patch14
+// Stratégie : on utilise les noms scientifiques de notre BDD comme labels candidats
+// → les résultats mappent directement vers nos espèces sans étape de lookup supplémentaire
 
+async function identifyWithHuggingFace(imgBlob: Blob): Promise<IdentificationResult> {
+  const hfKey = process.env.HUGGINGFACE_API_KEY?.trim()
+  if (!hfKey) {
+    throw new Error('HUGGINGFACE_API_KEY manquant dans .env.local')
+  }
+
+  const supabase = await createClient()
+
+  // Récupère toutes les espèces pour construire les labels candidats
+  const { data: species, error: dbErr } = await supabase
+    .from('species')
+    .select('id, nom_fr, nom_scientifique')
+
+  if (dbErr || !species?.length) {
+    throw new Error('Impossible de charger les espèces depuis la BDD')
+  }
+
+  // Déduplique par base "Genus species" pour éviter des labels trop proches (ex: Cyprinus carpio vs Cyprinus carpio var.)
+  const variantsByBase = new Map<string, Array<{ id: string; nom_fr: string }>>()
+  for (const s of species) {
+    const base = s.nom_scientifique.split(' ').slice(0, 2).join(' ')
+    const arr = variantsByBase.get(base) ?? []
+    arr.push({ id: s.id, nom_fr: s.nom_fr })
+    variantsByBase.set(base, arr)
+  }
+
+  const candidateLabels = [...variantsByBase.keys()]
+  console.log('[ai-identify] CLIP candidates :', candidateLabels.length, 'espèces')
+
+  // Encode l'image en base64 pour l'API JSON
+  const arrayBuffer = await imgBlob.arrayBuffer()
+  const base64Image = Buffer.from(arrayBuffer).toString('base64')
+
+  const response = await fetch(
+    'https://router.huggingface.co/hf-inference/models/openai/clip-vit-large-patch14',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${hfKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        inputs: base64Image,
+        parameters: { candidate_labels: candidateLabels },
+      }),
+      signal: AbortSignal.timeout(30_000),
+    }
+  )
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '')
+    throw new Error(`HuggingFace HTTP ${response.status} — ${errorText.slice(0, 300)}`)
+  }
+
+  const results = await response.json() as Array<{ label: string; score: number }>
+
+  console.log(
+    '[ai-identify] CLIP top 5 :',
+    results.slice(0, 5).map(r => ({ label: r.label, score: r.score.toFixed(4) }))
+  )
+
+  // Avec beaucoup de labels, les scores CLIP sont naturellement faibles (somme = 1 répartie sur N labels)
+  // On prend les 5 meilleurs sans seuil absolu
+  const top5 = results.slice(0, 5).filter(r => r.score > 0)
+
+  if (top5.length === 0) {
+    return { source: 'huggingface', predictions: [], error: 'Aucune espèce reconnue sur cette photo' }
+  }
+
+  const predictions: AIPrediction[] = top5.map(r => {
+    const variants = variantsByBase.get(r.label) ?? []
+    return {
+      species_name: variants[0]?.nom_fr ?? r.label,
+      scientific_name: r.label,
+      confidence: r.score,
+      variants,
+    }
+  })
+
+  return { source: 'huggingface', predictions }
+}
+
+// ── iNaturalist (désactivé — OAuth bloqué, token statique expiré) ──────────────
+// Conserver ce code pour réactivation dès qu'on obtient les credentials OAuth.
+// Prérequis iNaturalist : compte 2 mois + 10 identifications pour créer une app OAuth.
+// Endpoint : POST https://api.inaturalist.org/v1/computervision/score_image
+// Auth : Authorization: JWT <token>  (sans préfixe "Bearer")
+
+/*
 type INatTaxon = {
   id: number
   name: string
@@ -67,33 +158,23 @@ type INatResult = {
 const FISH_ICONIC = new Set(['Actinopterygii', 'Fish', 'Fishes'])
 
 async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationResult> {
+  // TODO: remplacer par getInatJWT() depuis @/lib/inaturalist/auth
+  // quand les variables INAT_APP_ID / INAT_APP_SECRET / INAT_USERNAME / INAT_PASSWORD sont disponibles
   const token = process.env.INATURALIST_API_TOKEN?.trim()
-  console.log('[ai-identify] Token présent :', !!token, '| longueur :', token?.length ?? 0)
+  if (!token) throw new Error('INATURALIST_API_TOKEN absent')
 
-  // Envoi en multipart/form-data avec le fichier binaire — format officiel de l'API
   const body = new FormData()
   body.append('image', imgBlob, 'photo.jpg')
-
-  const headers: Record<string, string> = {}
-  if (token) {
-    // iNaturalist accepte "JWT <token>" (scheme historique de leur API)
-    headers['Authorization'] = `JWT ${token}`
-  }
 
   const response = await fetch(
     'https://api.inaturalist.org/v1/computervision/score_image',
     {
       method: 'POST',
-      headers,
+      headers: { Authorization: token },   // iNaturalist attend le JWT brut, sans préfixe
       body,
       signal: AbortSignal.timeout(12_000),
     }
   )
-
-  const remaining = response.headers.get('X-RateLimit-Remaining')
-  if (remaining !== null && Number(remaining) < 10) {
-    console.warn('[ai-identify] Rate limit bas :', remaining)
-  }
 
   if (!response.ok) {
     const text = await response.text().catch(() => '')
@@ -103,38 +184,18 @@ async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationRes
   const data = await response.json() as { results?: INatResult[] }
   const allResults: INatResult[] = data.results ?? []
 
-  console.log(
-    '[ai-identify] Réponse iNat — résultats :',
-    allResults.length,
-    '| top 3 :',
-    allResults.slice(0, 3).map(r => ({
-      name:   r.taxon.name,
-      iconic: r.taxon.iconic_taxon_name,
-      rank:   r.taxon.rank,
-      score:  r.combined_score,
-    }))
-  )
-
-  // Filtre poissons — accepte plusieurs valeurs possibles de iconic_taxon_name
   const fishResults = allResults.filter(r =>
     FISH_ICONIC.has(r.taxon.iconic_taxon_name ?? '') &&
     (!r.taxon.rank || r.taxon.rank === 'species' || r.taxon.rank === 'subspecies')
   )
 
-  console.log('[ai-identify] Poissons filtrés :', fishResults.length)
-
-  // Fallback si aucun poisson détecté : afficher les top 5 tous taxons
   const candidates = fishResults.length > 0 ? fishResults.slice(0, 5) : allResults.slice(0, 5)
-
   if (candidates.length === 0) {
     return { source: 'inaturalist', predictions: [], error: 'Aucune espèce reconnue sur cette photo' }
   }
 
   const supabase = await createClient()
-
-  // iNat retourne "Cyprinus carpio" mais la BDD a "Cyprinus carpio var. specularis" etc.
-  // → on extrait les 2 premiers mots (genre + espèce) et on fait un ILIKE prefix match
-  const baseMap = new Map<string, string>() // nom iNat → base "Genus species"
+  const baseMap = new Map<string, string>()
   const uniqueBases: string[] = []
   for (const r of candidates) {
     const base = r.taxon.name.split(' ').slice(0, 2).join(' ')
@@ -142,14 +203,12 @@ async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationRes
     if (!uniqueBases.includes(base)) uniqueBases.push(base)
   }
 
-  // Requête avec ILIKE pour matcher toutes les variétés en une passe
   const orFilter = uniqueBases.map(b => `nom_scientifique.ilike.${b}%`).join(',')
   const { data: matches } = await supabase
     .from('species')
     .select('id, nom_fr, nom_scientifique')
     .or(orFilter)
 
-  // Grouper par base (genre espèce) → liste de variétés
   const variantsByBase = new Map<string, Array<{ id: string; nom_fr: string }>>()
   for (const m of matches ?? []) {
     for (const base of uniqueBases) {
@@ -161,8 +220,6 @@ async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationRes
       }
     }
   }
-
-  console.log('[ai-identify] Matches BDD :', (matches ?? []).map(m => m.nom_fr))
 
   const predictions: AIPrediction[] = candidates.map(r => {
     const base     = baseMap.get(r.taxon.name) ?? r.taxon.name
@@ -177,3 +234,4 @@ async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationRes
 
   return { source: 'inaturalist', predictions }
 }
+*/
