@@ -114,9 +114,12 @@ async function identifyWithClaude(imageUrl: string): Promise<IdentificationResul
   const rawText = message.content[0].type === 'text' ? message.content[0].text.trim() : ''
   console.log('[ai-identify] Claude réponse brute :', rawText)
 
+  // Claude entoure parfois le JSON de ```json ... ``` malgré le prompt
+  const jsonText = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+
   let parsed: { predictions: Array<{ scientific_name: string; confidence: number }> }
   try {
-    parsed = JSON.parse(rawText)
+    parsed = JSON.parse(jsonText)
   } catch {
     throw new Error(`Claude a retourné une réponse non-JSON : ${rawText.slice(0, 100)}`)
   }
