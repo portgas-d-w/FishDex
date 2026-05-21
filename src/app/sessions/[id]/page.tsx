@@ -153,6 +153,16 @@ export default async function SessionDetailPage({
     session.season === 'printemps' ? 'from-emerald-900/70' :
     session.season === 'automne' ? 'from-orange-900/70' : 'from-blue-900/70'
 
+  const SESSION_BG_MAP: Record<string, string> = {
+    'printemps-aube':       '/backgrounds/home-default.webp',
+    'printemps-matin':      '/backgrounds/home-default.webp',
+    'été-midi':             '/backgrounds/home-default.webp',
+    'automne-crépuscule':   '/backgrounds/home-default.webp',
+    'hiver-nuit':           '/backgrounds/home-default.webp',
+  }
+  const sessionBgKey = `${session.season ?? ''}-${session.light_phase ?? ''}`
+  const defaultBg = SESSION_BG_MAP[sessionBgKey] ?? '/backgrounds/home-default.webp'
+
   return (
     <div className="min-h-screen bg-[#0a0f14] pb-28">
 
@@ -161,7 +171,7 @@ export default async function SessionDetailPage({
         {session.photo_ambiance_url ? (
           <Image src={session.photo_ambiance_url} alt="Ambiance" fill className="object-cover" sizes="100vw" priority />
         ) : (
-          <div className={`absolute inset-0 bg-cover bg-center`} style={{ backgroundImage: 'url(/backgrounds/home-default.webp)' }} />
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${defaultBg})` }} />
         )}
         <div className={`absolute inset-0 bg-gradient-to-b ${heroGradient} to-[#0a0f14]`} />
 
