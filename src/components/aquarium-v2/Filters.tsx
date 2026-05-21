@@ -2,8 +2,10 @@
 
 import type { Rarete } from '@/types/fishdex'
 
+export type FilterMode = 'all' | 'rarity' | 'records' | 'species' | 'spot'
+
 export type FilterState = {
-  mode: 'all' | 'rarity' | 'records'
+  mode: FilterMode
   rarity: Rarete | null
 }
 
@@ -25,6 +27,8 @@ export function Filters({ filter, onChange }: Props) {
     { key: 'all',     label: 'Toutes' },
     { key: 'rarity',  label: 'Rareté' },
     { key: 'records', label: 'Records' },
+    { key: 'species', label: 'Espèces' },
+    { key: 'spot',    label: 'Spot' },
   ] as const
 
   return (

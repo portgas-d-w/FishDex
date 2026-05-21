@@ -10,6 +10,16 @@ export type CatchSpecies = {
   description: string | null
 }
 
+export type CatchSpot = {
+  id: string
+  nom: string
+}
+
+export type CatchSession = {
+  id: string
+  spot: CatchSpot | null
+}
+
 export type CatchWithSpecies = {
   id: string
   user_id: string
@@ -25,6 +35,7 @@ export type CatchWithSpecies = {
   released: boolean | null
   session_id: string | null
   species: CatchSpecies
+  session: CatchSession | null
 }
 
 export type AquariumStats = {

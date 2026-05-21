@@ -39,6 +39,12 @@ export default async function AquariumPage({ searchParams }: Props) {
       species:species_id (
         id, slug, nom_fr, nom_scientifique,
         image_url, rarete, description
+      ),
+      session:session_id (
+        id,
+        spot:spot_id (
+          id, nom
+        )
       )
     `)
     .eq('user_id', user.id)
