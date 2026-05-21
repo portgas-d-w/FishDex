@@ -1,5 +1,6 @@
 'use server'
 
+import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -14,7 +15,7 @@ export type AIPrediction = {
 }
 
 export type IdentificationResult = {
-  source: 'huggingface' | 'inaturalist' | 'failed'
+  source: 'claude' | 'inaturalist' | 'failed'
   predictions: AIPrediction[]
   error?: string
 }
@@ -33,7 +34,7 @@ export async function identifySpeciesFromPhoto(
   console.log('[ai-identify] URL image :', photoUrl)
 
   try {
-    return await identifyWithHuggingFace(photoUrl)
+    return await identifyWithClaude(photoUrl)
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     const cause = e instanceof Error ? (e as Error & { cause?: unknown }).cause : undefined
@@ -42,15 +43,28 @@ export async function identifySpeciesFromPhoto(
   }
 }
 
-// ── Hugging Face CLIP zero-shot ────────────────────────────────────────────────
-// Modèle : openai/clip-vit-base-patch32
-// On passe l'URL Supabase directement — HF télécharge l'image lui-même.
-// Évite le payload base64 côté serveur qui causait "fetch failed".
+// ── Claude Vision ──────────────────────────────────────────────────────────────
+// Modèle : claude-haiku-4-5 (rapide, économique, supporte les images via URL)
+// Stratégie : prompt avec la liste des espèces BDD → retourne JSON structuré
 
-async function identifyWithHuggingFace(imageUrl: string): Promise<IdentificationResult> {
-  const hfKey = process.env.HUGGINGFACE_API_KEY?.trim()
-  if (!hfKey) {
-    throw new Error('HUGGINGFACE_API_KEY manquant dans .env.local')
+const CLAUDE_PROMPT = (speciesList: string) => `Tu es un expert en ichtyologie (science des poissons).
+Identifie le poisson dans cette photo de pêche.
+
+Réponds UNIQUEMENT avec un objet JSON valide (pas de markdown, pas d'explication) :
+{"predictions":[{"scientific_name":"Esox lucius","confidence":0.92},{"scientific_name":"Perca fluviatilis","confidence":0.05}]}
+
+Règles :
+- Liste au maximum 3 espèces, de la plus probable à la moins probable
+- Utilise UNIQUEMENT des noms de cette liste (genre + espèce, 2 mots) :
+${speciesList}
+- confidence entre 0.0 et 1.0, la somme peut dépasser 1 si plusieurs espèces sont possibles
+- Si aucun poisson visible : {"predictions":[]}
+- Si le poisson n'est pas dans la liste, prends le genre le plus proche`
+
+async function identifyWithClaude(imageUrl: string): Promise<IdentificationResult> {
+  const apiKey = process.env.ANTHROPIC_API_KEY?.trim()
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY manquant dans .env.local')
   }
 
   const supabase = await createClient()
@@ -63,7 +77,7 @@ async function identifyWithHuggingFace(imageUrl: string): Promise<Identification
     throw new Error('Impossible de charger les espèces depuis la BDD')
   }
 
-  // Déduplique par base "Genus species" (ex: Cyprinus carpio = carpe commune + carpe miroir)
+  // Déduplique par base "Genus species" (Cyprinus carpio = carpe commune + carpe miroir)
   const variantsByBase = new Map<string, Array<{ id: string; nom_fr: string }>>()
   for (const s of species) {
     const base = s.nom_scientifique.split(' ').slice(0, 2).join(' ')
@@ -72,64 +86,65 @@ async function identifyWithHuggingFace(imageUrl: string): Promise<Identification
     variantsByBase.set(base, arr)
   }
 
-  const candidateLabels = [...variantsByBase.keys()]
-  console.log('[ai-identify] CLIP candidates :', candidateLabels.length, 'espèces')
+  const speciesList = [...variantsByBase.keys()].join(', ')
+  console.log('[ai-identify] Claude Vision — espèces candidates :', variantsByBase.size)
 
-  // router.huggingface.co est accessible depuis cet environnement (api-inference.huggingface.co ne l'est pas)
-  const response = await fetch(
-    'https://router.huggingface.co/hf-inference/models/openai/clip-vit-base-patch32',
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${hfKey}`,
-        'Content-Type': 'application/json',
+  const client = new Anthropic({ apiKey })
+
+  const message = await client.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 256,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'image',
+            source: { type: 'url', url: imageUrl },
+          },
+          {
+            type: 'text',
+            text: CLAUDE_PROMPT(speciesList),
+          },
+        ],
       },
-      body: JSON.stringify({
-        inputs: imageUrl,
-        parameters: { candidate_labels: candidateLabels },
-      }),
-      signal: AbortSignal.timeout(30_000),
-    }
-  )
+    ],
+  })
 
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => '')
-    throw new Error(`HuggingFace HTTP ${response.status} — ${errorText.slice(0, 300)}`)
+  const rawText = message.content[0].type === 'text' ? message.content[0].text.trim() : ''
+  console.log('[ai-identify] Claude réponse brute :', rawText)
+
+  let parsed: { predictions: Array<{ scientific_name: string; confidence: number }> }
+  try {
+    parsed = JSON.parse(rawText)
+  } catch {
+    throw new Error(`Claude a retourné une réponse non-JSON : ${rawText.slice(0, 100)}`)
   }
 
-  const results = await response.json() as Array<{ label: string; score: number }>
-
-  console.log(
-    '[ai-identify] CLIP top 5 :',
-    results.slice(0, 5).map(r => ({ label: r.label, score: r.score.toFixed(4) }))
-  )
-
-  // Avec beaucoup de labels, les scores CLIP sont naturellement faibles (somme = 1 répartie sur N labels)
-  // On prend les 5 meilleurs sans seuil absolu
-  const top5 = results.slice(0, 5).filter(r => r.score > 0)
-
-  if (top5.length === 0) {
-    return { source: 'huggingface', predictions: [], error: 'Aucune espèce reconnue sur cette photo' }
+  if (!parsed.predictions?.length) {
+    return { source: 'claude', predictions: [], error: 'Aucune espèce reconnue sur cette photo' }
   }
 
-  const predictions: AIPrediction[] = top5.map(r => {
-    const variants = variantsByBase.get(r.label) ?? []
+  const predictions: AIPrediction[] = parsed.predictions.map(p => {
+    const base = p.scientific_name.split(' ').slice(0, 2).join(' ')
+    const variants = variantsByBase.get(base) ?? []
     return {
-      species_name: variants[0]?.nom_fr ?? r.label,
-      scientific_name: r.label,
-      confidence: r.score,
+      species_name: variants[0]?.nom_fr ?? p.scientific_name,
+      scientific_name: p.scientific_name,
+      confidence: Math.min(1, Math.max(0, p.confidence)),
       variants,
     }
   })
 
-  return { source: 'huggingface', predictions }
+  console.log('[ai-identify] Claude top :', predictions.map(p => `${p.species_name} (${(p.confidence * 100).toFixed(0)}%)`))
+
+  return { source: 'claude', predictions }
 }
 
 // ── iNaturalist (désactivé — OAuth bloqué, token statique expiré) ──────────────
-// Conserver ce code pour réactivation dès qu'on obtient les credentials OAuth.
-// Prérequis iNaturalist : compte 2 mois + 10 identifications pour créer une app OAuth.
+// Prérequis : compte 2 mois + 10 identifications pour créer une app OAuth.
 // Endpoint : POST https://api.inaturalist.org/v1/computervision/score_image
-// Auth : Authorization: JWT <token>  (sans préfixe "Bearer")
+// Auth : Authorization: <token_jwt_brut>  (sans préfixe Bearer)
 
 /*
 type INatTaxon = {
@@ -160,7 +175,7 @@ async function identifyWithINaturalist(imgBlob: Blob): Promise<IdentificationRes
     'https://api.inaturalist.org/v1/computervision/score_image',
     {
       method: 'POST',
-      headers: { Authorization: token },   // iNaturalist attend le JWT brut, sans préfixe
+      headers: { Authorization: token },
       body,
       signal: AbortSignal.timeout(12_000),
     }
