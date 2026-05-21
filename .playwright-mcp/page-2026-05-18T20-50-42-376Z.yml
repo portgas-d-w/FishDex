@@ -1,0 +1,50 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - main [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "FishDex FishDex" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "FishDex" [ref=e8]
+          - generic [ref=e9]: FishDex
+        - paragraph [ref=e10]: Connecte-toi à ton compte
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - generic [ref=e14]: Adresse email
+            - textbox "Adresse email" [ref=e15]:
+              - /placeholder: ton@email.com
+          - generic [ref=e16]:
+            - generic [ref=e17]: Mot de passe
+            - textbox "Mot de passe" [ref=e18]:
+              - /placeholder: ••••••••
+          - link "Mot de passe oublié ?" [ref=e20] [cursor=pointer]:
+            - /url: /mot-de-passe-oublie
+          - button "Se connecter" [ref=e21]
+        - paragraph [ref=e22]:
+          - text: Pas encore de compte ?
+          - link "S'inscrire" [ref=e23] [cursor=pointer]:
+            - /url: /signup
+  - navigation [ref=e24]:
+    - generic [ref=e25]:
+      - link "Le Spot" [ref=e26] [cursor=pointer]:
+        - /url: /
+        - img [ref=e27]
+        - generic [ref=e30]: Le Spot
+      - link "FishDex" [ref=e31] [cursor=pointer]:
+        - /url: /fishdex
+        - img [ref=e32]
+        - generic [ref=e34]: FishDex
+      - generic [ref=e35]:
+        - link "Nouvelle capture" [ref=e36] [cursor=pointer]:
+          - /url: /capture
+          - img [ref=e37]
+        - generic [ref=e40]: Capture
+      - link "Aquarium" [ref=e41] [cursor=pointer]:
+        - /url: /aquarium
+        - img [ref=e42]
+        - generic [ref=e48]: Aquarium
+      - link "Sessions" [ref=e49] [cursor=pointer]:
+        - /url: /sessions
+        - img [ref=e50]
+        - generic [ref=e52]: Sessions

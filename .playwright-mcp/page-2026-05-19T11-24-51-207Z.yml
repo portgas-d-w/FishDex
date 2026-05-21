@@ -1,0 +1,52 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e6]:
+        - button [ref=e8]:
+          - img [ref=e9]
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - img [ref=e14]
+            - heading "FishDex" [level=1] [ref=e16]
+          - paragraph [ref=e17]: 0 / 0 espèces
+        - button "Menu utilisateur" [ref=e20]:
+          - generic [ref=e22]: PÊ
+      - generic [ref=e24]:
+        - button "Toutes" [ref=e26]
+        - generic [ref=e27]:
+          - button "Globale" [ref=e28]
+          - button "🐟 Paisibles" [ref=e29]:
+            - generic [ref=e30]: 🐟
+            - text: Paisibles
+          - button "🦈 Prédateurs" [ref=e31]:
+            - generic [ref=e32]: 🦈
+            - text: Prédateurs
+          - button "🌊 Eaux vives" [ref=e33]:
+            - generic [ref=e34]: 🌊
+            - text: Eaux vives
+      - paragraph [ref=e37]: Aucune espèce trouvée
+  - generic [ref=e39]:
+    - link "Le Spot" [ref=e40] [cursor=pointer]:
+      - /url: /
+      - img [ref=e41]
+      - generic [ref=e44]: Le Spot
+    - link "FishDex" [ref=e45] [cursor=pointer]:
+      - /url: /fishdex
+      - img [ref=e46]
+      - generic [ref=e48]: FishDex
+    - generic [ref=e50]:
+      - link "Nouvelle capture" [ref=e52] [cursor=pointer]:
+        - /url: /capture
+        - img [ref=e53]
+      - generic [ref=e56]: Capture
+    - link "Aquarium" [ref=e57] [cursor=pointer]:
+      - /url: /aquarium
+      - img [ref=e58]
+      - generic [ref=e64]: Aquarium
+    - link "Sessions" [ref=e65] [cursor=pointer]:
+      - /url: /sessions
+      - img [ref=e66]
+      - generic [ref=e68]: Sessions
+  - button "Open Next.js Dev Tools" [ref=e74] [cursor=pointer]:
+    - img [ref=e75]
+  - alert [ref=e78]
