@@ -1,6 +1,16 @@
+/*
+ * POUR AJOUTER DES CODES D'INVITATION :
+ * Option A (rapide) : Supabase Dashboard → Table beta_invites → Insert row
+ *   - code: "FISH-XXXX-YYYY" (format libre)
+ *   - note: "Pour qui / où distribué"
+ * Option B (dashboard) : /admin/codes → bouton "Générer des codes"
+ *
+ * Les codes sont insensibles à la casse (normalisés en majuscules automatiquement).
+ */
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -27,10 +37,8 @@ export async function submitBetaSignup(
     return { error: 'Adresse email invalide.' }
   }
 
-  // Utiliser le client service_role pour contourner RLS sur beta_signups
   const supabase = await createClient()
 
-  // Vérifier doublon
   const { data: existing } = await supabase
     .from('beta_signups')
     .select('id')
@@ -38,7 +46,7 @@ export async function submitBetaSignup(
     .maybeSingle()
 
   if (existing) {
-    return { success: true } // On ne révèle pas qu'ils sont déjà inscrits
+    return { success: true }
   }
 
   const { error } = await supabase.from('beta_signups').insert({
@@ -50,7 +58,7 @@ export async function submitBetaSignup(
   return { success: true }
 }
 
-// ── validateInviteCode ────────────────────────────────────────────────────────
+// ── validateInviteCode (lecture via SELECT policy publique) ───────────────────
 
 export async function validateInviteCode(code: string): Promise<{
   valid: boolean
@@ -72,27 +80,38 @@ export async function validateInviteCode(code: string): Promise<{
   return { valid: true, inviteId: data.id }
 }
 
-// ── consumeInviteCode ─────────────────────────────────────────────────────────
+// ── consumeInviteCode (service role pour contourner RLS) ──────────────────────
 
 export async function consumeInviteCode(inviteId: string, userId: string): Promise<void> {
-  const supabase = await createClient()
-  await supabase
+  const admin = createAdminClient()
+
+  const { data: invite } = await admin
+    .from('beta_invites')
+    .select('code')
+    .eq('id', inviteId)
+    .single()
+
+  await admin
     .from('beta_invites')
     .update({ used_at: new Date().toISOString(), used_by_user_id: userId })
     .eq('id', inviteId)
 
-  await supabase
+  await admin
     .from('profiles')
-    .update({ is_beta_user: true })
+    .update({
+      is_beta_user: true,
+      invited_with_code: invite?.code ?? null,
+    })
     .eq('id', userId)
 }
 
-// ── generateBetaInvites (admin only) ─────────────────────────────────────────
+// ── generateBetaInvites (admin uniquement, service role) ─────────────────────
 
-export async function generateBetaInvites(count: number, adminEmail: string): Promise<{
-  codes?: string[]
-  error?: string
-}> {
+export async function generateBetaInvites(
+  count: number,
+  adminEmail: string,
+  note: string = ''
+): Promise<{ codes?: string[]; error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || user.email !== adminEmail) return { error: 'Non autorisé' }
@@ -108,17 +127,18 @@ export async function generateBetaInvites(count: number, adminEmail: string): Pr
     codes.push(`FISH-${suffix}`)
   }
 
-  const { error } = await supabase
+  const admin = createAdminClient()
+  const { error } = await admin
     .from('beta_invites')
-    .insert(codes.map(code => ({ code })))
+    .insert(codes.map(code => ({ code, note })))
 
   if (error) return { error: error.message }
 
-  revalidatePath('/beta/admin')
+  revalidatePath('/admin/codes')
   return { codes }
 }
 
-// ── getBetaSignups (admin only) ───────────────────────────────────────────────
+// ── getBetaSignups (admin uniquement) ────────────────────────────────────────
 
 export async function getBetaSignups(adminEmail: string) {
   const supabase = await createClient()
@@ -133,7 +153,7 @@ export async function getBetaSignups(adminEmail: string) {
   return data ?? []
 }
 
-// ── getBetaInvites (admin only) ───────────────────────────────────────────────
+// ── getBetaInvites (admin uniquement) ────────────────────────────────────────
 
 export async function getBetaInvites(adminEmail: string) {
   const supabase = await createClient()

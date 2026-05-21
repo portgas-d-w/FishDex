@@ -77,12 +77,14 @@ export async function signUp(
     return { fieldErrors: { username: 'Ce pseudo est déjà utilisé.' } }
   }
 
-  // Valider le code invite si fourni
-  let inviteId: string | undefined
-  if (inviteCode) {
-    const { valid, inviteId: id, error: codeError } = await validateInviteCode(inviteCode)
-    if (!valid) return { error: `Code d'invitation invalide : ${codeError}.` }
-    inviteId = id
+  // Code d'invitation obligatoire (bêta fermée)
+  if (!inviteCode) {
+    return { error: "Un code d'invitation est requis pour créer un compte." }
+  }
+
+  const { valid, inviteId, error: codeError } = await validateInviteCode(inviteCode)
+  if (!valid || !inviteId) {
+    return { error: `Code d'invitation invalide : ${codeError}.` }
   }
 
   const { data: signUpData, error } = await supabase.auth.signUp({
@@ -99,7 +101,7 @@ export async function signUp(
   }
 
   // Consommer le code et marquer l'user comme bêta
-  if (inviteId && signUpData.user?.id) {
+  if (signUpData.user?.id) {
     await consumeInviteCode(inviteId, signUpData.user.id)
   }
 
