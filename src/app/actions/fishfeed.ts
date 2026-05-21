@@ -168,6 +168,18 @@ export async function createPost(input: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié' }
 
+  // Validation côté serveur : si capture liée, elle doit avoir une photo
+  if (input.catch_id) {
+    const { data: catchData } = await supabase
+      .from('catches')
+      .select('photo_url')
+      .eq('id', input.catch_id)
+      .single()
+    if (!catchData?.photo_url) {
+      return { error: 'Cette capture n\'a pas de photo. Ajoute une photo avant de partager.' }
+    }
+  }
+
   const { data, error } = await supabase
     .from('posts')
     .insert({

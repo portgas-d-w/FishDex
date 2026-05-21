@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Plus, X, Fish, FileText } from 'lucide-react'
+import { Plus, X, Fish, FileText, Camera } from 'lucide-react'
 import { createPost } from '@/app/actions/fishfeed'
 
 type RecentCatch = {
@@ -22,6 +22,11 @@ export function CreatePostButton({ recentCatches }: { recentCatches: RecentCatch
   const [pending, startTransition] = useTransition()
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+
+  const selectedCatch = selectedCatchId
+    ? recentCatches.find(c => c.id === selectedCatchId) ?? null
+    : null
+  const selectedCatchHasNoPhoto = selectedCatch !== null && !selectedCatch.photo_url
 
   function reset() {
     setOpen(false)
@@ -155,12 +160,18 @@ export function CreatePostButton({ recentCatches }: { recentCatches: RecentCatch
 
             {/* Footer sticky — toujours visible */}
             <div className="shrink-0 px-5 pt-3 border-t border-white/8 space-y-2" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom) + 70px)' }}>
+              {selectedCatchHasNoPhoto && (
+                <p className="text-sm text-amber-400 flex items-center gap-2">
+                  <Camera size={16} className="shrink-0" />
+                  Ajoute une photo à cette capture pour la partager
+                </p>
+              )}
               {postError && (
                 <p className="text-sm text-red-400 text-center">{postError}</p>
               )}
               <button
                 onClick={handlePublish}
-                disabled={pending || (!selectedCatchId && !caption.trim())}
+                disabled={pending || (!selectedCatchId && !caption.trim()) || selectedCatchHasNoPhoto}
                 className="w-full py-3.5 rounded-xl bg-cyan-400 text-[#0a0f14] font-bold text-sm disabled:opacity-40 transition-opacity active:scale-[0.98]"
               >
                 {pending ? 'Publication…' : 'Publier'}
