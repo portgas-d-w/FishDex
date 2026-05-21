@@ -456,7 +456,7 @@ export default async function FinSessionPage({
           <p className="text-xs font-semibold tracking-widest text-cyan-400 uppercase mb-4 text-center">
             Avant de refermer
           </p>
-          <EndSessionForm sessionId={id} initialNotes={session.notes} />
+          <EndSessionForm sessionId={id} userId={user.id} initialNotes={session.notes} />
         </div>
 
       </div>

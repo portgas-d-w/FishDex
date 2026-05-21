@@ -12,6 +12,7 @@ import { BookmarkButton } from '@/components/sessions/BookmarkButton'
 import { DeleteSessionButton } from '@/components/sessions/DeleteSessionButton'
 import { SessionShareButton } from '@/components/sessions/SessionShareButton'
 import { AttachOrphanCatches } from '@/components/sessions/AttachOrphanCatches'
+import { PolaroidPlaceholder } from '@/components/sessions/PolaroidPlaceholder'
 import { SessionTimelineHorizontal, SessionTimelineVertical } from '@/components/sessions/SessionTimeline'
 import { SessionNotesEditor } from '@/components/sessions/SessionNotesEditor'
 import type { TimelineEvent } from '@/components/sessions/SessionTimeline'
@@ -197,6 +198,14 @@ export default async function SessionDetailPage({
       </section>
 
       <div className="px-4 space-y-4 mt-4">
+
+        {/* POLAROID — upload photo si pas de photo et session éditable */}
+        {!session.photo_ambiance_url && (isActive || isEditable) && (
+          <PolaroidPlaceholder
+            sessionId={id}
+            userId={user.id}
+          />
+        )}
 
         {/* INFOS */}
         <div className="rounded-2xl bg-white/5 border border-white/10 p-5 space-y-2.5">

@@ -6,12 +6,15 @@ import Link from 'next/link'
 import { Save, RotateCcw, FileText } from 'lucide-react'
 import { endSession } from '@/app/actions/sessions'
 import { RESSENTI_OPTIONS } from '@/lib/sessions/types'
+import { PhotoAmbianceUpload } from './PhotoAmbianceUpload'
 
 export function EndSessionForm({
   sessionId,
+  userId,
   initialNotes,
 }: {
   sessionId: string
+  userId: string
   initialNotes: string | null
 }) {
   const router = useRouter()
@@ -19,15 +22,17 @@ export function EndSessionForm({
   const [ressenti, setRessenti] = useState<string | null>(null)
   const [notes, setNotes] = useState(initialNotes ?? '')
   const [title, setTitle] = useState('')
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   function handleSave() {
     startTransition(async () => {
       const result = await endSession({
-        session_id:  sessionId,
-        ressenti:    ressenti  ?? undefined,
-        notes:       notes     || undefined,
-        title:       title     || undefined,
+        session_id:         sessionId,
+        ressenti:           ressenti  ?? undefined,
+        notes:              notes     || undefined,
+        title:              title     || undefined,
+        photo_ambiance_url: photoUrl  ?? undefined,
       })
       if (result.error) {
         setError(result.error)
@@ -92,6 +97,17 @@ export function EndSessionForm({
           rows={4}
           placeholder="Tes observations, ressentis, conditions particulières…"
           className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2.5 text-sm text-white/80 placeholder:text-white/20 resize-none focus:outline-none focus:border-cyan-400/40 transition-colors"
+        />
+      </div>
+
+      {/* Photo d'ambiance */}
+      <div className="rounded-2xl bg-white/5 border border-white/10 p-5">
+        <p className="text-xs font-semibold tracking-widest text-cyan-400 uppercase mb-3">Photo d&apos;ambiance</p>
+        <PhotoAmbianceUpload
+          sessionId={sessionId}
+          userId={userId}
+          value={photoUrl}
+          onChange={setPhotoUrl}
         />
       </div>
 
