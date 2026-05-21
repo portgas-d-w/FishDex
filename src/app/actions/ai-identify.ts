@@ -30,17 +30,10 @@ export async function identifySpeciesFromPhoto(
   }
 
   const photoUrl = `${supabaseUrl}/storage/v1/object/public/catches/${photoPath}`
-  console.log('[ai-identify] Téléchargement image :', photoUrl)
+  console.log('[ai-identify] URL image :', photoUrl)
 
   try {
-    const imgRes = await fetch(photoUrl, { signal: AbortSignal.timeout(10_000) })
-    if (!imgRes.ok) {
-      throw new Error(`Impossible de télécharger l'image (HTTP ${imgRes.status})`)
-    }
-    const imgBlob = await imgRes.blob()
-    console.log('[ai-identify] Image téléchargée :', imgBlob.type, Math.round(imgBlob.size / 1024), 'KB')
-
-    return await identifyWithHuggingFace(imgBlob)
+    return await identifyWithHuggingFace(photoUrl)
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     console.error('[ai-identify] Échec :', msg)
@@ -49,11 +42,11 @@ export async function identifySpeciesFromPhoto(
 }
 
 // ── Hugging Face CLIP zero-shot ────────────────────────────────────────────────
-// Modèle : openai/clip-vit-large-patch14
-// Stratégie : on utilise les noms scientifiques de notre BDD comme labels candidats
-// → les résultats mappent directement vers nos espèces sans étape de lookup supplémentaire
+// Modèle : openai/clip-vit-base-patch32
+// On passe l'URL Supabase directement — HF télécharge l'image lui-même.
+// Évite le payload base64 côté serveur qui causait "fetch failed".
 
-async function identifyWithHuggingFace(imgBlob: Blob): Promise<IdentificationResult> {
+async function identifyWithHuggingFace(imageUrl: string): Promise<IdentificationResult> {
   const hfKey = process.env.HUGGINGFACE_API_KEY?.trim()
   if (!hfKey) {
     throw new Error('HUGGINGFACE_API_KEY manquant dans .env.local')
@@ -61,7 +54,6 @@ async function identifyWithHuggingFace(imgBlob: Blob): Promise<IdentificationRes
 
   const supabase = await createClient()
 
-  // Récupère toutes les espèces pour construire les labels candidats
   const { data: species, error: dbErr } = await supabase
     .from('species')
     .select('id, nom_fr, nom_scientifique')
@@ -70,7 +62,7 @@ async function identifyWithHuggingFace(imgBlob: Blob): Promise<IdentificationRes
     throw new Error('Impossible de charger les espèces depuis la BDD')
   }
 
-  // Déduplique par base "Genus species" pour éviter des labels trop proches (ex: Cyprinus carpio vs Cyprinus carpio var.)
+  // Déduplique par base "Genus species" (ex: Cyprinus carpio = carpe commune + carpe miroir)
   const variantsByBase = new Map<string, Array<{ id: string; nom_fr: string }>>()
   for (const s of species) {
     const base = s.nom_scientifique.split(' ').slice(0, 2).join(' ')
@@ -82,12 +74,6 @@ async function identifyWithHuggingFace(imgBlob: Blob): Promise<IdentificationRes
   const candidateLabels = [...variantsByBase.keys()]
   console.log('[ai-identify] CLIP candidates :', candidateLabels.length, 'espèces')
 
-  // Encode l'image en base64 pour l'API JSON
-  const arrayBuffer = await imgBlob.arrayBuffer()
-  const base64Image = Buffer.from(arrayBuffer).toString('base64')
-
-  // Classic Inference API (pas le router) — clip-vit-base-patch32 est hosted par défaut
-  // Format CLIP : inputs.image (base64) + inputs.text (labels candidats)
   const response = await fetch(
     'https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32',
     {
@@ -97,10 +83,8 @@ async function identifyWithHuggingFace(imgBlob: Blob): Promise<IdentificationRes
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        inputs: {
-          image: base64Image,
-          text: candidateLabels,
-        },
+        inputs: imageUrl,
+        parameters: { candidate_labels: candidateLabels },
       }),
       signal: AbortSignal.timeout(30_000),
     }
