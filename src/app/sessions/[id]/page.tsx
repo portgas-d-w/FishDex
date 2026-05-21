@@ -311,10 +311,23 @@ export default async function SessionDetailPage({
                 <span className="text-xs text-white/60">{LIGHT_LABELS[session.light_phase]}</span>
               </div>
             )}
-            <div className="flex items-center gap-1.5">
-              <Cloud size={14} className="text-white/20" />
-              <span className="text-xs text-white/25 italic">Météo — H3</span>
-            </div>
+            {session.meteo_data ? (
+              (() => {
+                const m = session.meteo_data as { temp?: number; description?: string; wind_speed?: number }
+                return (
+                  <div className="flex items-center gap-1.5">
+                    <Cloud size={14} className="text-white/30" />
+                    <span className="text-xs text-white/60 capitalize">
+                      {m.temp != null ? `${m.temp}°C` : ''}
+                      {m.description ? (m.temp != null ? ` · ${m.description}` : m.description) : ''}
+                      {m.wind_speed != null ? ` · ${m.wind_speed} km/h` : ''}
+                    </span>
+                  </div>
+                )
+              })()
+            ) : (
+              <span className="text-xs text-white/30 italic">Conditions météo non enregistrées</span>
+            )}
           </div>
         </div>
 
