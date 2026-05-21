@@ -8,6 +8,7 @@ export type SessionCardData = {
   started_at: string
   ended_at: string | null
   season: string | null
+  style_peche: string | null
   is_bookmarked: boolean
   is_retro?: boolean | null
   spot: { nom: string } | null
@@ -45,8 +46,16 @@ function getMoonPhase(iso: string): { label: string; symbol: string } {
   return               { label: 'Lune croissante',  symbol: '🌘' }
 }
 
-const SEASON_SKETCH: Record<string, string> = {
-  printemps: '🌿', été: '🌾', automne: '🍂', hiver: '❄️',
+function getSessionIcon(session: SessionCardData): string {
+  if (session.style_peche === 'Mouche')      return '🪰'
+  if (session.style_peche === 'Carpe')       return '🌿'
+  if (session.style_peche === 'Carnassiers') return '🎯'
+  if (session.style_peche === 'Truite')      return '🏔️'
+  if (session.season === 'hiver')     return '❄️'
+  if (session.season === 'printemps') return '🌱'
+  if (session.season === 'été')       return '☀️'
+  if (session.season === 'automne')   return '🍂'
+  return '🌿'
 }
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
@@ -60,10 +69,10 @@ export function SessionCard({
   session: SessionCardData
   catchCount: number
 }) {
-  const spot  = Array.isArray(session.spot) ? session.spot[0] : session.spot
-  const title = session.title ?? spot?.nom ?? 'Session'
-  const moon  = getMoonPhase(session.started_at)
-  const sketch = SEASON_SKETCH[session.season ?? ''] ?? '🍃'
+  const spot   = Array.isArray(session.spot) ? session.spot[0] : session.spot
+  const title  = session.title ?? spot?.nom ?? 'Session'
+  const moon   = getMoonPhase(session.started_at)
+  const sketch = getSessionIcon(session)
 
   const photoUrl = session.photo_ambiance_url
     ? `${SUPABASE_URL}/storage/v1/object/public/catches/${session.photo_ambiance_url}`

@@ -66,6 +66,7 @@ export default async function SessionsPage() {
     photo_ambiance_url: s.photo_ambiance_url ?? null,
     light_phase:        s.light_phase ?? null,
     meteo_data:         s.meteo_data ?? null,
+    style_peche:        s.style_peche ?? null,
   }))
 
   return (
