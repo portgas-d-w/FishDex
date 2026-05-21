@@ -2,6 +2,11 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+
+// Claude Haiku 4.5 — tarifs au 2025-05 (USD/M tokens → EUR à 0.92)
+const EUR_PER_INPUT_TOKEN  = (0.80 / 1_000_000) * 0.92
+const EUR_PER_OUTPUT_TOKEN = (4.00 / 1_000_000) * 0.92
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -30,11 +35,25 @@ export async function identifySpeciesFromPhoto(
     return { source: 'failed', predictions: [], error: 'Chemin photo manquant' }
   }
 
+  const supabase = await createClient()
+
+  // Vérification kill switch (app_settings lisible par tous)
+  const { data: killRow } = await supabase
+    .from('app_settings')
+    .select('value')
+    .eq('key', 'claude_vision_enabled')
+    .single()
+
+  if (killRow?.value === 'false') {
+    return { source: 'failed', predictions: [], error: 'Claude Vision désactivé par l\'admin' }
+  }
+
+  const { data: { user } } = await supabase.auth.getUser()
   const photoUrl = `${supabaseUrl}/storage/v1/object/public/catches/${photoPath}`
   console.log('[ai-identify] URL image :', photoUrl)
 
   try {
-    return await identifyWithClaude(photoUrl)
+    return await identifyWithClaude(photoUrl, user?.id)
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     const cause = e instanceof Error ? (e as Error & { cause?: unknown }).cause : undefined
@@ -61,13 +80,13 @@ ${speciesList}
 - Si aucun poisson visible : {"predictions":[]}
 - Si le poisson n'est pas dans la liste, prends le genre le plus proche`
 
-async function identifyWithClaude(imageUrl: string): Promise<IdentificationResult> {
+async function identifyWithClaude(imageUrl: string, userId?: string): Promise<IdentificationResult> {
   const apiKey = process.env.ANTHROPIC_API_KEY?.trim()
   if (!apiKey) {
     throw new Error('ANTHROPIC_API_KEY manquant dans .env.local')
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: species, error: dbErr } = await supabase
     .from('species')
@@ -140,6 +159,18 @@ async function identifyWithClaude(imageUrl: string): Promise<IdentificationResul
   })
 
   console.log('[ai-identify] Claude top :', predictions.map(p => `${p.species_name} (${(p.confidence * 100).toFixed(0)}%)`))
+
+  // Log du coût (fire-and-forget, non bloquant)
+  const inputTokens  = message.usage.input_tokens
+  const outputTokens = message.usage.output_tokens
+  const costEur      = inputTokens * EUR_PER_INPUT_TOKEN + outputTokens * EUR_PER_OUTPUT_TOKEN
+  void createAdminClient().from('ai_scan_logs').insert({
+    user_id:       userId ?? null,
+    model_used:    'claude',
+    input_tokens:  inputTokens,
+    output_tokens: outputTokens,
+    cost_eur:      costEur,
+  })
 
   return { source: 'claude', predictions }
 }
