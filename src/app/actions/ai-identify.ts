@@ -36,7 +36,8 @@ export async function identifySpeciesFromPhoto(
     return await identifyWithHuggingFace(photoUrl)
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
-    console.error('[ai-identify] Échec :', msg)
+    const cause = e instanceof Error ? (e as Error & { cause?: unknown }).cause : undefined
+    console.error('[ai-identify] Échec :', msg, cause ? `| cause: ${String(cause)}` : '')
     return { source: 'failed', predictions: [], error: msg }
   }
 }
@@ -74,8 +75,9 @@ async function identifyWithHuggingFace(imageUrl: string): Promise<Identification
   const candidateLabels = [...variantsByBase.keys()]
   console.log('[ai-identify] CLIP candidates :', candidateLabels.length, 'espèces')
 
+  // router.huggingface.co est accessible depuis cet environnement (api-inference.huggingface.co ne l'est pas)
   const response = await fetch(
-    'https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32',
+    'https://router.huggingface.co/hf-inference/models/openai/clip-vit-base-patch32',
     {
       method: 'POST',
       headers: {
