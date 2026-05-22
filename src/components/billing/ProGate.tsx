@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Crown, Sparkles } from 'lucide-react'
 import { getCurrentUserTier } from '@/lib/stripe/access'
-import type { SubscriptionTier } from '@/lib/stripe/client'
+import type { SubscriptionTier } from '@/lib/stripe/shared'
 
 type Props = {
   requiredTier: 'pro' | 'legende'

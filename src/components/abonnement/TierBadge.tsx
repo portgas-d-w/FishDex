@@ -1,5 +1,5 @@
 import { Crown, Fish, Sparkles } from 'lucide-react'
-import type { SubscriptionTier } from '@/lib/stripe/client'
+import type { SubscriptionTier } from '@/lib/stripe/shared'
 
 type Props = {
   tier: SubscriptionTier

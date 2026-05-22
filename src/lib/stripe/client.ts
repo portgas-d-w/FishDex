@@ -1,12 +1,12 @@
+import 'server-only'
 import Stripe from 'stripe'
+import type { PaidTier, BillingInterval } from './shared'
+
+export { SubscriptionTier, PaidTier, BillingInterval, TIER_PRICES, TIER_LABELS } from './shared'
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
-  typescript: true,
+  apiVersion: '2026-04-22.dahlia',
 })
-
-export type SubscriptionTier = 'free' | 'pro' | 'legende'
-export type PaidTier = Exclude<SubscriptionTier, 'free'>
-export type BillingInterval = 'monthly' | 'yearly'
 
 export const PRICES: Record<PaidTier, Record<BillingInterval, string>> = {
   pro: {
@@ -17,16 +17,4 @@ export const PRICES: Record<PaidTier, Record<BillingInterval, string>> = {
     monthly: process.env.STRIPE_PRICE_LEGENDE_MONTHLY ?? '',
     yearly: process.env.STRIPE_PRICE_LEGENDE_YEARLY ?? '',
   },
-}
-
-// Montants TTC en euros (affichage UI — la source de vérité reste Stripe)
-export const TIER_PRICES = {
-  pro: { monthly: 3.99, yearly: 29.99 },
-  legende: { monthly: 6.99, yearly: 49.99 },
-} as const
-
-export const TIER_LABELS: Record<SubscriptionTier, string> = {
-  free: 'Gratuit',
-  pro: 'Pro',
-  legende: 'Légende',
 }

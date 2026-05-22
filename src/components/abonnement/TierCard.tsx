@@ -9,7 +9,7 @@ import {
   type BillingInterval,
   type PaidTier,
   type SubscriptionTier,
-} from '@/lib/stripe/client'
+} from '@/lib/stripe/shared'
 
 type Props = {
   tier: SubscriptionTier

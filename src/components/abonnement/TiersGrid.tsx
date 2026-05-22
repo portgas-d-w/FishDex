@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { BillingIntervalToggle } from './BillingIntervalToggle'
 import { TierCard } from './TierCard'
-import type { BillingInterval, SubscriptionTier } from '@/lib/stripe/client'
+import type { BillingInterval, SubscriptionTier } from '@/lib/stripe/shared'
 
 type Props = {
   currentTier: SubscriptionTier

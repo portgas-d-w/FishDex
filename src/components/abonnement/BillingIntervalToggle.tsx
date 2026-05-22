@@ -1,6 +1,6 @@
 'use client'
 
-import type { BillingInterval } from '@/lib/stripe/client'
+import type { BillingInterval } from '@/lib/stripe/shared'
 
 type Props = {
   value: BillingInterval

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ChevronRight, CreditCard, Sparkles } from 'lucide-react'
 import { TierBadge } from '@/components/abonnement/TierBadge'
-import type { SubscriptionTier } from '@/lib/stripe/client'
+import type { SubscriptionTier } from '@/lib/stripe/shared'
 import { Section } from './Section'
 import { SettingItem } from './SettingItem'
 
