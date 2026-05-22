@@ -2,8 +2,10 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Settings, ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { getUserTier } from '@/lib/stripe/access'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { AccountSection } from '@/components/parametres-v2/AccountSection'
+import { AbonnementSection } from '@/components/parametres-v2/AbonnementSection'
 import { NotificationsSection } from '@/components/parametres-v2/NotificationsSection'
 import { PreferencesSection } from '@/components/parametres-v2/PreferencesSection'
 import { FishingPreferencesSection } from '@/components/parametres-v2/FishingPreferencesSection'
@@ -37,6 +39,8 @@ export default async function ParametresPage() {
     (rawCatches ?? []).map((c: { lieu: string | null }) => c.lieu).filter(Boolean)
   ).size
 
+  const tier = await getUserTier(user.id)
+
   return (
     <div
       className="min-h-screen flex flex-col pb-28"
@@ -65,6 +69,8 @@ export default async function ParametresPage() {
         email={user.email ?? ''}
         avatarUrl={profile?.avatar_url ?? null}
       />
+
+      <AbonnementSection tier={tier} />
 
       <NotificationsSection />
 
