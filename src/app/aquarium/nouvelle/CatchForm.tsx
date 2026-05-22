@@ -3,11 +3,12 @@
 import { useActionState, useState, useEffect, useTransition, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ArrowRight, ChevronDown, X, AlertTriangle, Wand2, Sparkles } from 'lucide-react'
+import { ChevronLeft, ArrowRight, ChevronDown, X, AlertTriangle, Wand2, Sparkles, Ruler } from 'lucide-react'
 import { createCatch, type CatchState } from '@/app/actions/catches'
 import { identifySpeciesFromPhoto, type AIPrediction } from '@/app/actions/ai-identify'
 import { validateCatchValues, type ValidationWarning } from '@/lib/catches/validation'
 import { estimateWeight, estimateLength, getGenericFormula, getConfidenceInterval } from '@/lib/catches/size-weight-calculator'
+import { estimateSizeFromPhoto, type SizeEstimationResult } from '@/app/actions/ai-size-estimation'
 
 type Species = {
   id: string
@@ -433,6 +434,8 @@ function DetailsForm({
   const [poidsValue, setPoidsValue] = useState('')
   const [validationWarnings, setValidationWarnings] = useState<ValidationWarning[]>([])
   const [estimationInfo, setEstimationInfo] = useState<string | null>(null)
+  const [sizeEstimation, setSizeEstimation] = useState<SizeEstimationResult | null>(null)
+  const [estimatingSize, startEstimatingSize] = useTransition()
 
   useEffect(() => {
     const selected = species.find(s => s.id === selectedSpeciesId)
@@ -492,13 +495,73 @@ function DetailsForm({
                 className="object-cover"
               />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <p className="text-xs text-white/60">Photo enregistrée</p>
               {prefilledSpeciesName && (
                 <p className="text-xs text-cyan-400 font-medium mt-0.5">{prefilledSpeciesName}</p>
               )}
+              {isProUser && (
+                <button
+                  type="button"
+                  disabled={estimatingSize}
+                  onClick={() => {
+                    if (!photoPath) return
+                    const speciesName = species.find(s => s.id === selectedSpeciesId)?.nom_fr
+                    startEstimatingSize(async () => {
+                      const result = await estimateSizeFromPhoto(photoPath, speciesName)
+                      setSizeEstimation(result)
+                    })
+                  }}
+                  className="mt-1 flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 transition-colors disabled:opacity-50"
+                >
+                  <Ruler className="h-3 w-3" />
+                  {estimatingSize ? 'Analyse en cours…' : 'Estimer la taille depuis la photo'}
+                </button>
+              )}
             </div>
             <input type="hidden" name="photo_url" value={photoPath ?? ''} />
+          </div>
+        )}
+
+        {/* Résultat estimation IA par photo */}
+        {sizeEstimation && (
+          <div className="rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="h-4 w-4 text-cyan-400" />
+              <p className="text-sm font-medium text-cyan-400">Estimation IA</p>
+              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                sizeEstimation.confidence === 'high' ? 'bg-green-500/20 text-green-400' :
+                sizeEstimation.confidence === 'medium' ? 'bg-amber-500/20 text-amber-400' :
+                'bg-red-500/20 text-red-400'
+              }`}>
+                {sizeEstimation.confidence === 'high' ? 'Fiable' :
+                 sizeEstimation.confidence === 'medium' ? 'Approximatif' : 'Peu fiable'}
+              </span>
+            </div>
+            {sizeEstimation.estimated_length_cm ? (
+              <>
+                <p className="text-2xl font-bold text-white">~{sizeEstimation.estimated_length_cm} cm</p>
+                {sizeEstimation.reference_detected && (
+                  <p className="text-xs text-white/50 mt-1">Référence : {sizeEstimation.reference_detected}</p>
+                )}
+                {sizeEstimation.reasoning && (
+                  <p className="text-xs text-white/40 mt-1 italic">{sizeEstimation.reasoning}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setTailleValue(String(sizeEstimation.estimated_length_cm))}
+                  className="mt-3 text-xs text-cyan-400 underline underline-offset-2 hover:text-cyan-300"
+                >
+                  Utiliser cette valeur
+                </button>
+              </>
+            ) : (
+              <p className="text-sm text-white/60">
+                Impossible d'estimer : aucune référence de taille visible dans la photo.
+                Ajoute une règle ou montre ta main à côté du poisson.
+              </p>
+            )}
+            <p className="text-xs text-white/30 mt-3 italic">{sizeEstimation.disclaimer}</p>
           </div>
         )}
 
