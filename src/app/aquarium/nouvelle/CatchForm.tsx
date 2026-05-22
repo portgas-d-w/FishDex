@@ -3,12 +3,20 @@
 import { useActionState, useState, useEffect, useTransition, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ArrowRight, ChevronDown, X, AlertTriangle } from 'lucide-react'
+import { ChevronLeft, ArrowRight, ChevronDown, X, AlertTriangle, Wand2, Sparkles } from 'lucide-react'
 import { createCatch, type CatchState } from '@/app/actions/catches'
 import { identifySpeciesFromPhoto, type AIPrediction } from '@/app/actions/ai-identify'
 import { validateCatchValues, type ValidationWarning } from '@/lib/catches/validation'
+import { estimateWeight, estimateLength, getGenericFormula, getConfidenceInterval } from '@/lib/catches/size-weight-calculator'
 
-type Species = { id: string; nom_fr: string; categorie: string | null; slug: string | null }
+type Species = {
+  id: string
+  nom_fr: string
+  categorie: string | null
+  slug: string | null
+  weight_formula_a: number | null
+  weight_formula_b: number | null
+}
 
 type Props = {
   species: Species[]
@@ -16,6 +24,7 @@ type Props = {
   photoPath?: string | null
   captureSource?: 'camera' | 'gallery' | null
   defaultRelease?: boolean
+  isProUser?: boolean
 }
 
 // ── Helpers UI ────────────────────────────────────────────────────────────────
@@ -258,6 +267,7 @@ type DetailsFormProps = {
   prefilledSpeciesId: string
   prefilledSpeciesName: string
   onBack: () => void
+  isProUser?: boolean
 }
 
 // ── Combobox espèce — cherche en tapant OU défile la liste ──────────────────
@@ -414,7 +424,7 @@ function SpeciesCombobox({
 
 function DetailsForm({
   species, today, photoPath, captureSource,
-  defaultRelease, prefilledSpeciesId, prefilledSpeciesName, onBack,
+  defaultRelease, prefilledSpeciesId, prefilledSpeciesName, onBack, isProUser,
 }: DetailsFormProps) {
   const [state, action, pending] = useActionState<CatchState, FormData>(createCatch, null)
   const [released, setReleased] = useState(defaultRelease)
@@ -422,6 +432,7 @@ function DetailsForm({
   const [tailleValue, setTailleValue] = useState('')
   const [poidsValue, setPoidsValue] = useState('')
   const [validationWarnings, setValidationWarnings] = useState<ValidationWarning[]>([])
+  const [estimationInfo, setEstimationInfo] = useState<string | null>(null)
 
   useEffect(() => {
     const selected = species.find(s => s.id === selectedSpeciesId)
@@ -565,6 +576,67 @@ function DetailsForm({
           </div>
         </div>
 
+        {/* Estimation taille/poids */}
+        {(() => {
+          const selected = species.find(s => s.id === selectedSpeciesId)
+          const formula = selected?.weight_formula_a && selected?.weight_formula_b
+            ? { a: selected.weight_formula_a, b: selected.weight_formula_b }
+            : getGenericFormula()
+          const taille = tailleValue ? parseFloat(tailleValue) : null
+          const poids = poidsValue ? parseFloat(poidsValue) : null
+          const canEstimateWeight = taille !== null && !poidsValue
+          const canEstimateLength = poids !== null && !tailleValue
+
+          if (!canEstimateWeight && !canEstimateLength) return null
+
+          if (!isProUser) {
+            return (
+              <div className="flex items-center gap-1.5 text-xs text-white/30">
+                <Sparkles className="h-3 w-3 text-cyan-500/50" />
+                <span>Estimation automatique disponible en <a href="/parametres/abonnement" className="text-cyan-400/70 underline underline-offset-2">Pro</a></span>
+              </div>
+            )
+          }
+
+          return (
+            <div className="space-y-1">
+              {canEstimateWeight && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const estimated = estimateWeight(taille!, formula)
+                    const interval = getConfidenceInterval(estimated)
+                    setPoidsValue(String(estimated))
+                    setEstimationInfo(`Estimation ±15% : ${interval.min} – ${interval.max} kg`)
+                  }}
+                  className="text-xs text-cyan-400 flex items-center gap-1 hover:text-cyan-300 transition-colors"
+                >
+                  <Wand2 className="h-3 w-3" />
+                  Estimer le poids
+                </button>
+              )}
+              {canEstimateLength && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const estimated = estimateLength(poids!, formula)
+                    const interval = getConfidenceInterval(estimated)
+                    setTailleValue(String(estimated))
+                    setEstimationInfo(`Estimation ±15% : ${interval.min} – ${interval.max} cm`)
+                  }}
+                  className="text-xs text-cyan-400 flex items-center gap-1 hover:text-cyan-300 transition-colors"
+                >
+                  <Wand2 className="h-3 w-3" />
+                  Estimer la taille
+                </button>
+              )}
+              {estimationInfo && (
+                <p className="text-xs text-white/40 italic">{estimationInfo}</p>
+              )}
+            </div>
+          )
+        })()}
+
         {validationWarnings.length > 0 && (
           <div className="space-y-1">
             {validationWarnings.map((w, i) => (
@@ -620,7 +692,7 @@ function DetailsForm({
 
 // ── Orchestrateur ─────────────────────────────────────────────────────────────
 
-export function CatchForm({ species, today, photoPath, captureSource, defaultRelease = false }: Props) {
+export function CatchForm({ species, today, photoPath, captureSource, defaultRelease = false, isProUser = false }: Props) {
   const photoPreviewUrl = photoPath
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/catches/${photoPath}`
     : null
@@ -660,6 +732,7 @@ export function CatchForm({ species, today, photoPath, captureSource, defaultRel
       prefilledSpeciesId={confirmedId}
       prefilledSpeciesName={confirmedName}
       onBack={photoPath ? () => setStep('identify') : undefined as never}
+      isProUser={isProUser}
     />
   )
 }

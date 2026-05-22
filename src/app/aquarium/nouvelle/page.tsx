@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { hasProAccess } from '@/lib/stripe/access'
 import { CatchForm } from './CatchForm'
 
 export const metadata = {
@@ -16,9 +17,10 @@ export default async function NouvellePrisePage({ searchParams }: Props) {
 
   if (!user) redirect('/login')
 
-  const [speciesRes, profileRes] = await Promise.all([
-    supabase.from('species').select('id, nom_fr, categorie, slug').order('categorie').order('nom_fr'),
+  const [speciesRes, profileRes, isProUser] = await Promise.all([
+    supabase.from('species').select('id, nom_fr, categorie, slug, weight_formula_a, weight_formula_b').order('categorie').order('nom_fr'),
     supabase.from('profiles').select('default_release, suggest_session_on_capture').eq('id', user.id).single(),
+    hasProAccess(user.id),
   ])
 
   const today = new Date().toISOString().split('T')[0]
@@ -49,6 +51,7 @@ export default async function NouvellePrisePage({ searchParams }: Props) {
           photoPath={photoPath}
           captureSource={captureSource}
           defaultRelease={defaultRelease}
+          isProUser={isProUser}
         />
       </div>
     </div>

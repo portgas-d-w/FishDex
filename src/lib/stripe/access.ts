@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import type { SubscriptionTier } from './client'
+import type { SubscriptionTier } from './shared'
 
 type ProfileSubscription = {
   subscription_tier: SubscriptionTier | null
