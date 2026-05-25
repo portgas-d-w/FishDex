@@ -109,7 +109,7 @@ export function BottomNavV2() {
       <div
         className="relative flex items-center rounded-[26px] h-[62px]"
         style={{
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(14,20,28,0.75) 100%)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(14,20,28,0.92) 100%)',
           backdropFilter: 'blur(28px) saturate(160%)',
           WebkitBackdropFilter: 'blur(28px) saturate(160%)',
           boxShadow: [
@@ -158,32 +158,20 @@ export function BottomNavV2() {
             >
               <motion.span
                 aria-hidden="true"
-                className="absolute -inset-[2px] rounded-full opacity-80 pointer-events-none"
+                className="absolute -inset-[2px] rounded-full pointer-events-none"
                 style={{
-                  background:
-                    'conic-gradient(from 206deg, transparent 0deg, rgba(255,68,112,0.9) 10deg, rgba(255,214,90,0.95) 18deg, rgba(48,236,255,0.9) 29deg, transparent 45deg, transparent 134deg, rgba(255,255,255,0.9) 144deg, rgba(120,180,255,0.9) 152deg, transparent 166deg, transparent 246deg, rgba(255,255,255,0.92) 258deg, rgba(205,150,255,0.86) 267deg, transparent 280deg, transparent 360deg)',
-                  mask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px))',
-                  WebkitMask:
-                    'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px))',
+                  background: 'conic-gradient(from 225deg, transparent 0deg, rgba(168,192,255,0.9) 8deg, rgba(176,96,255,0.95) 16deg, rgba(255,154,60,0.9) 24deg, rgba(255,255,255,0.98) 30deg, rgba(255,255,255,0.15) 40deg, transparent 48deg, transparent 360deg)',
+                  mask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 2px))',
+                  WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 2px))',
                 }}
-                animate={{ rotate: 360, opacity: [0.6, 0.95, 0.7] }}
+                animate={{ rotate: [0, -160], opacity: [0, 1, 1, 0] }}
                 transition={{
-                  rotate: { duration: 9, repeat: Infinity, ease: 'linear' },
-                  opacity: { duration: 3.6, repeat: Infinity, ease: 'easeInOut' },
+                  duration: 3.5,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  times: [0, 0.15, 0.85, 1],
+                  repeatDelay: 0.4,
                 }}
-              />
-              <motion.span
-                aria-hidden="true"
-                className="absolute inset-0 rounded-full opacity-90 blur-[1px] pointer-events-none"
-                style={{
-                  background:
-                    'conic-gradient(from 22deg, transparent 0deg, rgba(40,210,255,0.86) 18deg, rgba(255,255,255,0.78) 27deg, transparent 42deg, transparent 184deg, rgba(40,80,255,0.68) 198deg, rgba(255,255,255,0.86) 207deg, transparent 222deg, transparent 360deg)',
-                  mask: 'radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px))',
-                  WebkitMask:
-                    'radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px))',
-                }}
-                animate={{ rotate: -360 }}
-                transition={{ duration: 13, repeat: Infinity, ease: 'linear' }}
               />
               <span
                 className="relative z-10 flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-[18px]"
@@ -208,16 +196,21 @@ export function BottomNavV2() {
                 />
                 <motion.span
                   aria-hidden="true"
-                  className="absolute inset-[1px] rounded-full opacity-95 pointer-events-none"
+                  className="absolute inset-[1px] rounded-full pointer-events-none"
                   style={{
-                    background:
-                      'conic-gradient(from 218deg, transparent 0deg, rgba(255,70,115,0.92) 9deg, rgba(255,214,90,0.96) 17deg, rgba(64,230,255,0.92) 27deg, transparent 42deg, transparent 176deg, rgba(255,255,255,0.72) 188deg, rgba(90,130,255,0.9) 201deg, transparent 216deg, transparent 286deg, rgba(255,255,255,0.86) 298deg, rgba(220,150,255,0.9) 309deg, transparent 323deg, transparent 360deg)',
+                    background: 'conic-gradient(from 225deg, transparent 0deg, rgba(168,192,255,0.7) 8deg, rgba(176,96,255,0.8) 16deg, rgba(255,154,60,0.7) 24deg, rgba(255,255,255,0.85) 30deg, transparent 42deg, transparent 360deg)',
                     mask: 'radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 2px), transparent calc(100% - 1px))',
-                    WebkitMask:
-                      'radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 2px), transparent calc(100% - 1px))',
+                    WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 2px), transparent calc(100% - 1px))',
                   }}
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 11, repeat: Infinity, ease: 'linear' }}
+                  animate={{ rotate: [0, -160], opacity: [0, 0.9, 0.9, 0] }}
+                  transition={{
+                    duration: 3.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                    times: [0, 0.15, 0.85, 1],
+                    repeatDelay: 0.4,
+                    delay: 0.1,
+                  }}
                 />
                 <Camera
                   size={22}
