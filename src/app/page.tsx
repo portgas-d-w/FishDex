@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
 import { HeroWithParallax } from '@/components/home/HeroWithParallax'
 import { createClient } from '@/lib/supabase/server'
-import { LandingPageV2 } from '@/components/spot-v2/LandingPage'
+
 import { NotificationBell } from '@/components/home/NotificationBell'
 import { UserAvatar } from '@/components/home/UserAvatar'
 import { ActiveSessionCard } from '@/components/home/ActiveSessionCard'
@@ -28,7 +28,7 @@ export default async function Home() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) return <LandingPageV2 />
+  if (!user) redirect('/login')
 
   const [profileResult, catchesResult, spotsResult, speciesCountResult, totalSpeciesResult, weatherResult, cyclicMemory, feedAccess] = await Promise.all([
     supabase
