@@ -3,8 +3,8 @@
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import {
+  getStripe,
   PRICES,
-  stripe,
   type BillingInterval,
   type PaidTier,
 } from '@/lib/stripe/client'
@@ -15,6 +15,14 @@ async function getAppUrl(): Promise<string> {
   const host = h.get('host') ?? 'localhost:3000'
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
   return `${protocol}://${host}`
+}
+
+function getConfiguredStripe(): ReturnType<typeof getStripe> | null {
+  try {
+    return getStripe()
+  } catch {
+    return null
+  }
 }
 
 export async function createCheckoutSession(
@@ -30,6 +38,11 @@ export async function createCheckoutSession(
   const priceId = PRICES[tier][interval]
   if (!priceId) {
     return { error: 'Prix Stripe non configuré pour ce tier.' }
+  }
+
+  const stripe = getConfiguredStripe()
+  if (!stripe) {
+    return { error: 'Stripe n’est pas configuré.' }
   }
 
   const { data: profile } = await supabase
@@ -86,6 +99,11 @@ export async function createPortalSession(): Promise<
 
   if (!profile?.stripe_customer_id) {
     return { error: 'Aucun abonnement actif à gérer.' }
+  }
+
+  const stripe = getConfiguredStripe()
+  if (!stripe) {
+    return { error: 'Stripe n’est pas configuré.' }
   }
 
   const appUrl = await getAppUrl()
