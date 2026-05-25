@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { RESSENTI_OPTIONS } from '@/lib/sessions/types'
 import { WrappedSlides } from './WrappedSlides'
+import { hasProAccess } from '@/lib/stripe/access'
 
 export type WrappedStats = {
   year: number
@@ -36,18 +37,31 @@ export default async function WrappedPage({
   const isJanuary  = currentMonth === 1
 
   const validYear = isDecember ? currentYear : isJanuary ? currentYear - 1 : null
+
   if (validYear === null || year !== validYear) {
-    // Hors période → page d'attente
-    return (
-      <div className="min-h-screen bg-[#0a0f14] flex flex-col items-center justify-center px-6 text-center">
-        <p className="text-4xl mb-4">🎣</p>
-        <h1 className="text-2xl font-bold text-white mb-2">FishDex Wrapped</h1>
-        <p className="text-white/50 text-sm leading-relaxed">
-          Le récap annuel est disponible<br />
-          uniquement en décembre et en janvier.
-        </p>
-      </div>
-    )
+    // Pro → accès toute l'année
+    const supabaseCheck = await createClient()
+    const { data: { user: userCheck } } = await supabaseCheck.auth.getUser()
+    const isPro = userCheck ? await hasProAccess(userCheck.id) : false
+
+    if (!isPro) {
+      return (
+        <div className="min-h-screen bg-[#0a0f14] flex flex-col items-center justify-center px-6 text-center gap-4">
+          <p className="text-4xl">🎣</p>
+          <h1 className="text-2xl font-bold text-white">FishDex Wrapped</h1>
+          <p className="text-white/50 text-sm leading-relaxed">
+            Le récap annuel est disponible<br />
+            uniquement en décembre et en janvier.
+          </p>
+          <div className="mt-2 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 px-5 py-4 max-w-xs">
+            <p className="text-sm text-cyan-400 font-semibold mb-1">Accès Pro</p>
+            <p className="text-xs text-white/60">Les abonnés Pro peuvent consulter leur Wrapped toute l&apos;année.</p>
+          </div>
+        </div>
+      )
+    }
+    // Pro : on accepte n'importe quelle année passée
+    if (year > currentYear) notFound()
   }
 
   const supabase = await createClient()
@@ -55,6 +69,7 @@ export default async function WrappedPage({
   if (!user) redirect('/login')
 
   const start = `${year}-01-01T00:00:00`
+
   const end   = `${year + 1}-01-01T00:00:00`
 
   const [sessionsResult, catchesResult] = await Promise.all([
