@@ -1,23 +1,24 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
-import { MapPin, Book, Camera, Fish, Calendar } from 'lucide-react'
+import { Camera } from 'lucide-react'
 import { haptic } from '@/lib/haptics'
 
 const PUBLIC_PATHS = ['/login', '/signup', '/mot-de-passe-oublie', '/nouveau-mot-de-passe', '/onboarding']
 
 const LEFT_TABS = [
-  { href: '/',        label: 'Le Spot', Icon: MapPin  },
-  { href: '/fishdex', label: 'FishDex', Icon: Book    },
+  { href: '/',        label: 'Le Spot', img: '/nav/spot.png'    },
+  { href: '/fishdex', label: 'FishDex', img: '/nav/fishdex.png' },
 ]
 const RIGHT_TABS = [
-  { href: '/aquarium', label: 'Aquarium', Icon: Fish     },
-  { href: '/sessions', label: 'Sessions', Icon: Calendar },
+  { href: '/aquarium', label: 'Aquarium', img: '/nav/aquarium.png'  },
+  { href: '/sessions', label: 'Sessions', img: '/nav/sessions.png'  },
 ]
 
-function NavTab({ href, label, Icon }: { href: string; label: string; Icon: React.ElementType }) {
+function NavTab({ href, label, img }: { href: string; label: string; img: string }) {
   const pathname = usePathname()
   const active   = href === '/' ? pathname === '/' : pathname.startsWith(href)
 
@@ -26,7 +27,7 @@ function NavTab({ href, label, Icon }: { href: string; label: string; Icon: Reac
       href={href}
       aria-current={active ? 'page' : undefined}
       onClick={() => haptic('light')}
-      className="flex-1 flex flex-col items-center justify-center gap-1.5 relative h-full transition-all duration-200 active:scale-90"
+      className="flex-1 flex flex-col items-center justify-center gap-0.5 relative h-full transition-all duration-200 active:scale-90"
     >
       {/* Pill actif — slide via layoutId */}
       <AnimatePresence>
@@ -46,15 +47,24 @@ function NavTab({ href, label, Icon }: { href: string; label: string; Icon: Reac
         )}
       </AnimatePresence>
 
-      <Icon
-        size={20}
-        strokeWidth={active ? 2.2 : 1.6}
-        className={`relative transition-all duration-200 ${
-          active
-            ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]'
-            : 'text-white/30'
-        }`}
-      />
+      <span
+        className="relative transition-all duration-200"
+        style={{
+          filter: active
+            ? 'drop-shadow(0 0 8px rgba(34,211,238,0.85)) drop-shadow(0 0 3px rgba(34,211,238,0.6)) brightness(1.1)'
+            : 'brightness(0.45) saturate(0.5) opacity(0.7)',
+        }}
+      >
+        <Image
+          src={img}
+          alt={label}
+          width={44}
+          height={44}
+          className="object-contain"
+          unoptimized
+        />
+      </span>
+
       <span className={`text-[10px] font-semibold tracking-wide relative transition-colors duration-200 ${
         active ? 'text-cyan-400' : 'text-white/25'
       }`}>
@@ -129,7 +139,7 @@ export function BottomNavV2() {
           {/* FAB surélevé — en dehors du flux, pas besoin d'overflow:hidden */}
           <motion.div
             className="absolute"
-            style={{ top: '-18px' }}
+            style={{ top: '-20px' }}
             animate={captureActive ? { scale: 1 } : { scale: [1, 1.05, 1] }}
             transition={{ duration: 3, repeat: captureActive ? 0 : Infinity, ease: 'easeInOut' }}
           >
@@ -137,15 +147,84 @@ export function BottomNavV2() {
               href="/capture"
               aria-label="Nouvelle capture"
               onClick={() => haptic('medium')}
-              className="flex items-center justify-center w-[52px] h-[52px] rounded-full active:scale-90 transition-transform duration-100"
+              className="group relative isolate flex h-[56px] w-[56px] items-center justify-center rounded-full p-[2px] active:scale-90 transition-transform duration-100"
               style={{
-                background: 'linear-gradient(145deg, #a5f3fc 0%, #22d3ee 45%, #0891b2 100%)',
+                background:
+                  'linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.36) 42%, rgba(17,24,39,0.30) 100%)',
                 boxShadow: captureActive
-                  ? '0 0 0 3px rgba(34,211,238,0.35), 0 0 20px 6px rgba(34,211,238,0.65), 0 0 50px 12px rgba(34,211,238,0.25), inset 0 1px 0 rgba(255,255,255,0.45)'
-                  : '0 0 0 2px rgba(34,211,238,0.22), 0 0 16px 4px rgba(34,211,238,0.50), 0 0 36px 8px rgba(34,211,238,0.18), 0 4px 12px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.38)',
+                  ? '0 0 0 1px rgba(255,255,255,0.24), 0 0 12px 1px rgba(255,255,255,0.22), 0 10px 24px rgba(0,0,0,0.46), inset 0 0 0 1px rgba(255,255,255,0.16)'
+                  : '0 0 0 1px rgba(255,255,255,0.15), 0 0 8px 1px rgba(255,255,255,0.12), 0 8px 18px rgba(0,0,0,0.44), inset 0 0 0 1px rgba(255,255,255,0.10)',
               }}
             >
-              <Camera size={22} strokeWidth={2.3} className="text-slate-950" />
+              <motion.span
+                aria-hidden="true"
+                className="absolute -inset-[2px] rounded-full opacity-80 pointer-events-none"
+                style={{
+                  background:
+                    'conic-gradient(from 206deg, transparent 0deg, rgba(255,68,112,0.9) 10deg, rgba(255,214,90,0.95) 18deg, rgba(48,236,255,0.9) 29deg, transparent 45deg, transparent 134deg, rgba(255,255,255,0.9) 144deg, rgba(120,180,255,0.9) 152deg, transparent 166deg, transparent 246deg, rgba(255,255,255,0.92) 258deg, rgba(205,150,255,0.86) 267deg, transparent 280deg, transparent 360deg)',
+                  mask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px))',
+                  WebkitMask:
+                    'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px))',
+                }}
+                animate={{ rotate: 360, opacity: [0.6, 0.95, 0.7] }}
+                transition={{
+                  rotate: { duration: 9, repeat: Infinity, ease: 'linear' },
+                  opacity: { duration: 3.6, repeat: Infinity, ease: 'easeInOut' },
+                }}
+              />
+              <motion.span
+                aria-hidden="true"
+                className="absolute inset-0 rounded-full opacity-90 blur-[1px] pointer-events-none"
+                style={{
+                  background:
+                    'conic-gradient(from 22deg, transparent 0deg, rgba(40,210,255,0.86) 18deg, rgba(255,255,255,0.78) 27deg, transparent 42deg, transparent 184deg, rgba(40,80,255,0.68) 198deg, rgba(255,255,255,0.86) 207deg, transparent 222deg, transparent 360deg)',
+                  mask: 'radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px))',
+                  WebkitMask:
+                    'radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px))',
+                }}
+                animate={{ rotate: -360 }}
+                transition={{ duration: 13, repeat: Infinity, ease: 'linear' }}
+              />
+              <span
+                className="relative z-10 flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-[18px]"
+                style={{
+                  background:
+                    'linear-gradient(145deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.12) 46%, rgba(255,255,255,0.06) 100%)',
+                  boxShadow:
+                    'inset 0 1px 0 rgba(255,255,255,0.52), inset 0 -13px 20px rgba(2,8,23,0.24), inset -7px -8px 18px rgba(255,255,255,0.05)',
+                }}
+              >
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-75 pointer-events-none"
+                  style={{
+                    background:
+                      'radial-gradient(circle at 29% 17%, rgba(255,255,255,0.52) 0%, transparent 25%), linear-gradient(145deg, rgba(255,255,255,0.16) 0%, transparent 36%)',
+                  }}
+                />
+                <span
+                  aria-hidden="true"
+                  className="absolute -right-1 top-2 h-7 w-px rotate-[30deg] bg-white/55 blur-[0.5px] pointer-events-none"
+                />
+                <motion.span
+                  aria-hidden="true"
+                  className="absolute inset-[1px] rounded-full opacity-95 pointer-events-none"
+                  style={{
+                    background:
+                      'conic-gradient(from 218deg, transparent 0deg, rgba(255,70,115,0.92) 9deg, rgba(255,214,90,0.96) 17deg, rgba(64,230,255,0.92) 27deg, transparent 42deg, transparent 176deg, rgba(255,255,255,0.72) 188deg, rgba(90,130,255,0.9) 201deg, transparent 216deg, transparent 286deg, rgba(255,255,255,0.86) 298deg, rgba(220,150,255,0.9) 309deg, transparent 323deg, transparent 360deg)',
+                    mask: 'radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 2px), transparent calc(100% - 1px))',
+                    WebkitMask:
+                      'radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 2px), transparent calc(100% - 1px))',
+                  }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 11, repeat: Infinity, ease: 'linear' }}
+                />
+                <Camera
+                  size={22}
+                  strokeWidth={2.35}
+                  className="relative z-10 text-white/92 drop-shadow-[0_1px_6px_rgba(255,255,255,0.35)]"
+                />
+              </span>
             </Link>
           </motion.div>
 
