@@ -6,3 +6,13 @@ ROADMAP.md.txt
 !README.md
 tsconfig.tsbuildinfo
 scripts/
+.next/
+.claude/
+.git/
+node_modules/
+.playwright-mcp/
+generation d'image/
+audit-home.png
+prod-after-phases-abc.png
+validation-fishdex-grid.png
+fiche-breme.png

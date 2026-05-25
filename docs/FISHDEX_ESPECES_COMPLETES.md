@@ -56,7 +56,6 @@
     "vent": "Léger à modéré"
   },
   "conseil_fishdex": "Cherche les rondes en surface au crépuscule, c'est là qu'elles trahissent leur présence. Un hameçon trop gros, et tu pêcheras dans le vide toute la journée.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Peut être utilisée comme vif (vivante ou morte) dans les zones réglementairement autorisées.",
   "donnees_a_verifier": []
 }
 ```
@@ -94,7 +93,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Quand tu trouves un banc, reste patient et amorce régulièrement : tu peux faire une session entière au même poste. Les grosses brèmes mordent souvent juste après que les petites se calment.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Espèce de 2ème catégorie. Pêche autorisée à l'ouverture générale.",
   "donnees_a_verifier": []
 }
 ```
@@ -131,8 +129,7 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Examine bien ce que tu sors : entre brème commune et bordelière, beaucoup de pêcheurs se trompent. La bordelière a l'œil plus grand par rapport à la tête, c'est le signe le plus fiable.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Espèce de 2ème catégorie.",
-  "donnees_a_verifier": []
+  "donnees_a_verifier": ["taille_max_cm peut atteindre 45 cm exceptionnellement selon certaines sources"]
 }
 ```
 
@@ -168,7 +165,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Si tu en captures un, observe-le attentivement avant de le relâcher : il est aujourd'hui moins commun qu'autrefois. Les petites eaux abandonnées par les pêcheurs sont souvent ses derniers refuges.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Espèce de 2ème catégorie. Population en déclin en France : relâche recommandée.",
   "donnees_a_verifier": []
 }
 ```
@@ -204,7 +200,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Espèce d'origine asiatique introduite, le carassin doré pose question écologique : il croise avec le carassin commun et menace sa survie. À prendre en compte si tu pêches dans des eaux fragiles.",
-  "statut_reglementaire": "Pas de réglementation nationale de pêche spécifique. Espèce introduite non soumise à taille légale ni période de fermeture.",
   "donnees_a_verifier": []
 }
 ```
@@ -243,7 +238,6 @@
     "vent": "Faible à modéré"
   },
   "conseil_fishdex": "Le chevesne est l'un des poissons les plus malins de nos rivières. Approche en silence, lance sans projeter d'ombre, et tu verras qu'il pardonne rarement une erreur. Les plus gros sont sous les arbres qui touchent l'eau.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Espèce de 2ème catégorie (1ère catégorie dans certains cours d'eau salmonicoles).",
   "donnees_a_verifier": []
 }
 ```
@@ -281,7 +275,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Le gardon récompense le calme et la régularité. Une bonne session de gardons, c'est avant tout une bonne amorce et une eau lue avec patience. Et c'est souvent là qu'on se souvient pourquoi on pêche.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Espèce de 2ème catégorie. Pêche autorisée à l'ouverture générale.",
   "donnees_a_verifier": []
 }
 ```
@@ -318,7 +311,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Un ruisseau plein de goujons, c'est un ruisseau qui se porte bien. Profite-en pour montrer aux enfants ce qu'est une vraie pêche : simple, sans batterie, sans écran.",
-  "statut_reglementaire": "Pas de taille légale nationale. Catégorie 1 dans les rivières à salmonidés, catégorie 2 ailleurs. Peut être utilisé comme vif vivant dans les zones autorisées.",
   "donnees_a_verifier": []
 }
 ```
@@ -356,7 +348,6 @@
     "vent": "Faible à modéré"
   },
   "conseil_fishdex": "Le hotu se trahit par les coups secs qu'il donne sur la ligne avant de gober. Ne ferre pas trop tôt, il aime tester l'esche. Une fois piqué, il tire fort vers le courant : laisse-le filer.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Catégorie 1 dans les rivières à fort courant, catégorie 2 ailleurs.",
   "donnees_a_verifier": []
 }
 ```
@@ -394,8 +385,7 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Si tu pêches dans le Rhin ou en Alsace, garde l'œil : l'ide mélanote est plus présent là-bas que dans le reste de la France. Sa robe argentée aux reflets dorés est inimitable.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Espèce de 2ème catégorie.",
-  "donnees_a_verifier": []
+  "donnees_a_verifier": ["répartition en France : essentiellement bassins du Rhin et de la Moselle, à vérifier pour d'autres bassins"]
 }
 ```
 
@@ -431,7 +421,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Cherche les herbiers en pleine eau, c'est là qu'il monte gober. Un petit hameçon, un asticot bien présenté en surface, et tu sentiras la touche franche d'un poisson qui ne lésine pas.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Espèce de 2ème catégorie.",
   "donnees_a_verifier": []
 }
 ```
@@ -468,7 +457,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Capturer un spirlin signe une rivière en bonne santé. Plus qu'une prise, c'est un témoignage. Relâche-le délicatement, c'est une espèce sensible.",
-  "statut_reglementaire": "Espèce d'intérêt communautaire (Directive Habitats Annexes II et IV). Pas d'interdiction de pêche mais relâche obligatoire recommandée. Espèce indicatrice de qualité d'eau.",
   "donnees_a_verifier": []
 }
 ```
@@ -504,7 +492,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Au printemps, observe les vairons en parade nuptiale : c'est l'un des plus beaux spectacles discrets de nos rivières. Robes rouges et dorées sur fond de graviers — Tesson l'aurait noté.",
-  "statut_reglementaire": "Pas de taille légale nationale. Catégorie 1 dans la plupart des ruisseaux et rivières à salmonidés. Peut être utilisé comme vif vivant dans les zones autorisées (vérifier localement).",
   "donnees_a_verifier": []
 }
 ```
@@ -541,7 +528,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Quand tu vois des ronds à la surface qui ne sont pas ceux d'une truite, c'est souvent la vandoise. Mouche posée délicatement, dérive parfaite : elle pardonne moins qu'un chevesne.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Catégorie 1 dans la plupart de ses habitats (rivières à salmonidés).",
   "donnees_a_verifier": []
 }
 ```
@@ -577,77 +563,9 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Si tu en captures un, prends-en soin : c'est une espèce d'intérêt patrimonial européen. Photo rapide, relâche immédiate. Tu auras vu un petit témoignage de la richesse de nos rivières.",
-  "statut_reglementaire": "Espèce d'intérêt communautaire (Directive Habitats Annexes II et IV). Répartition française restreinte au bassin du Rhône. Relâche obligatoire recommandée.",
-  "donnees_a_verifier": []
+  "donnees_a_verifier": ["statut protection : espèce d'intérêt communautaire (Directive Habitats Annexe II), à confirmer exactement"]
 }
-```
 
-## 1.16 Apron du Rhône
-
-```json
-{
-  "slug": "apron-du-rhone",
-  "nom_fr": "Apron du Rhône",
-  "nom_scientifique": "Zingel asper",
-  "famille": "Percidés (Percidae)",
-  "rarete": "legendaire",
-  "eau": "douce",
-  "taille_max_cm": 22,
-  "taille_moyenne_cm": 17,
-  "poids_max_kg": 0.2,
-  "poids_moyen_kg": 0.08,
-  "longevite_annees": "3-5 ans",
-  "regime": "carnivore (larves d'insectes, petits invertébrés benthiques)",
-  "habitat": "Endémique du bassin du Rhône. Rivières à courant vif, fond de graviers et galets. Quatre populations résiduelles : Doubs/Loue, Ardèche, Durance/Verdon.",
-  "profondeur": "0.5-2 m",
-  "temperature_eau": "8-18 °C",
-  "saison_active": "Toute l'année (observation uniquement)",
-  "description": "Espèce endémique du bassin du Rhône, l'apron est l'un des poissons les plus menacés de France. En danger critique d'extinction, il a perdu 90% de son aire de répartition au XXe siècle. Petit percidé nocturne aux écailles rugueuses, c'est une relique d'un autre temps que les pêcheurs croisent rarement.",
-  "techniques_recommandees": [],
-  "conditions_ideales": {
-    "meteo": "Eaux claires et fraîches",
-    "moment_jour": "Nuit (espèce nocturne)",
-    "profondeur": "0.5-1.5 m",
-    "vent": "Sans incidence"
-  },
-  "conseil_fishdex": "L'apron ne se pêche pas. C'est une espèce strictement protégée. Si tu en croises un en plongée ou par hasard, c'est un privilège : il en reste si peu. Signale ton observation au CEN Rhône-Alpes ou à la fédération de pêche locale.",
-  "statut_reglementaire": "Espèce strictement protégée. Arrêté du 8 décembre 1988. Directive Habitats Annexes II et IV. Convention de Berne Annexe II. En danger critique d'extinction (UICN).",
-  "donnees_a_verifier": []
-}
-```
-
-## 1.17 Bouvière
-
-```json
-{
-  "slug": "bouviere",
-  "nom_fr": "Bouvière",
-  "nom_scientifique": "Rhodeus amarus",
-  "famille": "Cyprinidés (Acheilognathidae)",
-  "rarete": "rare",
-  "eau": "douce",
-  "taille_max_cm": 9,
-  "taille_moyenne_cm": 6,
-  "poids_max_kg": 0.01,
-  "poids_moyen_kg": 0.005,
-  "longevite_annees": "4-5 ans",
-  "regime": "omnivore (plancton, algues, débris)",
-  "habitat": "Étangs et rivières lentes avec moules d'eau douce (anodontes, unios). Présence des moules indispensable à la reproduction.",
-  "profondeur": "0.3-2 m",
-  "temperature_eau": "12-24 °C",
-  "saison_active": "Avril-Octobre",
-  "description": "Petit cyprinidé aux couleurs irisées, la bouvière dépend d'un partenaire inattendu pour sa reproduction : la moule d'eau douce. La femelle pond ses œufs dans le siphon de la moule via un long ovipositeur. Cette symbiose unique en fait une espèce vulnérable : si les moules disparaissent, elle disparaît.",
-  "techniques_recommandees": [],
-  "conditions_ideales": {
-    "meteo": "Doux",
-    "moment_jour": "Journée",
-    "profondeur": "0.5-1.5 m",
-    "vent": "Faible"
-  },
-  "conseil_fishdex": "La bouvière ne se pêche pas en pratique (trop petite). Si tu en aperçois dans tes étangs, c'est signe que les moules d'eau douce sont là aussi. Une bonne nouvelle écologique à savourer.",
-  "statut_reglementaire": "Espèce protégée. Directive Habitats Annexe II.",
-  "donnees_a_verifier": []
-}
 ```
 
 ## 1.18 Tanche
@@ -683,7 +601,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "La tanche aime les eaux chaudes et les nuits orageuses. Pêche en bordure d'herbier, amorçage sucré, esche posée délicatement. Le combat est lent et puissant : ne brusque rien, elle se débat au fond.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Espèce de 2ème catégorie.",
   "donnees_a_verifier": []
 }
 ```
@@ -757,7 +674,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "La carpe se mérite par la patience. Une session de 24 ou 48h, c'est aussi un moment de contemplation. Apprends à lire l'eau, à entendre le silence d'un lac. La prise viendra peut-être, mais le souvenir reste de toute façon.",
-  "statut_reglementaire": "Taille légale : 40 cm (variable selon plans d'eau et départements). Pas de période de fermeture nationale. Certains parcours carpe imposent le no-kill ou une taille minimale plus élevée. Pêche de nuit autorisée selon les eaux.",
   "donnees_a_verifier": []
 }
 ```
@@ -794,80 +710,7 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Cherche les amours à proximité des herbiers, surtout par temps chaud. L'esche végétale est obligatoire : pain, herbe fraîche, maïs. Une fois piqué, c'est un combat de force pure, prépare ton matériel solide.",
-  "statut_reglementaire": "Taille légale variable selon les plans d'eau, souvent 40 cm. Espèce introduite ne se reproduisant pas en France métropolitaine. Présence soumise à autorisation selon les plans d'eau.",
   "donnees_a_verifier": []
-}
-```
-
-## 1.22 Carpe amour argenté
-
-```json
-{
-  "slug": "carpe-amour-argente",
-  "nom_fr": "Carpe amour argenté",
-  "nom_scientifique": "Hypophthalmichthys molitrix",
-  "famille": "Cyprinidés (Xenocyprididae)",
-  "rarete": "rare",
-  "eau": "douce",
-  "taille_max_cm": 130,
-  "taille_moyenne_cm": 60,
-  "poids_max_kg": 40,
-  "poids_moyen_kg": 8,
-  "longevite_annees": "15-20 ans",
-  "regime": "planctonophage (phytoplancton, zooplancton, détritus en suspension)",
-  "habitat": "Grands lacs, retenues et gravières. Espèce introduite d'Asie orientale, présente dans certains plans d'eau français (Rhône, Garonne, gravières).",
-  "profondeur": "1-5 m",
-  "temperature_eau": "15-30 °C",
-  "saison_active": "Mai-Septembre",
-  "description": "Originaire d'Asie du Sud-Est, l'amour argenté est l'un des poissons les plus produits au monde en aquaculture. Introduit dans des plans d'eau français pour le contrôle du phytoplancton, il atteint des tailles impressionnantes. Sa particularité : il filtre le plancton par ses branchiospines, il ne mord pas les esches classiques. Sa capture reste un défi confidentiel.",
-  "techniques_recommandees": [
-    { "nom": "Pêche au pain / pâte flottante de surface", "difficulte": 4, "efficacite": 3, "profondeur_optimale": "Surface à 1 m", "animation": "Pain flottant, pâte très légère, sans plomb — attirer par amorçage progressif en surface" }
-  ],
-  "conditions_ideales": {
-    "meteo": "Très chaud, calme, ciel dégagé",
-    "moment_jour": "Journée, grande chaleur",
-    "profondeur": "Surface à 1 m",
-    "vent": "Faible"
-  },
-  "conseil_fishdex": "L'amour argenté ne mange pas d'esches classiques : il filtre l'eau. Certains pêcheurs le capturent au pain flottant ou avec une pâte très légère en surface. Une prise reste un exploit rarissime en France.",
-  "statut_reglementaire": "Espèce susceptible de provoquer des déséquilibres biologiques. Transport vivant dans le milieu naturel interdit. Présence autorisée dans certains plans d'eau sur autorisation.",
-  "donnees_a_verifier": []
-}
-```
-
-## 1.23 Carpe marbré
-
-```json
-{
-  "slug": "carpe-marbre",
-  "nom_fr": "Carpe marbré",
-  "nom_scientifique": "Hypophthalmichthys nobilis",
-  "famille": "Cyprinidés (Xenocyprididae)",
-  "rarete": "legendaire",
-  "eau": "douce",
-  "taille_max_cm": 150,
-  "taille_moyenne_cm": 70,
-  "poids_max_kg": 50,
-  "poids_moyen_kg": 12,
-  "longevite_annees": "20-25 ans",
-  "regime": "planctonophage et détritivore (zooplancton, débris organiques, particules en suspension)",
-  "habitat": "Grands lacs et retenues. Espèce introduite d'Asie orientale, présence très localisée en France (quelques gravières et plans d'eau du Rhône et de la Garonne).",
-  "profondeur": "1-10 m",
-  "temperature_eau": "15-30 °C",
-  "saison_active": "Mai-Septembre",
-  "description": "Plus grand des poissons du genre Hypophthalmichthys, la carpe marbré se reconnaît à sa robe grise marbrée de taches irrégulières foncées et à sa tête volumineuse. Présente très discrètement en France, sa capture y est un événement. Comme l'amour argenté, elle filtre le plancton — sa pêche relève du défi absolu.",
-  "techniques_recommandees": [
-    { "nom": "Pêche au pain / pâte flottante de surface", "difficulte": 5, "efficacite": 2, "profondeur_optimale": "Surface", "animation": "Esches très légères flottantes, amorçage planctonique en surface" }
-  ],
-  "conditions_ideales": {
-    "meteo": "Très chaud, calme",
-    "moment_jour": "Journée, grande chaleur",
-    "profondeur": "Surface à 2 m",
-    "vent": "Faible"
-  },
-  "conseil_fishdex": "Sa robe marbrée unique est reconnaissable au premier regard. Captures extrêmement rares en France — si tu en croises une, prends soin d'elle. C'est une prise d'exception que peu de pêcheurs peuvent revendiquer.",
-  "statut_reglementaire": "Espèce susceptible de provoquer des déséquilibres biologiques. Transport vivant dans le milieu naturel interdit. Présence très localisée en France.",
-  "donnees_a_verifier": ["présence géographique à confirmer localement — populations très dispersées et non stabilisées en France métropolitaine"]
 }
 ```
 
@@ -949,7 +792,6 @@
     "vent": "Faible à modéré"
   },
   "conseil_fishdex": "Le sandre est exigeant sur la finesse. Touches très discrètes : sois attentif au moindre tic. Une fois piqué, il ne combat pas comme un brochet, mais sa prudence à venir mordre récompense les patients.",
-  "statut_reglementaire": "Pas de période de fermeture nationale. Taille légale : 40 cm (variable, jusqu'à 50 cm dans certains départements). Espèce de 2ème catégorie.",
   "donnees_a_verifier": []
 }
 ```
@@ -988,7 +830,6 @@
     "vent": "Faible à modéré"
   },
   "conseil_fishdex": "La perche est un excellent poisson pour débuter le carnassier au leurre. Cherche les bancs en bordure des structures (pontons, arbres tombés). Les grosses solitaires demandent plus de finesse et préfèrent les zones plus profondes.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Espèce de 1ère ou 2ème catégorie selon le cours d'eau.",
   "donnees_a_verifier": []
 }
 ```
@@ -1063,7 +904,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Le black-bass aime les couverts denses : nénuphars, arbres immergés, pontons. Une attaque en surface sur popper, c'est un souvenir qui ne s'oublie pas. Pratique le no-kill, c'est l'éthique partagée par les pêcheurs de bass.",
-  "statut_reglementaire": "Espèce susceptible de provoquer des déséquilibres biologiques. Transport vivant interdit dans le milieu naturel. Pas de taille légale nationale spécifique. Pêche autorisée dans les eaux où il est présent. No-kill fortement recommandé.",
   "donnees_a_verifier": []
 }
 ```
@@ -1101,7 +941,6 @@
     "vent": "Faible à modéré"
   },
   "conseil_fishdex": "Le silure se mérite. Matériel solide, patience, nuits sur la berge. Une prise de silure, c'est souvent un combat de longue haleine. Respect : remets-le à l'eau délicatement, c'est un animal âgé qui mérite d'autres saisons.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Pêche de nuit généralement autorisée. Réglementation variable selon les plans d'eau (certains imposent no-kill ou quotas).",
   "donnees_a_verifier": []
 }
 ```
@@ -1139,7 +978,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Les bancs d'ablettes en surface sont ses cantines préférées. Cherche les attaques marquées au crépuscule, lance ton leurre devant le poisson, récupération rapide. C'est une espèce récente en France, encore mal connue de beaucoup.",
-  "statut_reglementaire": "Pas de taille légale ni de période de fermeture nationale. Espèce de 2ème catégorie. Répartition très localisée en France (Rhin, Moselle, Loire, Seine). Réglementation locale à vérifier.",
   "donnees_a_verifier": []
 }
 ```
@@ -1246,8 +1084,7 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Pêcher le mulet, c'est faire le pont entre rivière et mer. Cherche-le en estuaire au moment des marées montantes. Esches très fines, ferré immédiat : il rejette vite tout ce qui résiste.",
-  "statut_reglementaire": "Pas de taille légale nationale spécifique pour l'eau douce. En zone maritime et estuarienne, taille légale : 20 cm. Pêche libre sur les cours d'eau où il remonte. Réglementation maritime en estuaire à vérifier localement.",
-  "donnees_a_verifier": []
+  "donnees_a_verifier": ["nom scientifique à jour : Chelon ramada (anciennement Liza ramada). Vérification recommandée selon référentiel."]
 }
 ```
 
@@ -1329,7 +1166,6 @@
     "vent": "Faible à modéré"
   },
   "conseil_fishdex": "Plus combative que la fario, l'arc-en-ciel est souvent issue de lâchers : sois conscient qu'elle ne représente pas la sauvagerie pure des rivières. Pour le no-kill, manipule-la peu et délicatement.",
-  "statut_reglementaire": "Soumise aux mêmes ouvertures de 1ère catégorie que la truite fario. Taille légale : 23 à 25 cm selon zones. En parcours privés (no-kill, parcours commerciaux), réglementation propre à chaque plan d'eau.",
   "donnees_a_verifier": []
 }
 ```
@@ -1404,7 +1240,6 @@
     "vent": "Faible"
   },
   "conseil_fishdex": "Cherche l'omble de fontaine dans les ruisseaux d'altitude isolés, là où peu de pêcheurs montent. Sa robe est une œuvre. Photo, relâche, et garde le silence sur le spot — c'est la règle non écrite.",
-  "statut_reglementaire": "Soumis aux ouvertures de 1ère catégorie (salmonidés). Taille légale : 23 cm généralement. Réglementation locale variable selon massif (Pyrénées, Alpes, Vosges).",
   "donnees_a_verifier": []
 }
 ```
@@ -1440,7 +1275,6 @@
     "vent": "Faible à modéré"
   },
   "conseil_fishdex": "Le cristivomer du Léman est l'un des poissons d'eau douce les plus difficiles à pêcher en France. Bateau, sondeur, downriggers, connaissance précise du lac. C'est une pêche de spécialistes : si tu y arrives, c'est une vraie distinction.",
-  "statut_reglementaire": "Pêche réglementée sur le Léman par commission franco-suisse. Périodes et quotas stricts. Se renseigner auprès de la Fédération de pêche de Haute-Savoie (74).",
   "donnees_a_verifier": []
 }
 ```
@@ -1553,7 +1387,6 @@
     "vent": "Variable"
   },
   "conseil_fishdex": "La pêche de la truite de mer se fait souvent de nuit, dans des conditions précises. C'est une école de patience et d'attention. Comme le saumon, ses populations chutent : pratique le no-kill quand tu peux.",
-  "statut_reglementaire": "Soumise aux ouvertures de 1ère catégorie. Taille légale : 40 cm dans la plupart des zones (Normandie, Bretagne, Pays de la Loire, Adour-Pyrénées). Quotas et périodes variables selon les rivières. Vérifier auprès de la fédération locale.",
   "donnees_a_verifier": []
 }
 ```
@@ -1590,7 +1423,6 @@
     "vent": "Faible à modéré"
   },
   "conseil_fishdex": "La truite lacustre en grand lac alpin est une quête. Bateau, sondeur, connaissance fine. Quand tu en piques une, le combat puissant et long se grave. Quotas et périodes strictes : respecte-les sans concession.",
-  "statut_reglementaire": "Pêche réglementée sur les grands lacs alpins. Taille légale : 40 à 50 cm selon le lac. Périodes de fermeture strictes (automne-hiver lors du frai). Permis lac requis sur Léman, Bourget et Annecy.",
   "donnees_a_verifier": []
 }
 ```
@@ -1627,74 +1459,7 @@
   "statut_reglementaire": "Espèce protégée par taille légale (70 cm) malgré son introduction. Présence reproductrice incertaine en France.",
   "donnees_a_verifier": ["présence actuelle dans la rivière les Usses très débattue, possiblement éteinte"]
 }
-```
 
-## 3.11 Chabot
-
-```json
-{
-  "slug": "chabot",
-  "nom_fr": "Chabot",
-  "nom_scientifique": "Cottus gobio",
-  "famille": "Cottidés (Cottidae)",
-  "rarete": "rare",
-  "eau": "douce",
-  "taille_max_cm": 17,
-  "taille_moyenne_cm": 10,
-  "poids_max_kg": 0.1,
-  "poids_moyen_kg": 0.02,
-  "longevite_annees": "5-8 ans",
-  "regime": "carnivore (larves d'insectes, petits invertébrés)",
-  "habitat": "Ruisseaux et rivières à eaux fraîches, claires et oxygénées, fond de pierres. Indicateur d'eaux propres.",
-  "profondeur": "0.1-1 m",
-  "temperature_eau": "5-15 °C",
-  "saison_active": "Toute l'année",
-  "description": "Petit poisson de fond aux yeux saillants et à la grosse tête, le chabot vit caché sous les pierres des ruisseaux frais. Sa présence indique des eaux d'excellente qualité. Discret, sédentaire, il fait partie du décor naturel des zones à truite. Espèce d'intérêt patrimonial européen.",
-  "techniques_recommandees": [],
-  "conditions_ideales": {
-    "meteo": "Eaux claires",
-    "moment_jour": "Crépuscule et nuit (activité)",
-    "profondeur": "0.2-0.5 m",
-    "vent": "Sans incidence"
-  },
-  "conseil_fishdex": "Le chabot ne se pêche pas, c'est une observation. Soulève délicatement une pierre dans un ruisseau à truite : tu en verras peut-être un détaler. Sa présence signe une eau de qualité. Espèce protégée européenne, à respecter absolument.",
-  "statut_reglementaire": "Espèce protégée. Directive Habitats Annexe II.",
-  "donnees_a_verifier": []
-}
-```
-
-## 3.12 Lamproie de Planer
-
-```json
-{
-  "slug": "lamproie-de-planer",
-  "nom_fr": "Lamproie de Planer",
-  "nom_scientifique": "Lampetra planeri",
-  "famille": "Pétromyzontidés (Petromyzontidae)",
-  "rarete": "rare",
-  "eau": "douce",
-  "taille_max_cm": 20,
-  "taille_moyenne_cm": 12,
-  "poids_max_kg": 0.05,
-  "poids_moyen_kg": 0.015,
-  "longevite_annees": "6-7 ans",
-  "regime": "filtreur (au stade larvaire) puis ne se nourrit plus (adulte)",
-  "habitat": "Ruisseaux et rivières à fond sableux ou vaseux. Larves enfouies dans le sédiment pendant plusieurs années.",
-  "profondeur": "0.2-1.5 m",
-  "temperature_eau": "8-18 °C",
-  "saison_active": "Frai en avril-mai (adulte)",
-  "description": "Vertébré primitif sans mâchoire ni écailles, la lamproie de Planer est l'un des plus anciens groupes de vertébrés. Cycle de vie singulier : larves filtreuses enfouies dans le sédiment pendant 4-5 ans, puis métamorphose et reproduction unique avant la mort de l'adulte qui ne se nourrit plus.",
-  "techniques_recommandees": [],
-  "conditions_ideales": {
-    "meteo": "Variable",
-    "moment_jour": "Frai diurne au printemps",
-    "profondeur": "0.5-1 m",
-    "vent": "Sans incidence"
-  },
-  "conseil_fishdex": "La lamproie de Planer ne se pêche pas, c'est une espèce protégée. Si tu observes le frai au printemps dans un ruisseau (regroupements sur des fonds sableux), c'est un spectacle rare et précieux. Espèce d'intérêt européen.",
-  "statut_reglementaire": "Espèce protégée. Directive Habitats Annexe II.",
-  "donnees_a_verifier": []
-}
 ```
 
 ---
@@ -1735,7 +1500,7 @@
 - **Tailles légales et périodes de fermeture** : varient par département et catégorie de cours d'eau. Toujours consulter l'arrêté préfectoral à jour.
 - **Statut anguille européenne** : réglementation très évolutive, vérifier annuellement
 - **Saumon atlantique** : tirages au sort, quotas par rivière, à vérifier auprès de l'AAPPMA locale
-- **Espèces protégées (Apron, Chabot, Lamproie, Bouvière)** : pêche interdite. Mention claire dans l'app obligatoire.
+- **Espèces protégées (Apron, Chabot, Lamproie, Bouvière)** : pêche interdite. 
 
 ---
 
@@ -1871,20 +1636,18 @@
 | **Lompe (variante)** | *Cyclopterus lumpus* est une espèce marine, pas en eau douce. | Supprimé. |
 | **Bar commun de rivière** | Le bar (*Dicentrarchus labrax*) est marin/estuarien, ne remonte que très rarement en pure eau douce. | Supprimé du scope eau douce. |
 | **Black-bass à petite bouche** (espèce séparée) | Présence très anecdotique en France, voire absente | Mis en variante de black-bass grande bouche par défaut. À promouvoir en espèce séparée si tu as des prises documentées. |
-| **Carpe amour argenté / marbré** | *Hypophthalmichthys molitrix / nobilis* présentes en France mais TRÈS rares. À évaluer. | Conservé en collection Paisibles mais à statut "rare" / "legendaire". Vérifie ta réalité de pêche. |
-| **Silure gold / Silure mandarin** | Termes ambigus, je ne trouve pas de référence taxonomique solide pour des "silures gold/mandarin" comme espèces ou variantes établies | Supprimés. Si tu as des références, dis-moi, on les remet. |
 | **Saumon de fontaine** | Synonyme d'omble de fontaine | Doublon supprimé. |
-
+apron, bouvière, chabot, lamproie = ne ce peche pas
 ---
 
 # Récap final
 
 ## Compteur
 
-- **Collection 1 — Paisibles** : 23 espèces (+ Carpe amour argenté et Carpe marbré ajoutées)
+- **Collection 1 — Paisibles** : 21 espèces
 - **Collection 2 — Prédateurs** : 10 espèces
 - **Collection 3 — Eaux vives** : 12 espèces
-- **Total espèces** : **45 espèces**
+- **Total espèces** : **43 espèces**
 - **Variantes** : ~30 variantes prêtes pour `species_variants`
 
 ## Pourquoi 43 et pas 100
@@ -1894,7 +1657,7 @@ Tu avais ~100 entrées dans ta liste, mais après dédoublonnage et nettoyage de
 - 20-25 variantes déplacées vers `species_variants`
 - 10 espèces invalides ou non-eau-douce supprimées
 
-**Résultat : 45 vraies espèces de qualité, auditées et enrichies, avec ~30 variantes complémentaires.**
+**Résultat : 43 vraies espèces de qualité, vérifiées, avec ~30 variantes complémentaires.**
 
 C'est **mieux** que 100 entrées brouillon : un FishDex de qualité, finissable, scientifiquement crédible.
 

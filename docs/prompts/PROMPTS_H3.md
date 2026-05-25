@@ -32,46 +32,16 @@
 
 ---PROMPT---
 
-CONTEXTE — Vectorisation du logo FishDex (H3.1)
+CONTEXTE — mise en place du logo FishDex (H3.1)
 
-J'ai un logo triskèle 3 poissons en PNG (carpe + truite + brochet en rotation 120°).
-Je veux le vectoriser en SVG propre pour usage en favicon, app icon, et différentes tailles.
+J'ai un logo triskèle 3 poissons en svg (carpe + truite + brochet en rotation 120°).
 
-═══════════════════════════════════════════
-ÉTAPE 1 — DÉCISION VOIE
-═══════════════════════════════════════════
-
-Demande-moi quelle voie je choisis :
-
-(a) Apprentissage Figma DIY (gratuit, 3-5h de travail)
-(b) Freelance Fiverr (~30-80€, 2-5 jours de livraison)
-
-Selon ma réponse :
-
-SI (a) FIGMA DIY :
-- Liste-moi les ressources pour apprendre Figma vectoriel rapidement
-- Tutoriels YouTube recommandés (max 2-3, les meilleurs)
-- Workflow étape par étape :
-  1. Créer un projet Figma
-  2. Importer le PNG
-  3. Utiliser pen tool pour redessiner chaque poisson
-  4. Exports SVG + PNG multi-tailles
-
-SI (b) FREELANCE :
-- Génère un brief détaillé en anglais pour le freelance contenant :
-  * Le concept (triskèle 3 poissons)
-  * Les références (image en PJ)
-  * Les déclinaisons à fournir : SVG full color, SVG monochrome, PNG 16/32/180/192/512/1024
-  * Le ton de marque : premium, contemplatif, naturaliste, dark mode aquatique
-  * Les usages : favicon, app icon iOS/Android, header web, print
-  * Le budget : 30-80€
-  * Les sources d'inspiration : WWF, Patagonia, Jaguar
 
 ═══════════════════════════════════════════
-ÉTAPE 2 — INTÉGRATION DANS LE PROJET
+ÉTAPE 1 — INTÉGRATION DANS LE PROJET
 ═══════════════════════════════════════════
 
-Une fois le logo vectoriel obtenu (par moi via Figma OU livré par freelance) :
+tu trouvera le logo vectoriser dans ce chemin : C:\Users\alexy\Desktop\Projets-Code\fishdex\docs\assets\icones-logos\app-icon
 
 1. Crée la structure de dossier :
 
