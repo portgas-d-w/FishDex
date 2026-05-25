@@ -20,7 +20,7 @@ function fixLeafletIcons() {
   })
 }
 
-type SpotWithStats = Spot & {
+export type SpotWithStats = Spot & {
   catchCount: number
   lastVisit: string | null
 }

@@ -3,16 +3,7 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { ProGate } from '@/components/billing/ProGate'
-import dynamic from 'next/dynamic'
-
-const SpotsMap = dynamic(() => import('./SpotsMap').then(m => m.SpotsMap), {
-  ssr: false,
-  loading: () => (
-    <div className="h-full w-full rounded-2xl bg-white/5 flex items-center justify-center">
-      <p className="text-sm text-white/40">Chargement de la carte…</p>
-    </div>
-  ),
-})
+import { SpotsMapLoader } from './SpotsMapLoader'
 
 export const metadata = { title: 'Carte des spots — FishDex' }
 
@@ -117,7 +108,7 @@ async function MapContent({ userId }: { userId: string }) {
                 </p>
               </div>
             ) : (
-              <SpotsMap spots={spotsWithStats} />
+              <SpotsMapLoader spots={spotsWithStats} />
             )}
           </div>
 
