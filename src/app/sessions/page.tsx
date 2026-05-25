@@ -77,10 +77,7 @@ export default async function SessionsPage() {
     >
       {/* ── Header journal ──────────────────────────────────────────────── */}
       <div className="px-5 pt-14 pb-2">
-        <h1
-          className="text-[2.6rem] leading-tight text-white/90"
-          style={{ fontFamily: 'var(--font-handwriting)' }}
-        >
+        <h1 className="text-[2.6rem] font-bold leading-tight text-white/90">
           Les Sessions
         </h1>
         <p className="text-sm text-white/40 mt-1 italic">
@@ -138,7 +135,7 @@ export default async function SessionsPage() {
       {sessions.length > 0 && (
         <p
           className="text-center text-xs italic text-white/20 px-8 pb-4 pt-2"
-          style={{ fontFamily: 'var(--font-handwriting)', fontSize: '0.85rem' }}
+          style={{ fontSize: '0.85rem' }}
         >
           &ldquo;Ce ne sont pas les prises qui restent,<br />ce sont les moments.&rdquo;
         </p>

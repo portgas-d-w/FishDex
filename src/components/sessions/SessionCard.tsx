@@ -133,7 +133,6 @@ export function SessionCard({
               <div className="min-w-0">
                 <h3
                   className="text-[18px] leading-tight text-stone-800 font-semibold truncate"
-                  style={{ fontFamily: 'var(--font-handwriting)' }}
                 >
                   {title}
                 </h3>
