@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Clock } from 'lucide-react'
+import { Plus, Clock, Map } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getActiveSession, getSessions } from '@/app/actions/sessions'
 import { ActiveSessionBanner } from '@/components/sessions/ActiveSessionBanner'
@@ -94,32 +94,47 @@ export default async function SessionsPage() {
 
       {/* ── CTAs ────────────────────────────────────────────────────────── */}
       {!activeSession && (
-        <div className="px-4 mb-5 mt-3 flex gap-2.5">
+        <div className="px-4 mb-5 mt-3 space-y-2.5">
+          <div className="flex gap-2.5">
+            <Link
+              href="/sessions/new"
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95"
+              style={{
+                background: 'linear-gradient(135deg, #1a4a3a 0%, #0f3328 100%)',
+                border: '1px solid rgba(52,211,153,0.25)',
+                color: '#6ee7b7',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)',
+              }}
+            >
+              <Plus size={15} strokeWidth={2.5} />
+              Démarrer
+            </Link>
+            <Link
+              href="/sessions/retro"
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                color: 'rgba(255,255,255,0.55)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
+              }}
+            >
+              <Clock size={13} />
+              Souvenir passé
+            </Link>
+          </div>
           <Link
-            href="/sessions/new"
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95"
+            href="/map"
+            className="flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95 w-full"
             style={{
-              background: 'linear-gradient(135deg, #1a4a3a 0%, #0f3328 100%)',
-              border: '1px solid rgba(52,211,153,0.25)',
-              color: '#6ee7b7',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)',
-            }}
-          >
-            <Plus size={15} strokeWidth={2.5} />
-            Démarrer
-          </Link>
-          <Link
-            href="/sessions/retro"
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.10)',
-              color: 'rgba(255,255,255,0.55)',
+              background: 'rgba(34,211,238,0.05)',
+              border: '1px solid rgba(34,211,238,0.15)',
+              color: 'rgba(34,211,238,0.7)',
               boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
             }}
           >
-            <Clock size={13} />
-            Souvenir passé
+            <Map size={13} />
+            Carte interactive
           </Link>
         </div>
       )}
