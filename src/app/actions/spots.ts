@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import type { Spot } from '@/lib/sessions/types';
+import { canAddSpot, SPOTS_FREE_LIMIT } from '@/lib/spots/limits';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tous les spots de l'utilisateur, triés par popularité
@@ -58,6 +59,12 @@ export async function upsertSpot(nom: string): Promise<{ spot: Spot | null; erro
     .maybeSingle();
 
   if (existing) return { spot: existing as Spot };
+
+  // Vérifier la limite pour les users gratuits
+  const allowed = await canAddSpot(user.id)
+  if (!allowed) {
+    return { spot: null, error: `Limite de ${SPOTS_FREE_LIMIT} spots atteinte. Passe à Pro pour des spots illimités.` }
+  }
 
   const { data, error } = await supabase
     .from('spots')
