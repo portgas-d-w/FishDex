@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Share2, X, Download, Printer } from 'lucide-react'
+import { Share2, X, Download, FileText } from 'lucide-react'
 
 type ShareData = {
   sessionId: string
@@ -36,8 +36,69 @@ export function SessionShareButton({ data }: { data: ShareData }) {
     }
   }
 
-  const handlePrint = () => {
-    window.print()
+  const handlePdf = async () => {
+    setExporting(true)
+    try {
+      const { jsPDF } = await import('jspdf')
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+
+      const W = 210
+      doc.setFillColor(10, 15, 20)
+      doc.rect(0, 0, W, 297, 'F')
+
+      // Header
+      doc.setTextColor(34, 211, 238)
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'bold')
+      doc.text('FISHDEX', 20, 20)
+      doc.setTextColor(255, 255, 255)
+      doc.setFontSize(18)
+      doc.text(data.spotNom ?? 'Session de pêche', 20, 32)
+      doc.setFontSize(10)
+      doc.setTextColor(150, 160, 180)
+      doc.setFont('helvetica', 'normal')
+      doc.text(`${data.date}  ·  ${data.duration}`, 20, 40)
+
+      // Separator
+      doc.setDrawColor(255, 255, 255, 15)
+      doc.line(20, 46, W - 20, 46)
+
+      // Stats grid
+      const stats = [
+        ['Prises', String(data.catchCount)],
+        ['Espèces', String(data.uniqueSpecies)],
+        ['Poids max', data.bestPoids > 0 ? `${data.bestPoids} kg` : '—'],
+        ['Saison', data.season ?? '—'],
+      ]
+      let y = 56
+      doc.setFontSize(8)
+      doc.setTextColor(100, 120, 140)
+      doc.setFont('helvetica', 'bold')
+      stats.forEach(([label], i) => doc.text(label.toUpperCase(), 20 + i * 45, y))
+      y += 6
+      doc.setFontSize(14)
+      doc.setTextColor(255, 255, 255)
+      doc.setFont('helvetica', 'bold')
+      stats.forEach(([, value], i) => doc.text(value, 20 + i * 45, y))
+
+      if (data.ressenti) {
+        y += 16
+        doc.setFontSize(10)
+        doc.setTextColor(150, 160, 180)
+        doc.setFont('helvetica', 'normal')
+        doc.text(`Ressenti : ${data.ressenti.emoji}  ${data.ressenti.label}`, 20, y)
+      }
+
+      // Footer
+      doc.setFontSize(8)
+      doc.setTextColor(60, 80, 100)
+      doc.text('fishdex.fr', 20, 285)
+      doc.text(new Date().toLocaleDateString('fr-FR'), W - 20, 285, { align: 'right' })
+
+      doc.save(`session-fishdex-${data.sessionId.slice(0, 8)}.pdf`)
+    } finally {
+      setExporting(false)
+    }
   }
 
   return (
@@ -111,14 +172,15 @@ export function SessionShareButton({ data }: { data: ShareData }) {
                 className="flex items-center justify-center gap-2 py-3 rounded-xl bg-cyan-500/15 border border-cyan-500/25 text-cyan-400 text-sm font-semibold disabled:opacity-50 transition-opacity"
               >
                 <Download size={14} />
-                {exporting ? 'Export…' : 'Exporter en image'}
+                {exporting ? 'Export…' : 'Image (Instagram)'}
               </button>
               <button
-                onClick={handlePrint}
-                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/8 transition-colors"
+                onClick={handlePdf}
+                disabled={exporting}
+                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/8 disabled:opacity-50 transition-colors"
               >
-                <Printer size={14} />
-                Imprimer / PDF
+                <FileText size={14} />
+                {exporting ? 'Export…' : 'Exporter en PDF'}
               </button>
             </div>
           </div>
