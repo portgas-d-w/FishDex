@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { BottomNavV2 } from "@/components/BottomNavV2";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
+import { createClient } from "@/lib/supabase/server";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -46,11 +47,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <html
       lang="fr"
@@ -62,7 +66,7 @@ export default function RootLayout({
             <main className="flex-1">
               {children}
             </main>
-            <BottomNavV2 />
+            {user && <BottomNavV2 />}
           </PostHogProvider>
         </Suspense>
         <Toaster
