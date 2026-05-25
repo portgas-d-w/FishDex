@@ -147,53 +147,17 @@ export function BottomNavV2() {
               href="/capture"
               aria-label="Nouvelle capture"
               onClick={() => haptic('medium')}
-              className="group relative isolate flex h-[56px] w-[56px] items-center justify-center rounded-full p-[2px] active:scale-90 transition-transform duration-100"
+              className="group relative isolate flex h-[56px] w-[56px] items-center justify-center rounded-full active:scale-90 transition-transform duration-100"
               style={{
-                background:
-                  'linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.36) 42%, rgba(17,24,39,0.30) 100%)',
                 boxShadow: captureActive
-                  ? '0 0 0 1px rgba(255,255,255,0.24), 0 0 12px 1px rgba(255,255,255,0.22), 0 10px 24px rgba(0,0,0,0.46), inset 0 0 0 1px rgba(255,255,255,0.16)'
-                  : '0 0 0 1px rgba(255,255,255,0.15), 0 0 8px 1px rgba(255,255,255,0.12), 0 8px 18px rgba(0,0,0,0.44), inset 0 0 0 1px rgba(255,255,255,0.10)',
+                  ? '0 0 0 1px rgba(255,255,255,0.24), 0 0 12px 1px rgba(255,255,255,0.22), 0 10px 24px rgba(0,0,0,0.46)'
+                  : '0 0 0 1px rgba(255,255,255,0.15), 0 8px 18px rgba(0,0,0,0.44)',
               }}
             >
-              {/* Comète A — sens horaire, bas → haut */}
-              <motion.span
-                aria-hidden="true"
-                className="absolute -inset-[2px] rounded-full pointer-events-none"
-                style={{
-                  background: 'conic-gradient(from 250deg, transparent 0deg, rgba(168,192,255,0.5) 5deg, rgba(176,96,255,0.85) 12deg, rgba(255,154,60,0.9) 17deg, rgba(255,255,255,0.98) 20deg, transparent 23deg, transparent 360deg)',
-                  mask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 2px))',
-                  WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 2px))',
-                }}
-                animate={{ rotate: [0, 180], opacity: [0, 1, 1, 0] }}
-                transition={{
-                  duration: 3.5,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  times: [0, 0.08, 0.92, 1],
-                  repeatDelay: 0.5,
-                }}
-              />
-              {/* Comète B — sens anti-horaire, bas → haut */}
-              <motion.span
-                aria-hidden="true"
-                className="absolute -inset-[2px] rounded-full pointer-events-none"
-                style={{
-                  background: 'conic-gradient(from 270deg, rgba(255,255,255,0.98) 0deg, rgba(255,154,60,0.9) 3deg, rgba(176,96,255,0.85) 8deg, rgba(168,192,255,0.5) 15deg, transparent 20deg, transparent 360deg)',
-                  mask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 2px))',
-                  WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 2px))',
-                }}
-                animate={{ rotate: [0, -180], opacity: [0, 1, 1, 0] }}
-                transition={{
-                  duration: 3.5,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  times: [0, 0.08, 0.92, 1],
-                  repeatDelay: 0.5,
-                }}
-              />
+              <span className="beam-glow" />
+              <span className="beam-ring" />
               <span
-                className="relative z-10 flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-[18px]"
+                className="relative z-10 flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-white/20 backdrop-blur-[18px]"
                 style={{
                   background:
                     'linear-gradient(145deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.12) 46%, rgba(255,255,255,0.06) 100%)',

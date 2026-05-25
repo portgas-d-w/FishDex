@@ -3,6 +3,91 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── Beam effects ───────────────────────────────────────────── */
+@property --beam-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes border-beam {
+  to { --beam-angle: 360deg; }
+}
+@keyframes beam-glow-pulse {
+  0%, 100% { opacity: 0.2; }
+  50%       { opacity: 0.5; }
+}
+
+/* ── PremiumButton (rectangular) ── */
+.border-beam {
+  animation: border-beam 4s linear infinite;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 72%,
+    rgba(56,189,248,0.6)  80%,
+    rgba(255,255,255,0.95) 85%,
+    rgba(167,139,250,0.8)  90%,
+    rgba(56,189,248,0.25)  93%,
+    transparent 96%
+  );
+}
+.border-beam:hover { animation-duration: 1.1s; }
+.border-beam::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: inherit;
+  filter: blur(18px);
+  opacity: 0.3;
+  z-index: -1;
+  animation: border-beam 4s linear infinite, beam-glow-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+.border-beam:hover::before { animation-duration: 1.1s; }
+
+/* ── Capture FAB beam ring (contour only via mask) ── */
+.beam-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  z-index: 1;
+  pointer-events: none;
+  animation: border-beam 3s linear infinite;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0%, transparent 70%,
+    rgba(96,165,250,0.7)   77%,
+    rgba(167,139,250,0.95) 82%,
+    rgba(34,211,238,1)     86%,
+    rgba(255,255,255,1)    88%,
+    rgba(34,211,238,0.75)  90%,
+    rgba(167,139,250,0.3)  93%,
+    transparent 97%
+  );
+  mask: radial-gradient(farthest-side at center, transparent calc(100% - 2.5px), black calc(100% - 2.5px));
+  -webkit-mask: radial-gradient(farthest-side at center, transparent calc(100% - 2.5px), black calc(100% - 2.5px));
+}
+.beam-glow {
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  z-index: 0;
+  pointer-events: none;
+  animation: border-beam 3s linear infinite;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0%, transparent 68%,
+    rgba(96,165,250,0.35)  76%,
+    rgba(167,139,250,0.55) 82%,
+    rgba(34,211,238,0.65)  86%,
+    rgba(255,255,255,0.5)  88%,
+    rgba(34,211,238,0.35)  91%,
+    transparent 96%
+  );
+  filter: blur(8px);
+  opacity: 0.7;
+}
+
 /* ─── Palette FishDex ─────────────────────────────────────── */
 @theme inline {
   /* Polices */
