@@ -1,11 +1,13 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronLeft, MapPin, Fish, Plus, Camera, Star } from 'lucide-react'
+import { ChevronLeft, MapPin, Fish, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getActiveSession } from '@/app/actions/sessions'
+import { hasLegendeAccess } from '@/lib/stripe/access'
 import { SessionTimer } from '@/components/sessions/SessionTimer'
 import { SessionTimelineVertical } from '@/components/sessions/SessionTimeline'
+import { ActiveSessionNotes } from '@/components/sessions/ActiveSessionNotes'
 import type { TimelineEvent } from '@/components/sessions/SessionTimeline'
 
 export const metadata = { title: 'Session active — FishDex' }
@@ -32,6 +34,8 @@ export default async function ActiveSessionPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  const isLegende = await hasLegendeAccess(user.id)
 
   // Spot
   let spotNom: string | null = null
@@ -197,6 +201,13 @@ export default async function ActiveSessionPage() {
           </div>
         </div>
       )}
+
+      {/* NOTES EN DIRECT */}
+      <ActiveSessionNotes
+        sessionId={session.id}
+        initialNotes={session.notes ?? null}
+        isLegende={isLegende}
+      />
 
       {/* CTA flottants */}
       <div className="fixed bottom-20 left-4 right-4 flex flex-col gap-2.5 z-40">
