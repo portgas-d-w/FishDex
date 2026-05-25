@@ -52,7 +52,7 @@ function NavTab({ href, label, img }: { href: string; label: string; img: string
         style={{
           filter: active
             ? 'drop-shadow(0 0 8px rgba(34,211,238,0.85)) drop-shadow(0 0 3px rgba(34,211,238,0.6)) brightness(1.1)'
-            : 'brightness(0.45) saturate(0.5) opacity(0.7)',
+            : 'brightness(0.82) saturate(0.6) drop-shadow(0 1px 6px rgba(255,255,255,0.18))',
         }}
       >
         <Image
@@ -66,7 +66,7 @@ function NavTab({ href, label, img }: { href: string; label: string; img: string
       </span>
 
       <span className={`text-[10px] font-semibold tracking-wide relative transition-colors duration-200 ${
-        active ? 'text-cyan-400' : 'text-white/25'
+        active ? 'text-cyan-400' : 'text-white/50'
       }`}>
         {label}
       </span>
@@ -156,21 +156,40 @@ export function BottomNavV2() {
                   : '0 0 0 1px rgba(255,255,255,0.15), 0 0 8px 1px rgba(255,255,255,0.12), 0 8px 18px rgba(0,0,0,0.44), inset 0 0 0 1px rgba(255,255,255,0.10)',
               }}
             >
+              {/* Comète A — sens horaire, bas → haut */}
               <motion.span
                 aria-hidden="true"
                 className="absolute -inset-[2px] rounded-full pointer-events-none"
                 style={{
-                  background: 'conic-gradient(from 225deg, transparent 0deg, rgba(168,192,255,0.9) 8deg, rgba(176,96,255,0.95) 16deg, rgba(255,154,60,0.9) 24deg, rgba(255,255,255,0.98) 30deg, rgba(255,255,255,0.15) 40deg, transparent 48deg, transparent 360deg)',
+                  background: 'conic-gradient(from 250deg, transparent 0deg, rgba(168,192,255,0.5) 5deg, rgba(176,96,255,0.85) 12deg, rgba(255,154,60,0.9) 17deg, rgba(255,255,255,0.98) 20deg, transparent 23deg, transparent 360deg)',
                   mask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 2px))',
                   WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 2px))',
                 }}
-                animate={{ rotate: [0, -160], opacity: [0, 1, 1, 0] }}
+                animate={{ rotate: [0, 180], opacity: [0, 1, 1, 0] }}
                 transition={{
                   duration: 3.5,
                   repeat: Infinity,
                   ease: 'easeInOut',
-                  times: [0, 0.15, 0.85, 1],
-                  repeatDelay: 0.4,
+                  times: [0, 0.08, 0.92, 1],
+                  repeatDelay: 0.5,
+                }}
+              />
+              {/* Comète B — sens anti-horaire, bas → haut */}
+              <motion.span
+                aria-hidden="true"
+                className="absolute -inset-[2px] rounded-full pointer-events-none"
+                style={{
+                  background: 'conic-gradient(from 270deg, rgba(255,255,255,0.98) 0deg, rgba(255,154,60,0.9) 3deg, rgba(176,96,255,0.85) 8deg, rgba(168,192,255,0.5) 15deg, transparent 20deg, transparent 360deg)',
+                  mask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 2px))',
+                  WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 2px))',
+                }}
+                animate={{ rotate: [0, -180], opacity: [0, 1, 1, 0] }}
+                transition={{
+                  duration: 3.5,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  times: [0, 0.08, 0.92, 1],
+                  repeatDelay: 0.5,
                 }}
               />
               <span
@@ -193,24 +212,6 @@ export function BottomNavV2() {
                 <span
                   aria-hidden="true"
                   className="absolute -right-1 top-2 h-7 w-px rotate-[30deg] bg-white/55 blur-[0.5px] pointer-events-none"
-                />
-                <motion.span
-                  aria-hidden="true"
-                  className="absolute inset-[1px] rounded-full pointer-events-none"
-                  style={{
-                    background: 'conic-gradient(from 225deg, transparent 0deg, rgba(168,192,255,0.7) 8deg, rgba(176,96,255,0.8) 16deg, rgba(255,154,60,0.7) 24deg, rgba(255,255,255,0.85) 30deg, transparent 42deg, transparent 360deg)',
-                    mask: 'radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 2px), transparent calc(100% - 1px))',
-                    WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 2px), transparent calc(100% - 1px))',
-                  }}
-                  animate={{ rotate: [0, -160], opacity: [0, 0.9, 0.9, 0] }}
-                  transition={{
-                    duration: 3.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                    times: [0, 0.15, 0.85, 1],
-                    repeatDelay: 0.4,
-                    delay: 0.1,
-                  }}
                 />
                 <Camera
                   size={22}
